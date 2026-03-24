@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, X, Plus, Clock, Calendar, Flag, Sun, Sofa, FastForward, Slash, ChevronDown, CalendarDays } from 'lucide-react';
+import { Sparkles, X, Plus, Clock, Calendar, Flag, Sun, Sofa, FastForward, Slash, ChevronDown, CalendarDays, Repeat } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import clsx from 'clsx';
-import { format, addDays, nextMonday, nextSaturday } from 'date-fns';
+import { format, addDays, nextMonday, nextSaturday, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, addMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => void }) {
@@ -15,11 +15,55 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
   const [loading, setLoading] = useState(false);
 
   const dateOptions = [
+    { label: 'Hoy', date: new Date(), icon: Calendar, color: 'text-green-400' },
     { label: 'Mañana', date: addDays(new Date(), 1), icon: Sun, color: 'text-orange-400' },
     { label: 'Este fin de semana', date: nextSaturday(new Date()), icon: Sofa, color: 'text-blue-400' },
     { label: 'Próxima semana', date: nextMonday(new Date()), icon: FastForward, color: 'text-pink-400' },
     { label: 'Sin fecha', date: null, icon: Slash, color: 'text-on-surface-variant' },
   ];
+
+  const renderMonth = (monthOffset: number) => {
+    const monthDate = addMonths(new Date(), monthOffset);
+    const start = startOfMonth(monthDate);
+    const end = endOfMonth(monthDate);
+    const days = eachDayOfInterval({ start, end });
+    const monthLabel = format(monthDate, 'MMMM yyyy', { locale: es });
+    const firstDayIdx = (start.getDay() === 0 ? 6 : start.getDay() - 1); // Adjust for Monday start
+
+    return (
+      <div key={monthOffset} className="p-4 border-b border-surface-variant/20">
+        <h4 className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4 capitalize">{monthLabel}</h4>
+        <div className="grid grid-cols-7 gap-1 text-center mb-2">
+          {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => (
+            <span key={d} className="text-[8px] font-bold text-on-surface-variant/50">{d}</span>
+          ))}
+        </div>
+        <div className="grid grid-cols-7 gap-1">
+          {Array(firstDayIdx).fill(null).map((_, i) => <div key={`empty-${i}`} />)}
+          {days.map(day => {
+            const isSel = selectedDate && isSameDay(day, selectedDate);
+            const isTod = isToday(day);
+            return (
+              <button
+                key={day.toISOString()}
+                type="button"
+                onClick={() => {
+                  setSelectedDate(day);
+                  setIsDateMenuOpen(false);
+                }}
+                className={clsx(
+                  "w-8 h-8 flex items-center justify-center text-[10px] font-bold rounded-full transition-all hover:bg-surface-variant",
+                  isSel ? "bg-primary text-white glow-primary" : isTod ? "text-primary border border-primary/30" : "text-on-surface-variant"
+                )}
+              >
+                {format(day, 'd')}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
 
   const getLabelForDate = (date: Date | null) => {
     if (!date) return 'Sin fecha';
@@ -110,34 +154,63 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                     <ChevronDown size={12} className={clsx("transition-transform", isDateMenuOpen && "rotate-180")} />
                   </button>
 
+                  {/* Indicator below the button */}
+                  {selectedDate && (
+                    <div className="absolute top-full left-0 mt-2 px-3 py-1 bg-surface-variant/20 rounded-full border border-surface-variant/30 flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-300">
+                       <div className="w-1 h-1 rounded-full bg-secondary glow-secondary"></div>
+                       <span className="text-[10px] font-bold text-secondary uppercase tracking-tighter capitalize">
+                          {format(selectedDate, "MMMM d", { locale: es })}
+                       </span>
+                    </div>
+                  )}
+
                   {isDateMenuOpen && (
-                    <div className="absolute bottom-full mb-2 left-0 w-64 bg-surface-container rounded-2xl border border-surface-variant shadow-2xl z-[60] py-2 animate-in slide-in-from-bottom-2 duration-200">
-                      <div className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-on-surface-variant border-b border-surface-variant/30 mb-1 flex justify-between items-center">
-                         <span>Sugerencias</span>
-                         <span className="text-secondary">{format(new Date(), 'MMM d', { locale: es })}</span>
+                    <div className="absolute bottom-full mb-2 left-0 w-72 bg-surface-container rounded-3xl border border-surface-variant shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] z-[60] overflow-hidden animate-in slide-in-from-bottom-2 duration-200">
+                      <div className="max-h-[450px] overflow-y-auto custom-scrollbar">
+                        <div className="py-2 border-b border-surface-variant/30">
+                          <div className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-on-surface-variant flex justify-between items-center bg-surface-container/80 sticky top-0 backdrop-blur-md z-10">
+                            <span>Atajos</span>
+                            <span className="text-secondary opacity-60">Sugerencias</span>
+                          </div>
+                          {dateOptions.map((opt, i) => {
+                            const Icon = opt.icon;
+                            return (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedDate(opt.date);
+                                  setIsDateMenuOpen(false);
+                                }}
+                                className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-surface-variant transition-colors group"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <Icon size={16} className={clsx(opt.color)} />
+                                  <span className="text-sm font-bold text-white group-hover:text-primary transition-colors">{opt.label}</span>
+                                </div>
+                                <span className="text-[10px] font-medium text-on-surface-variant uppercase">
+                                  {opt.date ? format(opt.date, 'eee', { locale: es }) : ''}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {renderMonth(0)}
+                        {renderMonth(1)}
+                        {renderMonth(2)}
                       </div>
-                      {dateOptions.map((opt, i) => {
-                        const Icon = opt.icon;
-                        return (
-                          <button
-                            key={i}
-                            type="button"
-                            onClick={() => {
-                              setSelectedDate(opt.date);
-                              setIsDateMenuOpen(false);
-                            }}
-                            className="w-full flex items-center justify-between px-4 py-3 hover:bg-surface-variant transition-colors group"
-                          >
-                            <div className="flex items-center gap-3">
-                              <Icon size={18} className={clsx(opt.color)} />
-                              <span className="text-sm font-bold text-white group-hover:text-primary transition-colors">{opt.label}</span>
-                            </div>
-                            <span className="text-[10px] font-medium text-on-surface-variant uppercase">
-                              {opt.date ? format(opt.date, 'eee', { locale: es }) : ''}
-                            </span>
-                          </button>
-                        );
-                      })}
+
+                      <div className="p-3 bg-surface-container-high/50 border-t border-surface-variant/30 space-y-2">
+                         <button type="button" className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-surface-container border border-surface-variant/50 text-white text-xs font-bold hover:bg-surface-variant transition-all">
+                            <Clock size={14} className="text-primary" />
+                            Hora
+                         </button>
+                         <button type="button" className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-surface-container border border-surface-variant/50 text-white text-xs font-bold hover:bg-surface-variant transition-all">
+                            <Repeat size={14} className="text-secondary" />
+                            Repetir
+                         </button>
+                      </div>
                     </div>
                   )}
                 </div>
