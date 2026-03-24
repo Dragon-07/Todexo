@@ -16,6 +16,7 @@ import clsx from 'clsx';
 import TaskItem, { Task } from '@/components/tasks/TaskItem';
 import { supabase } from '@/lib/supabase';
 import FloatingQuickAdd from '@/components/FloatingQuickAdd';
+import TaskEditor from '@/components/tasks/TaskEditor';
 import { format, isSameDay, parseISO, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -26,6 +27,7 @@ export default function CalendarPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -71,6 +73,24 @@ export default function CalendarPage() {
     const { error } = await supabase.from('tasks').delete().eq('id', id);
     if (error) {
       console.error('Error deleting task:', error);
+      fetchTasks();
+    }
+  };
+
+  const handleUpdateTask = async (updatedFields: Partial<Task>) => {
+    if (!editingTask) return;
+
+    // Update local state optimistically
+    setTasks(tasks.map(t => t.id === editingTask.id ? { ...t, ...updatedFields } : t));
+
+    // Persist to Supabase
+    const { error } = await supabase
+      .from('tasks')
+      .update(updatedFields)
+      .eq('id', editingTask.id);
+
+    if (error) {
+      console.error('Error updating task:', error);
       fetchTasks();
     }
   };
@@ -195,7 +215,13 @@ export default function CalendarPage() {
                     <div className="h-[1px] flex-1 bg-surface-variant/30"></div>
                   </h3>
                   {dayTasks.map(task => (
-                    <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} />
+                    <TaskItem 
+                      key={task.id} 
+                      task={task} 
+                      onToggle={toggleTask} 
+                      onDelete={deleteTask} 
+                      onEdit={setEditingTask} 
+                    />
                   ))}
                 </section>
               ))
@@ -287,6 +313,15 @@ export default function CalendarPage() {
       </main>
 
       <FloatingQuickAdd onTaskAdded={fetchTasks} />
+
+      {editingTask && (
+        <TaskEditor 
+          task={editingTask}
+          isOpen={!!editingTask}
+          onClose={() => setEditingTask(null)}
+          onSave={handleUpdateTask}
+        />
+      )}
     </div>
   );
 }

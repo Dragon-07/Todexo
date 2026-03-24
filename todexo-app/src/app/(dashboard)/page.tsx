@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { Plus, CheckCircle2, Sparkles, Flame, Trophy } from 'lucide-react';
 import TaskItem, { Task } from '@/components/tasks/TaskItem';
 import FloatingQuickAdd from '@/components/FloatingQuickAdd';
+import TaskEditor from '@/components/tasks/TaskEditor';
 import { supabase } from '@/lib/supabase';
 
 export default function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -55,7 +57,24 @@ export default function DashboardPage() {
     if (error) {
        console.error('Error deleting task:', error);
        // Revert or show error if needed
-       fetchTasks();
+    }
+  };
+
+  const handleUpdateTask = async (updatedFields: Partial<Task>) => {
+    if (!editingTask) return;
+
+    // Update local state optimistically
+    setTasks(tasks.map(t => t.id === editingTask.id ? { ...t, ...updatedFields } : t));
+
+    // Persist to Supabase
+    const { error } = await supabase
+      .from('tasks')
+      .update(updatedFields)
+      .eq('id', editingTask.id);
+
+    if (error) {
+      console.error('Error updating task:', error);
+      fetchTasks();
     }
   };
 
@@ -112,7 +131,13 @@ export default function DashboardPage() {
            <div className="space-y-4 flex-1">
              {pendingTasks.length > 0 ? (
                 pendingTasks.map(task => (
-                  <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} />
+                  <TaskItem 
+                    key={task.id} 
+                    task={task} 
+                    onToggle={toggleTask} 
+                    onDelete={deleteTask} 
+                    onEdit={setEditingTask} 
+                  />
                 ))
              ) : (
                 <div className="py-20 text-center flex flex-col items-center gap-6 glass rounded-[3rem] p-12 border-dashed border-2 border-surface-variant/30">
@@ -150,7 +175,13 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-3">
                {completedTasks.map(task => (
-                <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} />
+                <TaskItem 
+                  key={task.id} 
+                  task={task} 
+                  onToggle={toggleTask} 
+                  onDelete={deleteTask} 
+                  onEdit={setEditingTask} 
+                />
               ))}
             </div>
           </div>
@@ -158,6 +189,15 @@ export default function DashboardPage() {
 
       </div>
       <FloatingQuickAdd onTaskAdded={fetchTasks} />
+      
+      {editingTask && (
+        <TaskEditor 
+          task={editingTask}
+          isOpen={!!editingTask}
+          onClose={() => setEditingTask(null)}
+          onSave={handleUpdateTask}
+        />
+      )}
     </div>
   );
 }

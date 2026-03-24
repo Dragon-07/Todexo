@@ -20,9 +20,10 @@ interface TaskItemProps {
   task: Task;
   onToggle: (id: string) => void;
   onDelete?: (id: string) => void;
+  onEdit?: (task: Task) => void;
 }
 
-export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
   const isCompleted = task.status === 'completed';
 
   const getLabelForDate = (dateStr: string | null | undefined) => {
@@ -41,31 +42,40 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
   const dateLabel = getLabelForDate(task.due_date);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isCompleteMenuOpen, setIsCompleteMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const completeMenuRef = useRef<HTMLDivElement>(null);
 
-  // Cerrar menú al hacer clic fuera
+  // Cerrar menús al hacer clic fuera
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setIsMenuOpen(false);
       }
+      if (completeMenuRef.current && !completeMenuRef.current.contains(event.target as Node)) {
+        setIsCompleteMenuOpen(false);
+      }
     }
-    if (isMenuOpen) {
+    if (isMenuOpen || isCompleteMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isMenuOpen]);
+  }, [isMenuOpen, isCompleteMenuOpen]);
 
   // Normalizar la prioridad para el renderizado (soporta "1", "2", "3", 1, 2, 3, "high", etc.)
   const isHigh = task.priority == 3 || task.priority === 'high' || task.priority === '3';
   const isMedium = task.priority == 2 || task.priority === 'medium' || task.priority === '2';
   const isLow = task.priority == 1 || task.priority === 'low' || task.priority === '1';
 
+  const handleCardClick = () => {
+    if (onEdit) onEdit(task);
+  };
+
   return (
     <div 
-      onClick={() => onToggle(task.id)}
+      onClick={handleCardClick}
       className={clsx(
         "group flex items-center justify-between p-4 rounded-3xl border transition-all cursor-pointer select-none",
         isCompleted 
@@ -74,15 +84,58 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
       )}
     >
       <div className="flex items-center gap-4 flex-1 min-w-0">
-        {/* Checkbox Icon */}
-        <div className="relative flex items-center justify-center flex-shrink-0">
-          {isCompleted ? (
-            <div className="text-secondary glow-secondary transition-all transform scale-100">
-              <CheckCircle2 size={24} strokeWidth={2.5} />
-            </div>
-          ) : (
-            <div className="text-on-surface-variant/40 group-hover:text-primary transition-all group-hover:scale-110">
-              <Circle size={24} strokeWidth={2} />
+        {/* Checkbox Icon with Confirmation Menu */}
+        <div className="relative flex items-center justify-center flex-shrink-0" ref={completeMenuRef}>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isCompleted) {
+                onToggle(task.id);
+              } else {
+                setIsCompleteMenuOpen(!isCompleteMenuOpen);
+              }
+            }}
+            className="focus:outline-none"
+          >
+            {isCompleted ? (
+              <div className="text-secondary glow-secondary transition-all transform scale-100">
+                <CheckCircle2 size={24} strokeWidth={2.5} />
+              </div>
+            ) : (
+              <div className={clsx(
+                "text-on-surface-variant/40 group-hover:text-primary transition-all group-hover:scale-110",
+                isCompleteMenuOpen && "text-primary scale-110"
+              )}>
+                <Circle size={24} strokeWidth={2} />
+              </div>
+            )}
+          </button>
+
+          {isCompleteMenuOpen && !isCompleted && (
+            <div className="absolute left-0 top-10 w-40 bg-surface-container-high border border-surface-variant/50 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+               <div className="p-1.5 flex flex-col gap-1">
+                 <button
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     onToggle(task.id);
+                     setIsCompleteMenuOpen(false);
+                   }}
+                   className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-white hover:bg-primary/20 rounded-xl transition-colors"
+                 >
+                   <CheckCircle2 size={16} className="text-primary" />
+                   Completa
+                 </button>
+                 <button
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     setIsCompleteMenuOpen(false);
+                   }}
+                   className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-on-surface-variant hover:bg-surface-variant rounded-xl transition-colors"
+                 >
+                   <Circle size={16} />
+                   Cancelar
+                 </button>
+               </div>
             </div>
           )}
         </div>
