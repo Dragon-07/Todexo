@@ -8,8 +8,7 @@ import {
   Flame, 
   MinusCircle, 
   ChevronsDown, 
-  Repeat,
-  Type,
+  PencilLine,
   Check
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
@@ -69,7 +68,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
         <div className="px-6 py-3 border-b border-surface-variant/30 flex items-center justify-between bg-surface-container-high/50">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary border border-primary/20">
-              <Type size={16} />
+              <PencilLine size={16} />
             </div>
             <h2 className="text-base font-black text-white tracking-tight">Editar Tarea</h2>
           </div>
@@ -157,6 +156,17 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
         {/* Footer */}
         <div className="p-6 pt-2 bg-surface-container-high/30 border-t border-surface-variant/10 flex gap-3">
           <button 
+            onClick={() => {
+              onSave({ status: 'completed' });
+              onClose();
+            }}
+            className="flex-1 px-4 py-3.5 rounded-xl bg-secondary text-white font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-95 transition-all glow-secondary shadow-2xl flex items-center justify-center gap-2 mt-2"
+          >
+            <Check size={14} strokeWidth={3} />
+            Finalizar Tarea
+          </button>
+
+          <button 
             onClick={handleSave}
             disabled={!hasChanges}
             className={clsx(
@@ -167,17 +177,6 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
             )}
           >
             Guardar Cambios
-          </button>
-          
-          <button 
-            onClick={() => {
-              onSave({ status: 'completed' });
-              onClose();
-            }}
-            className="flex-1 px-4 py-3.5 rounded-xl bg-secondary text-white font-black uppercase tracking-widest text-[10px] hover:scale-[1.02] active:scale-95 transition-all glow-secondary shadow-2xl flex items-center justify-center gap-2 mt-2"
-          >
-            <Check size={14} strokeWidth={3} />
-            Finalizar Tarea
           </button>
         </div>
       </div>
