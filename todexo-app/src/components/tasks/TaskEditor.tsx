@@ -43,7 +43,13 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
 
   if (!isOpen) return null;
 
+  const hasChanges = title !== task.title || 
+                    date !== (task.due_date || null) || 
+                    time !== (task.due_time || null) || 
+                    priority != (task.priority || 0);
+
   const handleSave = () => {
+    if (!hasChanges) return;
     onSave({
       title,
       due_date: date,
@@ -158,7 +164,13 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
             </button>
             <button 
               onClick={handleSave}
-              className="flex-1 px-6 py-4 rounded-2xl bg-surface-variant border border-surface-variant/50 text-white font-black uppercase tracking-widest text-xs hover:bg-surface-variant-high transition-all mt-4 hover:border-primary/30"
+              disabled={!hasChanges}
+              className={clsx(
+                "flex-1 px-6 py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all mt-4 border",
+                hasChanges 
+                  ? "bg-primary text-white border-primary/50 glow-primary scale-[1.02] shadow-xl" 
+                  : "bg-surface-container-high border-surface-variant/50 text-white/40 cursor-not-allowed opacity-50"
+              )}
             >
               Guardar Cambios
             </button>
