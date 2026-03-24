@@ -63,6 +63,18 @@ export default function CalendarPage() {
     await supabase.from('tasks').update({ status: newStatus }).eq('id', id);
   };
 
+  const deleteTask = async (id: string) => {
+    // Update local state optimistically
+    setTasks(tasks.filter(t => t.id !== id));
+
+    // Persist to Supabase
+    const { error } = await supabase.from('tasks').delete().eq('id', id);
+    if (error) {
+      console.error('Error deleting task:', error);
+      fetchTasks();
+    }
+  };
+
   const getLabelForDate = (date: Date | null) => {
     if (!date) return 'Sin fecha';
     const now = new Date();
@@ -183,7 +195,7 @@ export default function CalendarPage() {
                     <div className="h-[1px] flex-1 bg-surface-variant/30"></div>
                   </h3>
                   {dayTasks.map(task => (
-                    <TaskItem key={task.id} task={task} onToggle={toggleTask} />
+                    <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} />
                   ))}
                 </section>
               ))

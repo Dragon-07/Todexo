@@ -1,7 +1,6 @@
-'use client';
-
+import { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
-import { Circle, CheckCircle2, MoreVertical, Tag, Clock, Calendar, Flame, MinusCircle, ChevronsDown, Repeat } from 'lucide-react';
+import { Circle, CheckCircle2, MoreVertical, Tag, Clock, Calendar, Flame, MinusCircle, ChevronsDown, Repeat, Trash2 } from 'lucide-react';
 import { format, parseISO, isSameDay, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -20,9 +19,10 @@ export interface Task {
 interface TaskItemProps {
   task: Task;
   onToggle: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
-export default function TaskItem({ task, onToggle }: TaskItemProps) {
+export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
   const isCompleted = task.status === 'completed';
 
   const getLabelForDate = (dateStr: string | null | undefined) => {
@@ -39,6 +39,24 @@ export default function TaskItem({ task, onToggle }: TaskItemProps) {
   };
 
   const dateLabel = getLabelForDate(task.due_date);
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    }
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
 
   // Normalizar la prioridad para el renderizado (soporta "1", "2", "3", 1, 2, 3, "high", etc.)
   const isHigh = task.priority == 3 || task.priority === 'high' || task.priority === '3';
@@ -125,10 +143,37 @@ export default function TaskItem({ task, onToggle }: TaskItemProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-2">
-        <button className="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-xl hover:bg-surface-variant border border-transparent hover:border-surface-variant/50">
+      <div className="flex items-center gap-2 relative" ref={menuRef}>
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsMenuOpen(!isMenuOpen);
+          }}
+          className={clsx(
+            "text-on-surface-variant transition-all p-2 rounded-xl hover:bg-surface-variant border border-transparent hover:border-surface-variant/50",
+            isMenuOpen ? "bg-surface-variant opacity-100" : "opacity-0 group-hover:opacity-100"
+          )}
+        >
           <MoreVertical size={18} />
         </button>
+
+        {isMenuOpen && (
+          <div className="absolute right-0 top-12 w-48 bg-surface-container-high border border-surface-variant/50 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-1.5">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onDelete) onDelete(task.id);
+                  setIsMenuOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+              >
+                <Trash2 size={16} />
+                Eliminar Tarea
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

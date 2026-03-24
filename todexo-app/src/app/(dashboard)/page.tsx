@@ -46,6 +46,19 @@ export default function DashboardPage() {
     await supabase.from('tasks').update({ status: newStatus }).eq('id', id);
   };
 
+  const deleteTask = async (id: string) => {
+    // Update local state optimistically
+    setTasks(tasks.filter(t => t.id !== id));
+
+    // Persist to Supabase
+    const { error } = await supabase.from('tasks').delete().eq('id', id);
+    if (error) {
+       console.error('Error deleting task:', error);
+       // Revert or show error if needed
+       fetchTasks();
+    }
+  };
+
   const pendingTasks = tasks.filter(t => t.status === 'pending');
   const completedTasks = tasks.filter(t => t.status === 'completed');
   const totalTasks = tasks.length;
@@ -99,7 +112,7 @@ export default function DashboardPage() {
            <div className="space-y-4 flex-1">
              {pendingTasks.length > 0 ? (
                 pendingTasks.map(task => (
-                  <TaskItem key={task.id} task={task} onToggle={toggleTask} />
+                  <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} />
                 ))
              ) : (
                 <div className="py-20 text-center flex flex-col items-center gap-6 glass rounded-[3rem] p-12 border-dashed border-2 border-surface-variant/30">
@@ -137,7 +150,7 @@ export default function DashboardPage() {
             </div>
             <div className="space-y-3">
                {completedTasks.map(task => (
-                <TaskItem key={task.id} task={task} onToggle={toggleTask} />
+                <TaskItem key={task.id} task={task} onToggle={toggleTask} onDelete={deleteTask} />
               ))}
             </div>
           </div>
