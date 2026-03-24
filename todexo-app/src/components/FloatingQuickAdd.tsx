@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, X, Plus, Clock, Calendar, Flag, Sun, Sofa, FastForward, Slash, ChevronDown, CalendarDays, Repeat } from 'lucide-react';
+import { Sparkles, X, Plus, Clock, Calendar, Flag, Sun, Sofa, FastForward, Slash, ChevronDown, CalendarDays, Repeat, Flame, MinusCircle, ChevronsDown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import clsx from 'clsx';
 import { format, addDays, nextMonday, nextSaturday, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, addMonths } from 'date-fns';
@@ -201,6 +201,10 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
       await supabase.from('tasks').insert(payload);
 
       setTitle('');
+      setSelectedPriority(0);
+      setSelectedDate(new Date());
+      setSelectedTime(null);
+      setSelectedRepeat(null);
       setIsOpen(false);
       onTaskAdded?.();
     }
@@ -521,24 +525,25 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                       "border-surface-variant/40 text-on-surface-variant hover:text-primary"
                     )}
                   >
-                    <Flag size={14} className={clsx(
-                      selectedPriority === 3 ? "fill-red-500/20" :
-                      selectedPriority === 2 ? "fill-orange-500/20" :
-                      selectedPriority === 1 ? "fill-blue-500/20" : ""
-                    )} />
-                    {selectedPriority === 3 ? 'Alta' :
-                     selectedPriority === 2 ? 'Media' :
-                     selectedPriority === 1 ? 'Baja' : 'Sin prioridad'}
+                    <div className={clsx("flex items-center gap-2", selectedPriority === 0 && "opacity-60")}>
+                      {selectedPriority === 3 ? <Flame size={14} className="fill-red-400/20" /> :
+                       selectedPriority === 2 ? <MinusCircle size={14} className="fill-orange-400/20" /> :
+                       selectedPriority === 1 ? <ChevronsDown size={14} className="fill-blue-400/20" /> :
+                       <Flag size={14} />}
+                      {selectedPriority === 3 ? 'Alta' :
+                       selectedPriority === 2 ? 'Media' :
+                       selectedPriority === 1 ? 'Baja' : 'Sin prioridad'}
+                    </div>
                   </button>
 
                   {isPriorityMenuOpen && (
                     <div className="absolute bottom-full left-0 mb-2 w-44 bg-surface-container rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
                       <div className="py-1">
                         {[
-                          { id: 3, label: 'Alta', color: 'text-red-400', bg: 'hover:bg-red-500/10', iconColor: 'fill-red-400/20' },
-                          { id: 2, label: 'Media', color: 'text-orange-400', bg: 'hover:bg-orange-500/10', iconColor: 'fill-orange-400/20' },
-                          { id: 1, label: 'Baja', color: 'text-blue-400', bg: 'hover:bg-blue-500/10', iconColor: 'fill-blue-400/20' },
-                          { id: 0, label: 'Sin prioridad', color: 'text-on-surface-variant/60', bg: 'hover:bg-white/5', iconColor: '' },
+                          { id: 3, label: 'Alta', color: 'text-red-400', bg: 'hover:bg-red-500/10', Icon: Flame, iconColor: 'fill-red-400/20' },
+                          { id: 2, label: 'Media', color: 'text-orange-400', bg: 'hover:bg-orange-500/10', Icon: MinusCircle, iconColor: 'fill-orange-400/20' },
+                          { id: 1, label: 'Baja', color: 'text-blue-400', bg: 'hover:bg-blue-500/10', Icon: ChevronsDown, iconColor: 'fill-blue-400/20' },
+                          { id: 0, label: 'Sin prioridad', color: 'text-on-surface-variant/60', bg: 'hover:bg-white/5', Icon: Flag, iconColor: '' },
                         ].map((p) => (
                           <button
                             key={p.id}
@@ -553,7 +558,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                               p.color
                             )}
                           >
-                            <Flag size={14} className={p.iconColor} />
+                            <p.Icon size={14} className={p.iconColor} />
                             {p.label}
                           </button>
                         ))}
