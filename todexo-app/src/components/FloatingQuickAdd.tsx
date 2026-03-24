@@ -11,15 +11,18 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
   const [isOpen, setIsOpen] = useState(false);
   const [isDateMenuOpen, setIsDateMenuOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
 
   const dateOptions = [
-    { label: 'Hoy', date: new Date(), icon: Calendar, color: 'text-green-400' },
-    { label: 'Mañana', date: addDays(new Date(), 1), icon: Sun, color: 'text-orange-400' },
-    { label: 'Este fin de semana', date: nextSaturday(new Date()), icon: Sofa, color: 'text-blue-400' },
-    { label: 'Próxima semana', date: nextMonday(new Date()), icon: FastForward, color: 'text-pink-400' },
-    { label: 'Sin fecha', date: null, icon: Slash, color: 'text-on-surface-variant' },
+    { label: 'Ahora', date: new Date(), time: format(new Date(), 'HH:mm:ss'), icon: Clock, color: 'text-primary' },
+    { label: 'Hoy', date: new Date(), time: null, icon: Calendar, color: 'text-green-400' },
+    { label: 'Mañana', date: addDays(new Date(), 1), time: null, icon: Sun, color: 'text-orange-400' },
+    { label: 'Este fin de semana', date: nextSaturday(new Date()), time: null, icon: Sofa, color: 'text-blue-400' },
+    { label: 'Próxima semana', date: nextMonday(new Date()), time: null, icon: FastForward, color: 'text-pink-400' },
+    { label: 'Sin fecha', date: null, time: null, icon: Slash, color: 'text-on-surface-variant' },
   ];
 
   const renderMonth = (monthOffset: number) => {
@@ -65,6 +68,24 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
     );
   };
 
+  const generateTimeSlots = () => {
+    const slots = [];
+    const now = new Date();
+    // Iniciar desde la hora actual redondeada a los próximos 15 min
+    const start = new Date();
+    start.setMinutes(Math.floor(now.getMinutes() / 15) * 15);
+    start.setSeconds(0);
+    
+    for (let i = 0; i < 48; i++) { // Mostrar 12 horas de opciones
+      const time = new Date(start.getTime() + i * 15 * 60000);
+      slots.push({
+        display: format(time, 'h:mm a'),
+        value: format(time, 'HH:mm:ss')
+      });
+    }
+    return slots;
+  };
+
   const getLabelForDate = (date: Date | null) => {
     if (!date) return 'Sin fecha';
     const now = new Date();
@@ -85,7 +106,8 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
         title,
         user_id: user.id,
         status: 'pending',
-        due_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null
+        due_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null,
+        due_time: selectedTime || null
       });
 
       setTitle('');
@@ -151,6 +173,11 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                   >
                     <Sun size={14} />
                     {getLabelForDate(selectedDate)}
+                    {selectedTime && (
+                      <span className="text-secondary ml-1 lowercase">
+                        {format(new Date(`2000-01-01T${selectedTime}`), 'h:mm a')}
+                      </span>
+                    )}
                     <ChevronDown size={12} className={clsx("transition-transform", isDateMenuOpen && "rotate-180")} />
                   </button>
 
@@ -180,6 +207,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                                 type="button"
                                 onClick={() => {
                                   setSelectedDate(opt.date);
+                                  if (opt.time) setSelectedTime(opt.time);
                                   setIsDateMenuOpen(false);
                                 }}
                                 className="w-full flex items-center justify-between px-3 py-2 hover:bg-surface-variant/50 transition-colors group"
@@ -199,11 +227,49 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                         {Array.from({ length: 15 }).map((_, i) => renderMonth(i))}
                       </div>
 
-                      <div className="p-2 bg-surface-container-high/60 border-t border-surface-variant/20 grid grid-cols-2 gap-2">
-                        <button type="button" className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-surface-variant/30 text-white text-[10px] font-bold hover:bg-surface-variant transition-all hover:border-primary/50 group">
-                          <Clock size={12} className="text-primary group-hover:scale-110 transition-transform" />
-                          Hora
-                        </button>
+                      <div className="p-2 bg-surface-container-high/60 border-t border-surface-variant/20 grid grid-cols-2 gap-2 relative">
+                        <div className="relative">
+                          <button 
+                            type="button" 
+                            onClick={() => setIsTimeMenuOpen(!isTimeMenuOpen)}
+                            className={clsx(
+                              "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border transition-all group text-[10px] font-bold",
+                              isTimeMenuOpen ? "border-primary text-primary" : "border-surface-variant/30 text-white hover:bg-surface-variant hover:border-primary/50"
+                            )}
+                          >
+                            {selectedTime ? (
+                              <div className="flex items-center gap-1.5 text-primary">
+                                <Clock size={12} className="animate-pulse" />
+                                <span>{format(new Date(`2000-01-01T${selectedTime}`), 'h:mm a')}</span>
+                              </div>
+                            ) : 'Hora'}
+                          </button>
+
+                          {isTimeMenuOpen && (
+                            <div className="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden border border-gray-200 animate-in zoom-in-95 duration-200 z-[70]">
+                              <div className="max-h-[300px] overflow-y-auto py-2 custom-scrollbar">
+                                {generateTimeSlots().map((slot) => (
+                                  <button
+                                    key={slot.value}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedTime(slot.value);
+                                      setIsTimeMenuOpen(false);
+                                    }}
+                                    className={clsx(
+                                      "w-full text-left px-4 py-3 text-sm font-semibold transition-colors border-b border-gray-50 last:border-none",
+                                      selectedTime === slot.value 
+                                        ? "bg-primary/10 text-primary" 
+                                        : "text-gray-700 hover:bg-gray-50 hover:text-primary"
+                                    )}
+                                  >
+                                    {slot.display}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                         <button type="button" className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-surface-variant/30 text-white text-[10px] font-bold hover:bg-surface-variant transition-all hover:border-secondary/50 group">
                           <Repeat size={12} className="text-secondary group-hover:scale-110 transition-transform" />
                           Repetir
