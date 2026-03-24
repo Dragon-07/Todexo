@@ -239,9 +239,25 @@ export default function CalendarPage() {
 
                     <div className="space-y-1">
                       {dayTasks.slice(0, 3).map(task => (
-                        <div key={task.id} className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-surface-container-high text-white truncate border border-surface-variant/30 flex items-center gap-1">
-                           <div className={clsx("w-1 h-1 rounded-full", task.status === 'completed' ? "bg-secondary" : "bg-primary")} />
-                           {task.title}
+                        <div key={task.id} className={clsx(
+                          "text-[9px] font-bold px-2 py-0.5 rounded-md text-white truncate border flex items-center justify-between gap-2",
+                          task.status === 'completed' ? "bg-surface-container-low/50 border-surface-variant/20 opacity-50" : "bg-surface-container-high border-surface-variant/30"
+                        )}>
+                           <div className="flex items-center gap-1.5 truncate">
+                             <div className={clsx("w-1.5 h-1.5 rounded-full flex-shrink-0", 
+                               task.status === 'completed' ? "bg-surface-variant" :
+                               task.priority === 3 ? "bg-red-400" :
+                               task.priority === 2 ? "bg-orange-400" :
+                               task.priority === 1 ? "bg-blue-400" :
+                               "bg-primary"
+                             )} />
+                             <span className={clsx("truncate", task.status === 'completed' && "line-through text-on-surface-variant")}>{task.title}</span>
+                           </div>
+                           {task.due_time && task.status !== 'completed' && (
+                             <span className="text-[8px] font-black text-teal-400 opacity-80 flex-shrink-0">
+                               {format(new Date(`2000-01-01T${task.due_time}`), 'h:mm')}
+                             </span>
+                           )}
                         </div>
                       ))}
                       {dayTasks.length > 3 && (

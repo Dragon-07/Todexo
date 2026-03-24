@@ -1,7 +1,9 @@
 'use client';
 
 import clsx from 'clsx';
-import { Circle, CheckCircle2, MoreVertical, Tag, Clock } from 'lucide-react';
+import { Circle, CheckCircle2, MoreVertical, Tag, Clock, Calendar, Flame, MinusCircle, ChevronsDown, Repeat } from 'lucide-react';
+import { format, parseISO, isSameDay, addDays } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 export interface Task {
   id: string;
@@ -9,9 +11,10 @@ export interface Task {
   status: 'pending' | 'completed';
   time?: string;
   tags?: string[];
-  due_date?: string;
-  due_time?: string;
-  priority?: 'low' | 'medium' | 'high';
+  due_date?: string | null;
+  due_time?: string | null;
+  repeat_type?: string | null;
+  priority?: string | number | null;
 }
 
 interface TaskItemProps {
@@ -21,6 +24,26 @@ interface TaskItemProps {
 
 export default function TaskItem({ task, onToggle }: TaskItemProps) {
   const isCompleted = task.status === 'completed';
+
+  const getLabelForDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return null;
+    try {
+      const date = parseISO(dateStr);
+      const now = new Date();
+      if (isSameDay(date, now)) return 'Hoy';
+      if (isSameDay(date, addDays(now, 1))) return 'Mañana';
+      return format(date, "d MMM", { locale: es });
+    } catch (e) {
+      return null;
+    }
+  };
+
+  const dateLabel = getLabelForDate(task.due_date);
+
+  // Normalizar la prioridad para el renderizado (soporta "1", "2", "3", 1, 2, 3, "high", etc.)
+  const isHigh = task.priority == 3 || task.priority === 'high' || task.priority === '3';
+  const isMedium = task.priority == 2 || task.priority === 'medium' || task.priority === '2';
+  const isLow = task.priority == 1 || task.priority === 'low' || task.priority === '1';
 
   return (
     <div 
@@ -46,23 +69,54 @@ export default function TaskItem({ task, onToggle }: TaskItemProps) {
           )}
         </div>
 
-        <div className="flex flex-col">
+        <div className="flex items-center gap-4 flex-1 overflow-hidden">
           <span className={clsx(
-            "text-base font-bold transition-all",
+            "text-base font-bold transition-all truncate",
             isCompleted ? "text-on-surface/40 line-through tracking-wide" : "text-on-surface tracking-tight"
           )}>
             {task.title}
           </span>
           
-          <div className="flex items-center gap-3 mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-            {task.time && (
-              <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-on-surface-variant">
+          <div className="flex items-center gap-2 transition-opacity flex-shrink-0">
+            {dateLabel && (
+              <div className="flex items-center gap-1.5 text-[10px] uppercase font-black text-on-surface-variant bg-surface-variant/20 px-2 py-1 rounded-lg border border-surface-variant/10">
+                <Calendar size={12} />
+                <span>{dateLabel}</span>
+              </div>
+            )}
+            {(task.time || task.due_time) && (
+              <div className="flex items-center gap-1.5 text-[10px] lowercase font-black text-teal-400 bg-teal-400/5 px-2 py-1 rounded-lg border border-teal-400/10">
                 <Clock size={12} />
-                <span>{task.time}</span>
+                <span>{task.due_time ? format(new Date(`2000-01-01T${task.due_time}`), 'h:mm a') : task.time}</span>
+              </div>
+            )}
+            
+            {/* Priority Badge - Corregido para tipos string y number */}
+            {!isCompleted && (isHigh || isMedium || isLow) ? (
+              <div className={clsx(
+                "flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border shadow-sm",
+                isHigh ? "bg-red-500/15 text-red-400 border-red-500/30" : 
+                isMedium ? "bg-orange-500/15 text-orange-400 border-orange-500/30" : 
+                isLow ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : ""
+              )}>
+                {isHigh ? <Flame size={12} className="fill-red-400/20" /> :
+                 isMedium ? <MinusCircle size={12} className="fill-orange-400/20" /> :
+                 isLow ? <ChevronsDown size={12} className="fill-blue-400/20" /> : null}
+                <span>
+                    {isHigh ? 'Alta' :
+                     isMedium ? 'Media' :
+                     isLow ? 'Baja' : ''}
+                </span>
+              </div>
+            ) : null}
+
+            {task.repeat_type && (
+              <div className="flex items-center gap-1.5 text-[10px] uppercase font-black text-secondary bg-secondary/15 p-1 rounded-md border border-secondary/30">
+                <Repeat size={12} />
               </div>
             )}
             {task.tags && task.tags.length > 0 && (
-              <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-primary">
+              <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
                 <Tag size={12} />
                 <span>{task.tags[0]}</span>
               </div>
@@ -71,20 +125,8 @@ export default function TaskItem({ task, onToggle }: TaskItemProps) {
         </div>
       </div>
 
-      <div className="flex items-center gap-4">
-        {/* Priority Badge (only if not completed) */}
-        {!isCompleted && task.priority && (
-          <div className={clsx(
-            "px-2 py-0.5 rounded-lg text-[10px] font-black uppercase tracking-widest",
-            task.priority === 'high' ? "bg-error/10 text-error" : 
-            task.priority === 'medium' ? "bg-primary/10 text-primary" : 
-            "bg-on-surface-variant/10 text-on-surface-variant"
-          )}>
-            {task.priority}
-          </div>
-        )}
-        
-        <button className="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity p-1.5 rounded-xl hover:bg-surface-variant">
+      <div className="flex items-center gap-2">
+        <button className="text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity p-2 rounded-xl hover:bg-surface-variant border border-transparent hover:border-surface-variant/50">
           <MoreVertical size={18} />
         </button>
       </div>
