@@ -276,7 +276,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
 
                   {isDateMenuOpen && (
                     <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 bg-surface-container rounded-2xl border border-surface-variant shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] z-[60] overflow-hidden animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200">
-                      <div className="max-h-[550px] flex flex-col custom-scrollbar">
+                      <div className="max-h-[440px] flex flex-col custom-scrollbar">
                         {/* ATAJOS: FIJO ARRIBA */}
                         <div className="flex-none py-1 border-b border-surface-variant/20 bg-surface-container-high/50">
                           <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex justify-between items-center backdrop-blur-md">
