@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, X, Plus, Clock, Tag } from 'lucide-react';
+import { Sparkles, X, Plus, Clock, Calendar, Flag, Sun } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import clsx from 'clsx';
 
@@ -52,7 +52,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                   <Plus size={24} />
                 </div>
                 <div>
-                   <h2 className="text-xl font-black text-white px-1">Nueva Meta</h2>
+                   <h2 className="text-xl font-black text-white px-1">Nueva Tarea</h2>
                    <p className="text-xs text-on-surface-variant font-medium px-1">Captura rápida con IA asistida</p>
                 </div>
               </div>
@@ -77,12 +77,20 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
 
               <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-surface-variant/30 uppercase tracking-widest text-[10px] font-black">
                 <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 text-on-surface-variant hover:text-primary transition-colors">
-                  <Clock size={14} />
-                  Recordatorio
+                  <Sun size={14} />
+                  Hoy
                 </button>
                 <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 text-on-surface-variant hover:text-secondary transition-colors">
-                  <Tag size={14} />
-                  Etiqueta
+                  <Calendar size={14} />
+                  Fecha
+                </button>
+                <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 text-on-surface-variant hover:text-orange-400 transition-colors">
+                  <Flag size={14} />
+                  Prioridad
+                </button>
+                <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 text-on-surface-variant hover:text-primary transition-colors">
+                  <Clock size={14} />
+                  Recordatorio
                 </button>
               </div>
 
@@ -92,7 +100,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                   disabled={loading}
                   className="px-10 py-5 bg-gradient-to-r from-primary to-primary-dim text-white font-black text-base rounded-2xl hover:scale-105 active:scale-95 transition-all glow-primary disabled:opacity-50"
                 >
-                  {loading ? 'Creando...' : 'Guardar en Todexo'}
+                  {loading ? 'Creando...' : 'Guardar'}
                 </button>
               </div>
             </form>

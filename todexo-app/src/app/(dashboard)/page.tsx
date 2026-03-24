@@ -67,7 +67,7 @@ export default function DashboardPage() {
           <div className="flex items-center gap-3 bg-surface-container px-4 py-2.5 rounded-2xl border border-surface-variant/50 ambient-shadow group hover:border-tertiary/30 transition-all cursor-default">
              <Trophy size={16} className="text-tertiary glow-tertiary" />
              <span className="text-sm font-bold text-white tracking-wide">{progressPercent}%</span>
-             <span className="text-xs font-medium text-on-surface-variant">Meta diaria</span>
+             <span className="text-xs font-medium text-on-surface-variant">Tareas diarias</span>
           </div>
 
           <div className="flex items-center gap-3 bg-surface-container px-4 py-2.5 rounded-2xl border border-surface-variant/50 ambient-shadow cursor-default ml-auto">
