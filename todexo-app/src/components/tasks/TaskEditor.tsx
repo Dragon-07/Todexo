@@ -66,39 +66,39 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
         className="w-full max-w-lg bg-surface-container rounded-[2.5rem] border border-surface-variant/50 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300 ring-1 ring-white/5"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-surface-variant/30 flex items-center justify-between bg-surface-container-high/50">
+        <div className="px-6 py-3 border-b border-surface-variant/30 flex items-center justify-between bg-surface-container-high/50">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary border border-primary/20">
               <Type size={16} />
             </div>
-            <h2 className="text-lg font-black text-white tracking-tight">Editar Tarea</h2>
+            <h2 className="text-base font-black text-white tracking-tight">Editar Tarea</h2>
           </div>
           <button 
             onClick={onClose}
             className="p-2.5 rounded-xl bg-surface-variant/10 hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 border border-surface-variant/20 hover:border-red-500/30 transition-all group active:scale-90 shadow-sm"
             title="Cerrar edición"
           >
-            <X size={20} className="group-hover:rotate-90 transition-transform duration-500" />
+            <X size={18} className="group-hover:rotate-90 transition-transform duration-500" />
           </button>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-5">
+        <div className="p-5 space-y-4">
           {/* Title Textarea */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
              <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Título de la tarea</label>
              <textarea 
                value={title}
                onChange={(e) => setTitle(e.target.value)}
-               className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl px-5 py-3 text-white font-bold focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-on-surface-variant/30 text-sm resize-none min-h-[80px] custom-scrollbar"
+               className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl px-5 py-3 text-white font-bold focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-on-surface-variant/30 text-sm resize-none min-h-[120px] custom-scrollbar"
                placeholder="¿Qué hay que hacer?"
-               rows={2}
+               rows={3}
              />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             {/* Date Selection */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Fecha</label>
               <div className="relative group">
                 <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors" size={16} />
@@ -106,13 +106,13 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                   type="date"
                   value={date || ''}
                   onChange={(e) => setDate(e.target.value || null)}
-                  className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl pl-11 pr-3 py-2.5 text-white font-bold focus:outline-none focus:border-primary/50 transition-all text-xs [color-scheme:dark]"
+                  className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl pl-11 pr-3 py-2 text-white font-bold focus:outline-none focus:border-primary/50 transition-all text-xs [color-scheme:dark]"
                 />
               </div>
             </div>
 
             {/* Time Selection */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Hora</label>
               <div className="relative group">
                 <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-teal-400 transition-colors" size={16} />
@@ -120,14 +120,14 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                   type="time"
                   value={time || ''}
                   onChange={(e) => setTime(e.target.value || null)}
-                  className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl pl-11 pr-3 py-2.5 text-white font-bold focus:outline-none focus:border-teal-400/50 transition-all text-xs [color-scheme:dark]"
+                  className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl pl-11 pr-3 py-2 text-white font-bold focus:outline-none focus:border-teal-400/50 transition-all text-xs [color-scheme:dark]"
                 />
               </div>
             </div>
           </div>
 
           {/* Priority Selection */}
-          <div className="space-y-3">
+          <div className="space-y-2">
              <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Prioridad</label>
              <div className="grid grid-cols-4 gap-2">
                 {[
