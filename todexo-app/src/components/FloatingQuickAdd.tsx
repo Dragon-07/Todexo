@@ -18,6 +18,8 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
   const [timeSearch, setTimeSearch] = useState('');
   const [isRepeatMenuOpen, setIsRepeatMenuOpen] = useState(false);
   const [selectedRepeat, setSelectedRepeat] = useState<string | null>(null);
+  const [isPriorityMenuOpen, setIsPriorityMenuOpen] = useState(false);
+  const [selectedPriority, setSelectedPriority] = useState<number>(0);
 
   const dateOptions = [
     { label: 'Hoy', date: new Date(), time: null, icon: Calendar, color: 'text-green-400' },
@@ -38,7 +40,6 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
     return (
       <div key={monthOffset} className="px-3 py-3 border-b border-surface-variant/5">
         <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 mb-4 flex items-center gap-2">
-          <div className="w-1 h-1 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]"></div>
           {monthLabel}
         </h4>
         <div className="grid grid-cols-7 gap-0.5 text-center mb-2">
@@ -184,14 +185,20 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
     const { data: { user } } = await supabase.auth.getUser();
 
     if (user) {
-      await supabase.from('tasks').insert({
+      const payload: any = {
         title,
         user_id: user.id,
         status: 'pending',
         due_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null,
         due_time: selectedTime || null,
         repeat_type: selectedRepeat
-      });
+      };
+
+      if (selectedPriority !== 0) {
+        payload.priority = selectedPriority;
+      }
+
+      await supabase.from('tasks').insert(payload);
 
       setTitle('');
       setIsOpen(false);
@@ -226,15 +233,16 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                 </div>
               </div>
               <button
-                onClick={() => setIsOpen(false)}
-                className="text-on-surface-variant hover:text-white p-2 rounded-full hover:bg-surface-variant transition-colors"
-                title="Cerrar (ESC)"
+                type="submit"
+                form="quick-add-form"
+                disabled={loading}
+                className="px-6 py-2.5 bg-gradient-to-r from-primary to-primary-dim text-white font-bold text-sm rounded-xl hover:scale-105 active:scale-95 transition-all glow-primary disabled:opacity-50"
               >
-                <X size={24} />
+                {loading ? 'Creando...' : 'Guardar'}
               </button>
             </header>
 
-            <form onSubmit={handleAdd} className="relative space-y-6">
+            <form id="quick-add-form" onSubmit={handleAdd} className="relative space-y-6">
               <textarea
                 autoFocus
                 value={title}
@@ -254,25 +262,21 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                       isDateMenuOpen ? "text-primary border-primary/50" : "text-on-surface-variant hover:text-primary"
                     )}
                   >
-                    <Sun size={14} />
-                    {getLabelForDate(selectedDate)}
+                    <Sun size={14} className={clsx(selectedDate && "text-primary")} />
+                    <span className={clsx(
+                      "text-[11px] font-black uppercase tracking-tight",
+                      selectedDate ? "text-primary" : "text-on-surface-variant"
+                    )}>
+                      {getLabelForDate(selectedDate)}
+                    </span>
                     {selectedTime && (
-                      <span className="text-secondary ml-1 lowercase">
+                      <span className="text-secondary ml-1 lowercase text-[10px] font-bold">
                         {format(new Date(`2000-01-01T${selectedTime}`), 'h:mm a')}
                       </span>
                     )}
-                    <ChevronDown size={12} className={clsx("transition-transform", isDateMenuOpen && "rotate-180")} />
+                    <ChevronDown size={12} className={clsx("transition-transform", isDateMenuOpen && "rotate-180", selectedDate && "text-primary")} />
                   </button>
 
-                  {/* Indicator below the button */}
-                  {selectedDate && (
-                    <div className="absolute top-full left-0 mt-2 px-3 py-1 bg-surface-variant/20 rounded-full border border-surface-variant/30 flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-300">
-                      <div className="w-1 h-1 rounded-full bg-secondary glow-secondary"></div>
-                      <span className="text-[10px] font-bold text-secondary uppercase tracking-tighter capitalize">
-                        {format(selectedDate, "MMMM d", { locale: es })}
-                      </span>
-                    </div>
-                  )}
 
                   {isDateMenuOpen && (
                     <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 bg-surface-container rounded-2xl border border-surface-variant shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] z-[60] overflow-hidden animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200">
@@ -354,15 +358,15 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                           </button>
 
                           {isTimeMenuOpen && (
-                            <div className="absolute bottom-full left-0 mb-2 w-52 bg-white rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200 z-[70]">
-                              <div className="p-2 border-b border-gray-50 bg-gray-50/10 text-center">
+                            <div className="absolute bottom-full left-0 mb-2 w-52 bg-surface-container rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
+                              <div className="p-2 border-b border-surface-variant/20 bg-surface-container-high/30 text-center">
                                 <input 
                                   autoFocus
                                   type="text"
                                   value={timeSearch}
                                   onChange={(e) => setTimeSearch(e.target.value)}
                                   placeholder="00:00"
-                                  className="w-32 mx-auto block px-2 py-0.5 text-2xl font-black text-gray-900 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-gray-200 text-center tracking-tight"
+                                  className="w-32 mx-auto block px-2 py-0.5 text-2xl font-black text-white bg-surface-container-high rounded-xl border border-surface-variant/30 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/20 text-center tracking-tight"
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                       const slots = generateTimeSlots(timeSearch);
@@ -383,7 +387,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                                   return (
                                     <>
                                       {custom.length > 0 && (
-                                        <div className="flex px-3 py-2 gap-2 border-b border-gray-50 bg-primary/[0.03] sticky top-0 z-10 backdrop-blur-sm">
+                                        <div className="flex px-3 py-2 gap-2 border-b border-white/5 bg-primary/5 sticky top-0 z-10 backdrop-blur-sm">
                                           {custom.map((s) => (
                                             <button 
                                               key={s.value}
@@ -392,7 +396,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                                                 setSelectedTime(s.value);
                                                 setIsTimeMenuOpen(false);
                                               }}
-                                              className="flex-1 py-2 px-1 bg-white border border-primary/20 rounded-xl text-[10px] font-black text-primary hover:bg-primary hover:text-white transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                                              className="flex-1 py-1.5 px-1 bg-surface-container border border-primary/30 rounded-xl text-[10px] font-black text-primary hover:bg-primary hover:text-white transition-all shadow-sm"
                                             >
                                               {s.display}
                                             </button>
@@ -408,10 +412,10 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                                             setIsTimeMenuOpen(false);
                                           }}
                                           className={clsx(
-                                            "w-full text-left px-4 py-3 text-[11px] font-bold transition-colors border-b border-gray-50/50 last:border-none",
+                                            "w-full text-left px-4 py-2 text-[13px] font-black tracking-tight transition-colors border-b border-white/5 last:border-none",
                                             selectedTime === slot.value 
                                               ? "bg-primary/10 text-primary" 
-                                              : "text-gray-700 hover:bg-gray-50 hover:text-primary"
+                                              : "text-white/80 hover:bg-surface-variant hover:text-primary"
                                           )}
                                         >
                                           {slot.display}
@@ -447,50 +451,50 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                             </button>
 
                             {isRepeatMenuOpen && (
-                              <div className="absolute bottom-full right-0 mb-2 w-56 bg-white rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200 z-[70]">
-                                <div className="py-1">
-                                  {(() => {
-                                    const d = selectedDate || new Date();
-                                    const dayName = format(d, 'eeee', { locale: es });
-                                    const dayNum = format(d, 'd');
-                                    const options = [
-                                      { id: 'daily', label: 'Cada día' },
-                                      { id: 'weekly', label: `Cada semana el ${dayName}` },
-                                      { id: 'weekday', label: 'Cada día laborable (lun - vie)' },
-                                      { id: 'monthly', label: `Cada mes el ${dayNum}` },
-                                    ];
-
-                                    return options.map((opt) => (
+                                <div className="absolute bottom-full right-0 mb-2 w-56 bg-surface-container rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
+                                  <div className="py-1">
+                                    {(() => {
+                                      const d = selectedDate || new Date();
+                                      const dayName = format(d, 'eeee', { locale: es });
+                                      const dayNum = format(d, 'd');
+                                      const options = [
+                                        { id: 'daily', label: 'Cada día' },
+                                        { id: 'weekly', label: `Cada semana el ${dayName}` },
+                                        { id: 'weekday', label: 'Cada día laborable (lun - vie)' },
+                                        { id: 'monthly', label: `Cada mes el ${dayNum}` },
+                                      ];
+  
+                                      return options.map((opt) => (
+                                        <button
+                                          key={opt.id}
+                                          type="button"
+                                          onClick={() => {
+                                            setSelectedRepeat(opt.id);
+                                            setIsRepeatMenuOpen(false);
+                                          }}
+                                          className={clsx(
+                                            "w-full text-left px-4 py-2 text-[13px] font-black tracking-tight transition-colors border-b border-white/5 last:border-none uppercase",
+                                            selectedRepeat === opt.id ? "bg-secondary/10 text-secondary" : "text-white/80 hover:bg-surface-variant hover:text-secondary"
+                                          )}
+                                        >
+                                          {opt.label}
+                                        </button>
+                                      ));
+                                    })()}
+                                    {selectedRepeat && (
                                       <button
-                                        key={opt.id}
                                         type="button"
                                         onClick={() => {
-                                          setSelectedRepeat(opt.id);
+                                          setSelectedRepeat(null);
                                           setIsRepeatMenuOpen(false);
                                         }}
-                                        className={clsx(
-                                          "w-full text-left px-4 py-3 text-[11px] font-bold transition-colors border-b border-gray-50 last:border-none uppercase tracking-tighter",
-                                          selectedRepeat === opt.id ? "bg-secondary/10 text-secondary" : "text-gray-700 hover:bg-gray-50 hover:text-secondary"
-                                        )}
+                                        className="w-full text-left px-4 py-2 text-[10px] font-black text-red-500 hover:bg-red-500/10 transition-colors uppercase tracking-widest"
                                       >
-                                        {opt.label}
+                                        Eliminar repetición
                                       </button>
-                                    ));
-                                  })()}
-                                  {selectedRepeat && (
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedRepeat(null);
-                                        setIsRepeatMenuOpen(false);
-                                      }}
-                                      className="w-full text-left px-4 py-2 text-[9px] font-black text-red-500 hover:bg-red-50 transition-colors uppercase tracking-widest"
-                                    >
-                                      Eliminar repetición
-                                    </button>
-                                  )}
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
                             )}
                           </div>
 
@@ -505,27 +509,70 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                     </div>
                   )}
                 </div>
-                <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 text-on-surface-variant hover:text-secondary transition-colors">
-                  <Calendar size={14} />
-                  Fecha
-                </button>
-                <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 text-on-surface-variant hover:text-orange-400 transition-colors">
-                  <Flag size={14} />
-                  Prioridad
-                </button>
+                <div className="relative">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsPriorityMenuOpen(!isPriorityMenuOpen)}
+                    className={clsx(
+                      "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border transition-all",
+                      selectedPriority === 3 ? "border-red-500/50 text-red-400" :
+                      selectedPriority === 2 ? "border-orange-500/50 text-orange-400" :
+                      selectedPriority === 1 ? "border-blue-500/50 text-blue-400" :
+                      "border-surface-variant/40 text-on-surface-variant hover:text-primary"
+                    )}
+                  >
+                    <Flag size={14} className={clsx(
+                      selectedPriority === 3 ? "fill-red-500/20" :
+                      selectedPriority === 2 ? "fill-orange-500/20" :
+                      selectedPriority === 1 ? "fill-blue-500/20" : ""
+                    )} />
+                    {selectedPriority === 3 ? 'Alta' :
+                     selectedPriority === 2 ? 'Media' :
+                     selectedPriority === 1 ? 'Baja' : 'Sin prioridad'}
+                  </button>
+
+                  {isPriorityMenuOpen && (
+                    <div className="absolute bottom-full left-0 mb-2 w-44 bg-surface-container rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
+                      <div className="py-1">
+                        {[
+                          { id: 3, label: 'Alta', color: 'text-red-400', bg: 'hover:bg-red-500/10', iconColor: 'fill-red-400/20' },
+                          { id: 2, label: 'Media', color: 'text-orange-400', bg: 'hover:bg-orange-500/10', iconColor: 'fill-orange-400/20' },
+                          { id: 1, label: 'Baja', color: 'text-blue-400', bg: 'hover:bg-blue-500/10', iconColor: 'fill-blue-400/20' },
+                          { id: 0, label: 'Sin prioridad', color: 'text-on-surface-variant/60', bg: 'hover:bg-white/5', iconColor: '' },
+                        ].map((p) => (
+                          <button
+                            key={p.id}
+                            type="button"
+                            onClick={() => {
+                              setSelectedPriority(p.id);
+                              setIsPriorityMenuOpen(false);
+                            }}
+                            className={clsx(
+                              "w-full text-left px-4 py-2 text-[13px] font-black transition-colors border-b border-white/5 last:border-none uppercase flex items-center gap-3",
+                              selectedPriority === p.id ? "bg-surface-variant/20" : p.bg,
+                              p.color
+                            )}
+                          >
+                            <Flag size={14} className={p.iconColor} />
+                            {p.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 text-on-surface-variant hover:text-primary transition-colors">
                   <Clock size={14} />
                   Recordatorio
                 </button>
-              </div>
-
-              <div className="flex justify-end pt-6">
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-10 py-5 bg-gradient-to-r from-primary to-primary-dim text-white font-black text-base rounded-2xl hover:scale-105 active:scale-95 transition-all glow-primary disabled:opacity-50"
+                
+                <button 
+                  type="button" 
+                  onClick={() => setIsOpen(false)}
+                  className="ml-auto p-2.5 rounded-xl bg-surface-variant/10 hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 border border-surface-variant/20 hover:border-red-500/30 transition-all group active:scale-90 shadow-sm"
+                  title="Cerrar ventana"
                 >
-                  {loading ? 'Creando...' : 'Guardar'}
+                  <X size={20} className="group-hover:rotate-90 transition-transform duration-500" />
                 </button>
               </div>
             </form>
