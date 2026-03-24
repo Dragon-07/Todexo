@@ -76,10 +76,10 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    
+
     setLoading(true);
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     if (user) {
       await supabase.from('tasks').insert({
         title,
@@ -87,7 +87,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
         status: 'pending',
         due_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null
       });
-      
+
       setTitle('');
       setIsOpen(false);
       onTaskAdded?.();
@@ -97,7 +97,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
 
   return (
     <>
-      <button 
+      <button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-24 md:bottom-12 right-6 md:right-12 w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-dim text-white flex items-center justify-center shadow-2xl glow-primary hover:scale-110 active:scale-95 transition-all z-40 group"
       >
@@ -109,18 +109,18 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
         <div className="fixed inset-0 bg-background/80 backdrop-blur-xl flex items-center justify-center p-6 z-50 animate-in fade-in duration-300">
           <div className="w-full max-w-xl bg-surface-container rounded-[2.5rem] border border-surface-variant p-8 ambient-shadow relative overflow-visible">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
-            
+
             <header className="flex items-center justify-between mb-8 relative">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary">
                   <Plus size={24} />
                 </div>
                 <div>
-                   <h2 className="text-xl font-black text-white px-1">Nueva Tarea</h2>
-                   <p className="text-xs text-on-surface-variant font-medium px-1">Captura rápida con IA asistida</p>
+                  <h2 className="text-xl font-black text-white px-1">Nueva Tarea</h2>
+                  <p className="text-xs text-on-surface-variant font-medium px-1">Captura rápida con IA asistida</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={() => setIsOpen(false)}
                 className="text-on-surface-variant hover:text-white p-2 rounded-full hover:bg-surface-variant transition-colors"
                 title="Cerrar (ESC)"
@@ -130,7 +130,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
             </header>
 
             <form onSubmit={handleAdd} className="relative space-y-6">
-              <textarea 
+              <textarea
                 autoFocus
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -141,8 +141,8 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
 
               <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-surface-variant/30 uppercase tracking-widest text-[10px] font-black">
                 <div className="relative">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setIsDateMenuOpen(!isDateMenuOpen)}
                     className={clsx(
                       "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 transition-all",
@@ -157,10 +157,10 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                   {/* Indicator below the button */}
                   {selectedDate && (
                     <div className="absolute top-full left-0 mt-2 px-3 py-1 bg-surface-variant/20 rounded-full border border-surface-variant/30 flex items-center gap-2 animate-in fade-in slide-in-from-top-1 duration-300">
-                       <div className="w-1 h-1 rounded-full bg-secondary glow-secondary"></div>
-                       <span className="text-[10px] font-bold text-secondary uppercase tracking-tighter capitalize">
-                          {format(selectedDate, "MMMM d", { locale: es })}
-                       </span>
+                      <div className="w-1 h-1 rounded-full bg-secondary glow-secondary"></div>
+                      <span className="text-[10px] font-bold text-secondary uppercase tracking-tighter capitalize">
+                        {format(selectedDate, "MMMM d", { locale: es })}
+                      </span>
                     </div>
                   )}
 
@@ -196,20 +196,18 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                           })}
                         </div>
 
-                        {renderMonth(0)}
-                        {renderMonth(1)}
-                        {renderMonth(2)}
+                        {Array.from({ length: 15 }).map((_, i) => renderMonth(i))}
                       </div>
 
                       <div className="p-2 bg-surface-container-high/60 border-t border-surface-variant/20 grid grid-cols-2 gap-2">
-                         <button type="button" className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-surface-variant/30 text-white text-[10px] font-bold hover:bg-surface-variant transition-all hover:border-primary/50 group">
-                            <Clock size={12} className="text-primary group-hover:scale-110 transition-transform" />
-                            Hora
-                         </button>
-                         <button type="button" className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-surface-variant/30 text-white text-[10px] font-bold hover:bg-surface-variant transition-all hover:border-secondary/50 group">
-                            <Repeat size={12} className="text-secondary group-hover:scale-110 transition-transform" />
-                            Repetir
-                         </button>
+                        <button type="button" className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-surface-variant/30 text-white text-[10px] font-bold hover:bg-surface-variant transition-all hover:border-primary/50 group">
+                          <Clock size={12} className="text-primary group-hover:scale-110 transition-transform" />
+                          Hora
+                        </button>
+                        <button type="button" className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-surface-variant/30 text-white text-[10px] font-bold hover:bg-surface-variant transition-all hover:border-secondary/50 group">
+                          <Repeat size={12} className="text-secondary group-hover:scale-110 transition-transform" />
+                          Repetir
+                        </button>
                       </div>
                     </div>
                   )}
@@ -229,7 +227,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
               </div>
 
               <div className="flex justify-end pt-6">
-                <button 
+                <button
                   type="submit"
                   disabled={loading}
                   className="px-10 py-5 bg-gradient-to-r from-primary to-primary-dim text-white font-black text-base rounded-2xl hover:scale-105 active:scale-95 transition-all glow-primary disabled:opacity-50"
