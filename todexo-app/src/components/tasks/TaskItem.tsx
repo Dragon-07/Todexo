@@ -73,9 +73,9 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
           : "bg-surface-container border-surface-variant/50 hover:bg-surface-container-high hover:border-primary/40 hover:scale-[1.01] ambient-shadow"
       )}
     >
-      <div className="flex items-center gap-4 flex-1">
+      <div className="flex items-center gap-4 flex-1 min-w-0">
         {/* Checkbox Icon */}
-        <div className="relative flex items-center justify-center">
+        <div className="relative flex items-center justify-center flex-shrink-0">
           {isCompleted ? (
             <div className="text-secondary glow-secondary transition-all transform scale-100">
               <CheckCircle2 size={24} strokeWidth={2.5} />
@@ -87,9 +87,9 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
           )}
         </div>
 
-        <div className="flex items-center gap-4 flex-1 overflow-hidden">
+        <div className="flex items-center gap-4 flex-1 min-w-0 overflow-hidden">
           <span className={clsx(
-            "text-base font-bold transition-all truncate",
+            "text-base font-bold transition-all truncate flex-1 min-w-0",
             isCompleted ? "text-on-surface/40 line-through tracking-wide" : "text-on-surface tracking-tight"
           )}>
             {task.title}
@@ -131,12 +131,6 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
             {task.repeat_type && (
               <div className="flex items-center gap-1.5 text-[10px] uppercase font-black text-secondary bg-secondary/15 p-1 rounded-md border border-secondary/30">
                 <Repeat size={12} />
-              </div>
-            )}
-            {task.tags && task.tags.length > 0 && (
-              <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-                <Tag size={12} />
-                <span>{task.tags[0]}</span>
               </div>
             )}
           </div>
