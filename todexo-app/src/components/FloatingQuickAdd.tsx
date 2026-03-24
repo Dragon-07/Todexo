@@ -277,8 +277,12 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                         <div className="py-1 border-b border-surface-variant/20">
                           <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex justify-between items-center bg-surface-container-high/90 sticky top-0 backdrop-blur-md z-10 border-b border-surface-variant/10">
                             <span>Atajos</span>
-                            <span className="text-secondary font-black text-[10px] tracking-widest">
-                              HOY: {format(new Date(), 'd MMM', { locale: es }).toUpperCase()}
+                            <span className="text-secondary font-black text-[10px] tracking-widest uppercase truncate max-w-[150px] text-right">
+                              {selectedDate ? (
+                                (isToday(selectedDate) ? 'HOY: ' : 
+                                 isSameDay(selectedDate, addDays(new Date(), 1)) ? 'MAÑANA: ' : '') + 
+                                format(selectedDate, 'd MMM', { locale: es })
+                              ) : 'SIN FECHA'}
                             </span>
                           </div>
                           {dateOptions.map((opt, i) => {
