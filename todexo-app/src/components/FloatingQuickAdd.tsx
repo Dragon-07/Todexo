@@ -15,6 +15,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
   const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
+  const [timeSearch, setTimeSearch] = useState('');
 
   const dateOptions = [
     { label: 'Ahora', date: new Date(), time: format(new Date(), 'HH:mm:ss'), icon: Clock, color: 'text-primary' },
@@ -68,22 +69,68 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
     );
   };
 
-  const generateTimeSlots = () => {
+  const generateTimeSlots = (query: string) => {
     const slots = [];
     const now = new Date();
-    // Iniciar desde la hora actual redondeada a los próximos 15 min
-    const start = new Date();
-    start.setMinutes(Math.floor(now.getMinutes() / 15) * 15);
-    start.setSeconds(0);
     
-    for (let i = 0; i < 48; i++) { // Mostrar 12 horas de opciones
-      const time = new Date(start.getTime() + i * 15 * 60000);
-      slots.push({
-        display: format(time, 'h:mm a'),
-        value: format(time, 'HH:mm:ss')
-      });
+    if (!query) {
+      const start = new Date();
+      start.setMinutes(Math.floor(now.getMinutes() / 15) * 15);
+      start.setSeconds(0);
+      
+      for (let i = 0; i < 24; i++) {
+        const time = new Date(start.getTime() + i * 15 * 60000);
+        slots.push({
+          display: format(time, 'h:mm a'),
+          value: format(time, 'HH:mm:ss')
+        });
+      }
+      return slots;
     }
-    return slots;
+
+    // Modo búsqueda: generar todas las opciones del día y filtrar con prioridad
+    const allDaySlots = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const d = new Date();
+        d.setHours(h, m, 0, 0);
+        allDaySlots.push({
+          display: format(d, 'h:mm a'),
+          value: format(d, 'HH:mm:ss'),
+          raw: format(d, 'H:mm'),
+          rawFull: format(d, 'HH:mm'),
+          hour: h
+        });
+      }
+    }
+
+    // 1. Prioridad: Coincidencia de hora exacta o que empiece por el número (ej: "3" -> "3:00")
+    // Intentamos buscar primero en las horas que faltan hoy si es posible, o simplemente en orden
+    let firstMatch = allDaySlots.find(s => s.raw === query || s.rawFull === query || s.raw === `${query}:00`);
+    
+    if (!firstMatch) {
+      firstMatch = allDaySlots.find(s => s.raw.startsWith(query) || s.rawFull.startsWith(query));
+    }
+
+    if (!firstMatch) {
+      firstMatch = allDaySlots.filter(s => s.display.toLowerCase().includes(query.toLowerCase()))[0];
+    }
+
+    if (firstMatch) {
+      // Mostrar secuencia de 10 opciones desde el primer resultado (como en la imagen del usuario)
+      const matchDate = new Date(`2000-01-01T${firstMatch.value}`);
+      const sequence = [];
+      for (let i = 0; i < 10; i++) {
+        const t = new Date(matchDate.getTime() + i * 15 * 60000);
+        sequence.push({
+          display: format(t, 'h:mm a'),
+          value: format(t, 'HH:mm:ss')
+        });
+      }
+      return sequence;
+    }
+
+    return [];
   };
 
   const getLabelForDate = (date: Date | null) => {
@@ -231,7 +278,10 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                         <div className="relative">
                           <button 
                             type="button" 
-                            onClick={() => setIsTimeMenuOpen(!isTimeMenuOpen)}
+                            onClick={() => {
+                              setIsTimeMenuOpen(!isTimeMenuOpen);
+                              if (!isTimeMenuOpen) setTimeSearch('');
+                            }}
                             className={clsx(
                               "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border transition-all group text-[10px] font-bold",
                               isTimeMenuOpen ? "border-primary text-primary" : "border-surface-variant/30 text-white hover:bg-surface-variant hover:border-primary/50"
@@ -246,9 +296,28 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                           </button>
 
                           {isTimeMenuOpen && (
-                            <div className="absolute bottom-full left-0 mb-2 w-48 bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] overflow-hidden border border-gray-200 animate-in zoom-in-95 duration-200 z-[70]">
-                              <div className="max-h-[300px] overflow-y-auto py-2 custom-scrollbar">
-                                {generateTimeSlots().map((slot) => (
+                            <div className="absolute bottom-full left-0 mb-2 w-52 bg-white rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200 z-[70]">
+                              <div className="p-3 border-b border-gray-50 bg-gray-50/50">
+                                <input 
+                                  autoFocus
+                                  type="text"
+                                  value={timeSearch}
+                                  onChange={(e) => setTimeSearch(e.target.value)}
+                                  placeholder="Ej: 12:15 PM o 14:00"
+                                  className="w-full px-3 py-2 text-[11px] font-bold text-gray-800 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-400"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      const slots = generateTimeSlots(timeSearch);
+                                      if (slots.length > 0) {
+                                        setSelectedTime(slots[0].value);
+                                        setIsTimeMenuOpen(false);
+                                      }
+                                    }
+                                  }}
+                                />
+                              </div>
+                              <div className="max-h-[250px] overflow-y-auto py-1 custom-scrollbar">
+                                {generateTimeSlots(timeSearch).map((slot) => (
                                   <button
                                     key={slot.value}
                                     type="button"
