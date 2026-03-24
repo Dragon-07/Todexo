@@ -69,8 +69,14 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
     );
   };
 
-  const generateTimeSlots = (query: string) => {
-    const slots = [];
+  interface TimeSlot {
+    display: string;
+    value: string;
+    isCustom?: boolean;
+  }
+
+  const generateTimeSlots = (query: string): TimeSlot[] => {
+    const slots: TimeSlot[] = [];
     const now = new Date();
     
     if (!query) {
@@ -88,49 +94,67 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
       return slots;
     }
 
-    // Modo búsqueda: generar todas las opciones del día y filtrar con prioridad
-    const allDaySlots = [];
+    const clean = query.replace(/\D/g, '');
+    const customSlots: TimeSlot[] = [];
+
+    // 1. Detección Inteligente (Human Parsing): "542" -> 5:42
+    if (clean.length >= 1 && clean.length <= 4) {
+      let h = 0, m = 0;
+      if (clean.length <= 2) {
+        h = parseInt(clean);
+      } else {
+        h = parseInt(clean.slice(0, clean.length - 2));
+        m = parseInt(clean.slice(clean.length - 2));
+      }
+
+      if (h < 24 && m < 60) {
+        const hBase = h % 12 || 12;
+        const mStr = m.toString().padStart(2, '0');
+        customSlots.push({ 
+          display: `${hBase}:${mStr} AM`, 
+          value: `${(hBase === 12 ? 0 : hBase).toString().padStart(2, '0')}:${mStr}:00`,
+          isCustom: true 
+        });
+        customSlots.push({ 
+          display: `${hBase}:${mStr} PM`, 
+          value: `${(hBase === 12 ? 12 : hBase + 12).toString().padStart(2, '0')}:${mStr}:00`,
+          isCustom: true 
+        });
+      }
+    }
+
+    // 2. Filtro ESTRICTO de intervalos de 15 min (Formato 12 horas)
+    const intervalSlots: TimeSlot[] = [];
     for (let h = 0; h < 24; h++) {
       for (let m = 0; m < 60; m += 15) {
-        const d = new Date();
-        d.setHours(h, m, 0, 0);
-        allDaySlots.push({
-          display: format(d, 'h:mm a'),
-          value: format(d, 'HH:mm:ss'),
-          raw: format(d, 'H:mm'),
-          rawFull: format(d, 'HH:mm'),
-          hour: h
-        });
+        const h12 = h % 12 || 12;
+        const time12 = `${h12}:${m.toString().padStart(2, '0')}`;
+        
+        // Coincidencia estricta: si la hora sola coincide o si el formato h:mm empieza por la query
+        const isHourMatch = h12.toString() === query;
+        const isTimeStartMatch = time12.startsWith(query);
+
+        if (isHourMatch || isTimeStartMatch) {
+          const d = new Date(); d.setHours(h, m, 0, 0);
+          intervalSlots.push({ display: format(d, 'h:mm a'), value: format(d, 'HH:mm:ss') });
+        }
       }
     }
-
-    // 1. Prioridad: Coincidencia de hora exacta o que empiece por el número (ej: "3" -> "3:00")
-    // Intentamos buscar primero en las horas que faltan hoy si es posible, o simplemente en orden
-    let firstMatch = allDaySlots.find(s => s.raw === query || s.rawFull === query || s.raw === `${query}:00`);
     
-    if (!firstMatch) {
-      firstMatch = allDaySlots.find(s => s.raw.startsWith(query) || s.rawFull.startsWith(query));
-    }
+    // Ordenar cronológicamente
+    const sortedIntervals = [...intervalSlots].sort((a, b) => {
+        return a.value.localeCompare(b.value);
+    });
 
-    if (!firstMatch) {
-      firstMatch = allDaySlots.filter(s => s.display.toLowerCase().includes(query.toLowerCase()))[0];
-    }
-
-    if (firstMatch) {
-      // Mostrar secuencia de 10 opciones desde el primer resultado (como en la imagen del usuario)
-      const matchDate = new Date(`2000-01-01T${firstMatch.value}`);
-      const sequence = [];
-      for (let i = 0; i < 10; i++) {
-        const t = new Date(matchDate.getTime() + i * 15 * 60000);
-        sequence.push({
-          display: format(t, 'h:mm a'),
-          value: format(t, 'HH:mm:ss')
-        });
+    // Combinar, evitando duplicados (si el custom 3:00 ya está arriba, no lo repetimos abajo)
+    const combined = [...customSlots];
+    sortedIntervals.forEach(s => {
+      if (!combined.some(c => c.value === s.value)) {
+        combined.push(s);
       }
-      return sequence;
-    }
+    });
 
-    return [];
+    return combined.slice(0, 12);
   };
 
   const getLabelForDate = (date: Date | null) => {
@@ -297,14 +321,14 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
 
                           {isTimeMenuOpen && (
                             <div className="absolute bottom-full left-0 mb-2 w-52 bg-white rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200 z-[70]">
-                              <div className="p-3 border-b border-gray-50 bg-gray-50/50">
+                              <div className="p-2 border-b border-gray-50 bg-gray-50/10 text-center">
                                 <input 
                                   autoFocus
                                   type="text"
                                   value={timeSearch}
                                   onChange={(e) => setTimeSearch(e.target.value)}
-                                  placeholder="Ej: 12:15 PM o 14:00"
-                                  className="w-full px-3 py-2 text-[11px] font-bold text-gray-800 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-gray-400"
+                                  placeholder="00:00"
+                                  className="w-32 mx-auto block px-2 py-0.5 text-2xl font-black text-gray-900 bg-white rounded-xl border border-gray-200 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-gray-200 text-center tracking-tight"
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                       const slots = generateTimeSlots(timeSearch);
@@ -316,25 +340,52 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                                   }}
                                 />
                               </div>
-                              <div className="max-h-[250px] overflow-y-auto py-1 custom-scrollbar">
-                                {generateTimeSlots(timeSearch).map((slot) => (
-                                  <button
-                                    key={slot.value}
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedTime(slot.value);
-                                      setIsTimeMenuOpen(false);
-                                    }}
-                                    className={clsx(
-                                      "w-full text-left px-4 py-3 text-sm font-semibold transition-colors border-b border-gray-50 last:border-none",
-                                      selectedTime === slot.value 
-                                        ? "bg-primary/10 text-primary" 
-                                        : "text-gray-700 hover:bg-gray-50 hover:text-primary"
-                                    )}
-                                  >
-                                    {slot.display}
-                                  </button>
-                                ))}
+                              <div className="max-h-[300px] overflow-y-auto py-1 custom-scrollbar">
+                                {(() => {
+                                  const allSlots = generateTimeSlots(timeSearch);
+                                  const custom = allSlots.filter(s => s.isCustom);
+                                  const regular = allSlots.filter(s => !s.isCustom);
+                                  
+                                  return (
+                                    <>
+                                      {custom.length > 0 && (
+                                        <div className="flex px-3 py-2 gap-2 border-b border-gray-50 bg-primary/[0.03] sticky top-0 z-10 backdrop-blur-sm">
+                                          {custom.map((s) => (
+                                            <button 
+                                              key={s.value}
+                                              type="button"
+                                              onClick={() => {
+                                                setSelectedTime(s.value);
+                                                setIsTimeMenuOpen(false);
+                                              }}
+                                              className="flex-1 py-2 px-1 bg-white border border-primary/20 rounded-xl text-[10px] font-black text-primary hover:bg-primary hover:text-white transition-all shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                                            >
+                                              {s.display}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      )}
+                                      {regular.map((slot) => (
+                                        <button
+                                          key={slot.value}
+                                          type="button"
+                                          onClick={() => {
+                                            setSelectedTime(slot.value);
+                                            setIsTimeMenuOpen(false);
+                                          }}
+                                          className={clsx(
+                                            "w-full text-left px-4 py-3 text-[11px] font-bold transition-colors border-b border-gray-50/50 last:border-none",
+                                            selectedTime === slot.value 
+                                              ? "bg-primary/10 text-primary" 
+                                              : "text-gray-700 hover:bg-gray-50 hover:text-primary"
+                                          )}
+                                        >
+                                          {slot.display}
+                                        </button>
+                                      ))}
+                                    </>
+                                  );
+                                })()}
                               </div>
                             </div>
                           )}
