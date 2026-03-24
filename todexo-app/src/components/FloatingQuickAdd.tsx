@@ -278,19 +278,19 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                     <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 bg-surface-container rounded-2xl border border-surface-variant shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] z-[60] overflow-hidden animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200">
                       <div className="max-h-[440px] flex flex-col custom-scrollbar">
                         {/* ATAJOS: FIJO ARRIBA */}
-                        <div className="flex-none py-1 border-b border-surface-variant/20 bg-surface-container-high/50">
-                          <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex justify-between items-center backdrop-blur-md">
-                            <span>Atajos</span>
-                            <span className="text-secondary font-black text-[10px] tracking-widest uppercase truncate max-w-[150px] text-right">
-                              {selectedDate ? (
-                                (isToday(selectedDate) ? 'HOY: ' : 
-                                 isSameDay(selectedDate, addDays(new Date(), 1)) ? 'MAÑANA: ' : '') + 
-                                format(selectedDate, 'd MMM', { locale: es })
-                              ) : 'SIN FECHA'}
+                        <div className="flex-none py-0 border-b border-surface-variant/20 bg-surface-container-high/50">
+                          <div className="px-3 pt-3 pb-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex items-center relative backdrop-blur-md border-b border-surface-variant/5">
+                            <span className="relative z-10 opacity-30">Atajos</span>
+                            <span className="absolute left-1/2 -translate-x-1/2 text-secondary font-black text-[16px] tracking-[0.1em] uppercase truncate w-full text-center px-16 pointer-events-none">
+                              {selectedDate ? format(selectedDate, 'MMMM d', { locale: es }) : 'SIN FECHA'}
                             </span>
                           </div>
                           {dateOptions.map((opt, i) => {
                             const Icon = opt.icon;
+                            const isSelected = opt.date 
+                              ? (selectedDate && isSameDay(selectedDate, opt.date))
+                              : selectedDate === null;
+
                             return (
                               <button
                                 key={i}
@@ -299,15 +299,29 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                                   setSelectedDate(opt.date);
                                   if (opt.time) setSelectedTime(opt.time);
                                 }}
-                                className="w-full flex items-center justify-between px-3 py-2 hover:bg-surface-variant/50 transition-colors group"
+                                className={clsx(
+                                  "w-full flex items-center justify-between px-3 py-2 transition-colors group",
+                                  isSelected ? "bg-primary/10 border-l-2 border-primary" : "hover:bg-surface-variant/50 border-l-2 border-transparent"
+                                )}
                               >
                                 <div className="flex items-center gap-2">
                                   <Icon size={14} className={clsx(opt.color)} />
-                                  <span className="text-xs font-bold text-white group-hover:text-primary transition-colors">{opt.label}</span>
+                                  <span className={clsx(
+                                    "text-xs font-bold transition-colors",
+                                    isSelected ? "text-primary" : "text-white group-hover:text-primary"
+                                  )}>
+                                    {opt.label}
+                                  </span>
                                 </div>
-                                <span className="text-[9px] font-medium text-on-surface-variant/60 uppercase">
-                                  {opt.date ? format(opt.date, 'eee', { locale: es }) : ''}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                  {isSelected && <div className="w-1 h-1 rounded-full bg-primary animate-pulse" />}
+                                  <span className={clsx(
+                                    "text-[9px] font-medium uppercase",
+                                    isSelected ? "text-primary/60" : "text-on-surface-variant/60"
+                                  )}>
+                                    {opt.date ? format(opt.date, 'eee', { locale: es }) : ''}
+                                  </span>
+                                </div>
                               </button>
                             );
                           })}
