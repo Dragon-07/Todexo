@@ -36,11 +36,14 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
     const firstDayIdx = (start.getDay() === 0 ? 6 : start.getDay() - 1); // Adjust for Monday start
 
     return (
-      <div key={monthOffset} className="px-3 py-2 border-b border-surface-variant/10">
-        <h4 className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant/60 mb-2 capitalize">{monthLabel}</h4>
-        <div className="grid grid-cols-7 gap-0.5 text-center mb-1">
+      <div key={monthOffset} className="px-3 py-3 border-b border-surface-variant/5">
+        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 mb-4 flex items-center gap-2">
+          <div className="w-1 h-1 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary-rgb),0.8)]"></div>
+          {monthLabel}
+        </h4>
+        <div className="grid grid-cols-7 gap-0.5 text-center mb-2">
           {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => (
-            <span key={d} className="text-[7px] font-bold text-on-surface-variant/40">{d}</span>
+            <span key={d} className="text-[9px] font-black text-on-surface-variant/80 uppercase tracking-tighter">{d}</span>
           ))}
         </div>
         <div className="grid grid-cols-7 gap-0.5">
@@ -273,9 +276,10 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
 
                   {isDateMenuOpen && (
                     <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 bg-surface-container rounded-2xl border border-surface-variant shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] z-[60] overflow-hidden animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200">
-                      <div className="max-h-[380px] overflow-y-auto custom-scrollbar">
-                        <div className="py-1 border-b border-surface-variant/20">
-                          <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex justify-between items-center bg-surface-container-high/90 sticky top-0 backdrop-blur-md z-10 border-b border-surface-variant/10">
+                      <div className="max-h-[550px] flex flex-col custom-scrollbar">
+                        {/* ATAJOS: FIJO ARRIBA */}
+                        <div className="flex-none py-1 border-b border-surface-variant/20 bg-surface-container-high/50">
+                          <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex justify-between items-center backdrop-blur-md">
                             <span>Atajos</span>
                             <span className="text-secondary font-black text-[10px] tracking-widest uppercase truncate max-w-[150px] text-right">
                               {selectedDate ? (
@@ -309,7 +313,10 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                           })}
                         </div>
 
-                        {Array.from({ length: 15 }).map((_, i) => renderMonth(i))}
+                        {/* CALENDARIO: DESPLAZABLE */}
+                        <div className="flex-1 overflow-y-auto custom-scrollbar">
+                          {Array.from({ length: 15 }).map((_, i) => renderMonth(i))}
+                        </div>
                       </div>
                       <div className="p-2 bg-surface-container-high/60 border-t border-surface-variant/20 grid grid-cols-3 gap-2 relative">
                         <div className="relative">
