@@ -16,9 +16,10 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
   const [loading, setLoading] = useState(false);
   const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
   const [timeSearch, setTimeSearch] = useState('');
+  const [isRepeatMenuOpen, setIsRepeatMenuOpen] = useState(false);
+  const [selectedRepeat, setSelectedRepeat] = useState<string | null>(null);
 
   const dateOptions = [
-    { label: 'Ahora', date: new Date(), time: format(new Date(), 'HH:mm:ss'), icon: Clock, color: 'text-primary' },
     { label: 'Hoy', date: new Date(), time: null, icon: Calendar, color: 'text-green-400' },
     { label: 'Mañana', date: addDays(new Date(), 1), time: null, icon: Sun, color: 'text-orange-400' },
     { label: 'Este fin de semana', date: nextSaturday(new Date()), time: null, icon: Sofa, color: 'text-blue-400' },
@@ -47,17 +48,24 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
           {days.map(day => {
             const isSel = selectedDate && isSameDay(day, selectedDate);
             const isTod = isToday(day);
+            const isRep = selectedRepeat && selectedDate && day > selectedDate && (
+              (selectedRepeat === 'daily') ||
+              (selectedRepeat === 'weekly' && day.getDay() === selectedDate.getDay()) ||
+              (selectedRepeat === 'weekday' && day.getDay() >= 1 && day.getDay() <= 5) ||
+              (selectedRepeat === 'monthly' && day.getDate() === selectedDate.getDate())
+            );
+
             return (
               <button
                 key={day.toISOString()}
                 type="button"
                 onClick={() => {
                   setSelectedDate(day);
-                  setIsDateMenuOpen(false);
                 }}
                 className={clsx(
-                  "w-7 h-7 flex items-center justify-center text-[9px] font-bold rounded-full transition-all hover:bg-surface-variant/50",
-                  isSel ? "bg-primary text-white shadow-sm" : isTod ? "text-primary border border-primary/20" : "text-on-surface-variant/80"
+                  "w-7 h-7 flex items-center justify-center text-[9px] font-bold rounded-full transition-all hover:bg-surface-variant/50 relative",
+                  isSel ? "bg-primary text-white shadow-sm" : isTod ? "text-primary border border-primary/20" : "text-on-surface-variant/80",
+                  isRep && !isSel && "border border-dashed border-primary/30 text-primary/70"
                 )}
               >
                 {format(day, 'd')}
@@ -178,7 +186,8 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
         user_id: user.id,
         status: 'pending',
         due_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null,
-        due_time: selectedTime || null
+        due_time: selectedTime || null,
+        repeat_type: selectedRepeat
       });
 
       setTitle('');
@@ -268,7 +277,9 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                         <div className="py-1 border-b border-surface-variant/20">
                           <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex justify-between items-center bg-surface-container-high/90 sticky top-0 backdrop-blur-md z-10 border-b border-surface-variant/10">
                             <span>Atajos</span>
-                            <span className="text-secondary opacity-60 text-[8px]">Hoy: {format(new Date(), 'd MMM', { locale: es })}</span>
+                            <span className="text-secondary font-black text-[10px] tracking-widest">
+                              HOY: {format(new Date(), 'd MMM', { locale: es }).toUpperCase()}
+                            </span>
                           </div>
                           {dateOptions.map((opt, i) => {
                             const Icon = opt.icon;
@@ -279,7 +290,6 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                                 onClick={() => {
                                   setSelectedDate(opt.date);
                                   if (opt.time) setSelectedTime(opt.time);
-                                  setIsDateMenuOpen(false);
                                 }}
                                 className="w-full flex items-center justify-between px-3 py-2 hover:bg-surface-variant/50 transition-colors group"
                               >
@@ -297,8 +307,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
 
                         {Array.from({ length: 15 }).map((_, i) => renderMonth(i))}
                       </div>
-
-                      <div className="p-2 bg-surface-container-high/60 border-t border-surface-variant/20 grid grid-cols-2 gap-2 relative">
+                      <div className="p-2 bg-surface-container-high/60 border-t border-surface-variant/20 grid grid-cols-3 gap-2 relative">
                         <div className="relative">
                           <button 
                             type="button" 
@@ -307,7 +316,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                               if (!isTimeMenuOpen) setTimeSearch('');
                             }}
                             className={clsx(
-                              "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border transition-all group text-[10px] font-bold",
+                              "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border transition-all group text-[10px] font-bold h-[34px]",
                               isTimeMenuOpen ? "border-primary text-primary" : "border-surface-variant/30 text-white hover:bg-surface-variant hover:border-primary/50"
                             )}
                           >
@@ -390,9 +399,82 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                             </div>
                           )}
                         </div>
-                        <button type="button" className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-surface-variant/30 text-white text-[10px] font-bold hover:bg-surface-variant transition-all hover:border-secondary/50 group">
-                          <Repeat size={12} className="text-secondary group-hover:scale-110 transition-transform" />
-                          Repetir
+                          <div className="relative">
+                            <button 
+                              type="button" 
+                              onClick={() => setIsRepeatMenuOpen(!isRepeatMenuOpen)}
+                              className={clsx(
+                                "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border transition-all group text-[10px] font-bold h-[34px]",
+                                isRepeatMenuOpen || selectedRepeat ? "border-secondary text-secondary" : "border-surface-variant/30 text-white hover:bg-surface-variant hover:border-secondary/50"
+                              )}
+                            >
+                              <Repeat size={12} className={clsx("transition-transform", (isRepeatMenuOpen || selectedRepeat) ? "text-secondary" : "text-on-surface-variant group-hover:rotate-180 duration-500")} />
+                              <span className="truncate">
+                                {selectedRepeat ? (() => {
+                                  const d = selectedDate || new Date();
+                                  if (selectedRepeat === 'daily') return 'Día';
+                                  if (selectedRepeat === 'weekly') return `Sem. (${format(d, 'eee', { locale: es })})`;
+                                  if (selectedRepeat === 'weekday') return 'L-V';
+                                  if (selectedRepeat === 'monthly') return `Mes (${format(d, 'd')})`;
+                                  return 'Repetir';
+                                })() : 'Repetir'}
+                              </span>
+                            </button>
+
+                            {isRepeatMenuOpen && (
+                              <div className="absolute bottom-full right-0 mb-2 w-56 bg-white rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200 z-[70]">
+                                <div className="py-1">
+                                  {(() => {
+                                    const d = selectedDate || new Date();
+                                    const dayName = format(d, 'eeee', { locale: es });
+                                    const dayNum = format(d, 'd');
+                                    const options = [
+                                      { id: 'daily', label: 'Cada día' },
+                                      { id: 'weekly', label: `Cada semana el ${dayName}` },
+                                      { id: 'weekday', label: 'Cada día laborable (lun - vie)' },
+                                      { id: 'monthly', label: `Cada mes el ${dayNum}` },
+                                    ];
+
+                                    return options.map((opt) => (
+                                      <button
+                                        key={opt.id}
+                                        type="button"
+                                        onClick={() => {
+                                          setSelectedRepeat(opt.id);
+                                          setIsRepeatMenuOpen(false);
+                                        }}
+                                        className={clsx(
+                                          "w-full text-left px-4 py-3 text-[11px] font-bold transition-colors border-b border-gray-50 last:border-none uppercase tracking-tighter",
+                                          selectedRepeat === opt.id ? "bg-secondary/10 text-secondary" : "text-gray-700 hover:bg-gray-50 hover:text-secondary"
+                                        )}
+                                      >
+                                        {opt.label}
+                                      </button>
+                                    ));
+                                  })()}
+                                  {selectedRepeat && (
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedRepeat(null);
+                                        setIsRepeatMenuOpen(false);
+                                      }}
+                                      className="w-full text-left px-4 py-2 text-[9px] font-black text-red-500 hover:bg-red-50 transition-colors uppercase tracking-widest"
+                                    >
+                                      Eliminar repetición
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                        <button 
+                          type="button" 
+                          onClick={() => setIsDateMenuOpen(false)}
+                          className="flex items-center justify-center py-2 rounded-xl bg-primary text-white text-[10px] font-black hover:scale-105 active:scale-95 transition-all shadow-lg glow-primary-sm h-[34px]"
+                        >
+                          LISTO
                         </button>
                       </div>
                     </div>
