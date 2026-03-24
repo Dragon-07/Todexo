@@ -274,7 +274,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                       {getLabelForDate(selectedDate)}
                     </span>
                     {selectedTime && (
-                      <span className="text-secondary ml-1 lowercase text-[10px] font-bold">
+                      <span className="text-teal-400 ml-1 lowercase text-[10px] font-bold">
                         {format(new Date(`2000-01-01T${selectedTime}`), 'h:mm a')}
                       </span>
                     )}
@@ -354,7 +354,7 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                             )}
                           >
                             {selectedTime ? (
-                              <div className="flex items-center gap-1.5 text-primary">
+                              <div className="flex items-center gap-1.5 text-teal-400 lowercase">
                                 <Clock size={12} className="animate-pulse" />
                                 <span>{format(new Date(`2000-01-01T${selectedTime}`), 'h:mm a')}</span>
                               </div>
