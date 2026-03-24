@@ -1,0 +1,264 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { 
+  Calendar, 
+  ChevronLeft, 
+  ChevronRight, 
+  List, 
+  Grid3X3, 
+  Columns,
+  Sparkles,
+  Plus,
+  Clock
+} from 'lucide-react';
+import clsx from 'clsx';
+import TaskItem, { Task } from '@/components/tasks/TaskItem';
+import { supabase } from '@/lib/supabase';
+import FloatingQuickAdd from '@/components/FloatingQuickAdd';
+import { format, isSameDay, parseISO, addDays } from 'date-fns';
+import { es } from 'date-fns/locale';
+
+type ViewMode = 'list' | 'week' | 'month';
+
+export default function CalendarPage() {
+  const [viewMode, setViewMode] = useState<ViewMode>('month');
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  const fetchTasks = async () => {
+    setLoading(true);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (data && !error) {
+        setTasks(data as Task[]);
+      }
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const toggleTask = async (id: string) => {
+    const taskIndex = tasks.findIndex(t => t.id === id);
+    if (taskIndex === -1) return;
+    
+    const task = tasks[taskIndex];
+    const newStatus = task.status === 'pending' ? 'completed' : 'pending';
+    
+    // Update local state optimistically
+    const newTasks = [...tasks];
+    newTasks[taskIndex] = { ...task, status: newStatus };
+    setTasks(newTasks);
+
+    // Persist to Supabase
+    await supabase.from('tasks').update({ status: newStatus }).eq('id', id);
+  };
+
+  const getLabelForDate = (date: Date | null) => {
+    if (!date) return 'Sin fecha';
+    const now = new Date();
+    if (isSameDay(date, now)) return 'Hoy';
+    if (isSameDay(date, addDays(now, 1))) return 'Mañana';
+    return format(date, "d 'de' MMM", { locale: es });
+  };
+
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+    return { firstDay, lastDate };
+  };
+
+  const { firstDay, lastDate } = getDaysInMonth(currentDate);
+  const days = Array.from({ length: lastDate }, (_, i) => i + 1);
+  const monthName = currentDate.toLocaleString('es-ES', { month: 'long' });
+  const year = currentDate.getFullYear();
+
+  const handlePrevMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
+  return (
+    <div className="flex-1 flex flex-col h-full overflow-hidden animate-slide-up">
+      <header className="px-6 py-8 md:px-12 md:py-10 border-b border-surface-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim flex items-center justify-center shadow-2xl glow-secondary">
+            <Calendar className="text-white" size={28} />
+          </div>
+          <div>
+            <h1 className="text-4xl font-black tracking-tighter text-white capitalize">{monthName} <span className="opacity-40">{year}</span></h1>
+            <p className="text-on-surface-variant font-medium mt-1 uppercase tracking-widest text-[10px]">Tu horizonte de tareas</p>
+          </div>
+        </div>
+
+        {/* View Switcher */}
+        <div className="flex items-center gap-1 p-1.5 bg-surface-container rounded-2xl border border-surface-variant/50 ambient-shadow">
+          <button 
+            onClick={() => setViewMode('list')}
+            className={clsx(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all",
+              viewMode === 'list' ? "bg-primary text-white glow-primary" : "text-on-surface-variant hover:text-white"
+            )}
+          >
+            <List size={18} />
+            <span>Lista</span>
+          </button>
+          <button 
+            onClick={() => setViewMode('week')}
+            className={clsx(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all",
+              viewMode === 'week' ? "bg-primary text-white glow-primary" : "text-on-surface-variant hover:text-white"
+            )}
+          >
+            <Columns size={18} />
+            <span>Semana</span>
+          </button>
+          <button 
+            onClick={() => setViewMode('month')}
+            className={clsx(
+              "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all",
+              viewMode === 'month' ? "bg-primary text-white glow-primary" : "text-on-surface-variant hover:text-white"
+            )}
+          >
+            <Grid3X3 size={18} />
+            <span>Mensual</span>
+          </button>
+        </div>
+      </header>
+
+      {/* Navigation & Toolbar */}
+      <div className="px-6 py-4 md:px-12 border-b border-surface-variant/20 flex items-center justify-between bg-surface-container-low/50 backdrop-blur-md">
+         <div className="flex items-center gap-4">
+            <button onClick={handlePrevMonth} className="p-2 rounded-xl hover:bg-surface-variant text-white transition-colors">
+               <ChevronLeft size={20} />
+            </button>
+            <button onClick={() => setCurrentDate(new Date())} className="px-4 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 text-xs font-bold text-white hover:text-primary mb-2 transition-colors mt-2">
+               Hoy
+            </button>
+            <button onClick={handleNextMonth} className="p-2 rounded-xl hover:bg-surface-variant text-white transition-colors">
+               <ChevronRight size={20} />
+            </button>
+         </div>
+
+         <div className="flex items-center gap-3">
+            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 text-xs font-black uppercase tracking-wider hover:bg-primary/30 transition-all">
+               <Sparkles size={14} />
+               Planear con IA
+            </button>
+         </div>
+      </div>
+
+      <main className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12">
+        {viewMode === 'list' && (
+          <div className="space-y-12 max-w-3xl mx-auto">
+            {tasks.length > 0 ? (
+              // Group tasks by date
+              Object.entries(
+                tasks.reduce((groups, task) => {
+                  const date = task.due_date || 'Sin fecha';
+                  if (!groups[date]) groups[date] = [];
+                  groups[date].push(task);
+                  return groups;
+                }, {} as Record<string, Task[]>)
+              ).sort((a, b) => a[0].localeCompare(b[0])).map(([dateStr, dayTasks]) => (
+                <section key={dateStr} className="space-y-4">
+                  <h3 className="text-xs font-black tracking-[0.2em] text-on-surface-variant uppercase mb-6 flex items-center gap-4">
+                    <span className="text-primary glow-primary">
+                      {dateStr === 'Sin fecha' ? 'Sin fecha' : getLabelForDate(parseISO(dateStr))}
+                    </span>
+                    <div className="h-[1px] flex-1 bg-surface-variant/30"></div>
+                  </h3>
+                  {dayTasks.map(task => (
+                    <TaskItem key={task.id} task={task} onToggle={toggleTask} />
+                  ))}
+                </section>
+              ))
+            ) : (
+              <div className="py-20 text-center opacity-40">No hay tareas programadas.</div>
+            )}
+          </div>
+        )}
+
+        {viewMode === 'week' && (
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-4 h-full min-h-[500px]">
+            {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => (
+              <div key={day} className="flex flex-col gap-4">
+                <div className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant text-center mb-2 px-2 py-1 rounded-lg bg-surface-container">{day}</div>
+                <div className="flex-1 rounded-3xl border border-dashed border-surface-variant/30 hover:border-surface-variant p-4 transition-all group cursor-pointer flex flex-col items-center justify-center gap-3">
+                  <Plus size={20} className="text-on-surface-variant group-hover:text-primary transition-colors" />
+                  <span className="text-[10px] font-bold text-on-surface-variant opacity-0 group-hover:opacity-100 uppercase transition-opacity">Añadir</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {viewMode === 'month' && (
+          <div>
+            <div className="grid grid-cols-7 gap-px rounded-3xl overflow-hidden border border-surface-variant ambient-shadow bg-surface-variant/20">
+              {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => (
+                <div key={day} className="bg-surface-container py-3 text-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant">{day}</div>
+              ))}
+              
+              {/* Empty days at the start */}
+              {Array.from({ length: firstDay === 0 ? 6 : firstDay - 1 }).map((_, i) => (
+                <div key={`empty-${i}`} className="min-h-[140px] bg-surface-container-low/30"></div>
+              ))}
+              
+              {/* Actual days */}
+              {days.map(day => {
+                const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+                const isToday = isSameDay(new Date(), date);
+                const dayTasks = tasks.filter(t => t.due_date && isSameDay(parseISO(t.due_date), date));
+                
+                return (
+                  <div key={day} className={clsx(
+                    "min-h-[140px] p-3 bg-surface-container-low/50 hover:bg-surface-container-high transition-colors group relative",
+                    isToday && "bg-primary/5"
+                  )}>
+                    <div className={clsx(
+                      "w-7 h-7 flex items-center justify-center text-xs font-black rounded-lg mb-2 transition-all",
+                      isToday ? "bg-primary text-white shadow-lg glow-primary" : "text-on-surface-variant group-hover:text-white"
+                    )}>
+                      {day}
+                    </div>
+
+                    <div className="space-y-1">
+                      {dayTasks.slice(0, 3).map(task => (
+                        <div key={task.id} className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-surface-container-high text-white truncate border border-surface-variant/30 flex items-center gap-1">
+                           <div className={clsx("w-1 h-1 rounded-full", task.status === 'completed' ? "bg-secondary" : "bg-primary")} />
+                           {task.title}
+                        </div>
+                      ))}
+                      {dayTasks.length > 3 && (
+                        <div className="text-[8px] font-black text-on-surface-variant px-2 uppercase tracking-widest">
+                          + {dayTasks.length - 3} más
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </main>
+
+      <FloatingQuickAdd onTaskAdded={fetchTasks} />
+    </div>
+  );
+}

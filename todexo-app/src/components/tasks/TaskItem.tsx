@@ -9,6 +9,8 @@ export interface Task {
   status: 'pending' | 'completed';
   time?: string;
   tags?: string[];
+  due_date?: string;
+  due_time?: string;
   priority?: 'low' | 'medium' | 'high';
 }
 
