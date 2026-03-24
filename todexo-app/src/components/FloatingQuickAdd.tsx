@@ -31,14 +31,14 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
     const firstDayIdx = (start.getDay() === 0 ? 6 : start.getDay() - 1); // Adjust for Monday start
 
     return (
-      <div key={monthOffset} className="p-4 border-b border-surface-variant/20">
-        <h4 className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant mb-4 capitalize">{monthLabel}</h4>
-        <div className="grid grid-cols-7 gap-1 text-center mb-2">
+      <div key={monthOffset} className="px-3 py-2 border-b border-surface-variant/10">
+        <h4 className="text-[9px] font-black uppercase tracking-widest text-on-surface-variant/60 mb-2 capitalize">{monthLabel}</h4>
+        <div className="grid grid-cols-7 gap-0.5 text-center mb-1">
           {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => (
-            <span key={d} className="text-[8px] font-bold text-on-surface-variant/50">{d}</span>
+            <span key={d} className="text-[7px] font-bold text-on-surface-variant/40">{d}</span>
           ))}
         </div>
-        <div className="grid grid-cols-7 gap-1">
+        <div className="grid grid-cols-7 gap-0.5">
           {Array(firstDayIdx).fill(null).map((_, i) => <div key={`empty-${i}`} />)}
           {days.map(day => {
             const isSel = selectedDate && isSameDay(day, selectedDate);
@@ -52,8 +52,8 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                   setIsDateMenuOpen(false);
                 }}
                 className={clsx(
-                  "w-8 h-8 flex items-center justify-center text-[10px] font-bold rounded-full transition-all hover:bg-surface-variant",
-                  isSel ? "bg-primary text-white glow-primary" : isTod ? "text-primary border border-primary/30" : "text-on-surface-variant"
+                  "w-7 h-7 flex items-center justify-center text-[9px] font-bold rounded-full transition-all hover:bg-surface-variant/50",
+                  isSel ? "bg-primary text-white shadow-sm" : isTod ? "text-primary border border-primary/20" : "text-on-surface-variant/80"
                 )}
               >
                 {format(day, 'd')}
@@ -165,12 +165,12 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                   )}
 
                   {isDateMenuOpen && (
-                    <div className="absolute bottom-full mb-2 left-0 w-72 bg-surface-container rounded-3xl border border-surface-variant shadow-[0_32px_64px_-12px_rgba(0,0,0,0.8)] z-[60] overflow-hidden animate-in slide-in-from-bottom-2 duration-200">
-                      <div className="max-h-[450px] overflow-y-auto custom-scrollbar">
-                        <div className="py-2 border-b border-surface-variant/30">
-                          <div className="px-4 py-2 text-[10px] font-black uppercase tracking-widest text-on-surface-variant flex justify-between items-center bg-surface-container/80 sticky top-0 backdrop-blur-md z-10">
+                    <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 bg-surface-container rounded-2xl border border-surface-variant shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] z-[60] overflow-hidden animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200">
+                      <div className="max-h-[380px] overflow-y-auto custom-scrollbar">
+                        <div className="py-1 border-b border-surface-variant/20">
+                          <div className="px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex justify-between items-center bg-surface-container-high/90 sticky top-0 backdrop-blur-md z-10 border-b border-surface-variant/10">
                             <span>Atajos</span>
-                            <span className="text-secondary opacity-60">Sugerencias</span>
+                            <span className="text-secondary opacity-60 text-[8px]">Hoy: {format(new Date(), 'd MMM', { locale: es })}</span>
                           </div>
                           {dateOptions.map((opt, i) => {
                             const Icon = opt.icon;
@@ -182,13 +182,13 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                                   setSelectedDate(opt.date);
                                   setIsDateMenuOpen(false);
                                 }}
-                                className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-surface-variant transition-colors group"
+                                className="w-full flex items-center justify-between px-3 py-2 hover:bg-surface-variant/50 transition-colors group"
                               >
-                                <div className="flex items-center gap-3">
-                                  <Icon size={16} className={clsx(opt.color)} />
-                                  <span className="text-sm font-bold text-white group-hover:text-primary transition-colors">{opt.label}</span>
+                                <div className="flex items-center gap-2">
+                                  <Icon size={14} className={clsx(opt.color)} />
+                                  <span className="text-xs font-bold text-white group-hover:text-primary transition-colors">{opt.label}</span>
                                 </div>
-                                <span className="text-[10px] font-medium text-on-surface-variant uppercase">
+                                <span className="text-[9px] font-medium text-on-surface-variant/60 uppercase">
                                   {opt.date ? format(opt.date, 'eee', { locale: es }) : ''}
                                 </span>
                               </button>
@@ -201,13 +201,13 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                         {renderMonth(2)}
                       </div>
 
-                      <div className="p-3 bg-surface-container-high/50 border-t border-surface-variant/30 space-y-2">
-                         <button type="button" className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-surface-container border border-surface-variant/50 text-white text-xs font-bold hover:bg-surface-variant transition-all">
-                            <Clock size={14} className="text-primary" />
+                      <div className="p-2 bg-surface-container-high/60 border-t border-surface-variant/20 grid grid-cols-2 gap-2">
+                         <button type="button" className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-surface-variant/30 text-white text-[10px] font-bold hover:bg-surface-variant transition-all hover:border-primary/50 group">
+                            <Clock size={12} className="text-primary group-hover:scale-110 transition-transform" />
                             Hora
                          </button>
-                         <button type="button" className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-surface-container border border-surface-variant/50 text-white text-xs font-bold hover:bg-surface-variant transition-all">
-                            <Repeat size={14} className="text-secondary" />
+                         <button type="button" className="flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-surface-variant/30 text-white text-[10px] font-bold hover:bg-surface-variant transition-all hover:border-secondary/50 group">
+                            <Repeat size={12} className="text-secondary group-hover:scale-110 transition-transform" />
                             Repetir
                          </button>
                       </div>
