@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #0c0e14;
+  --color-surface: #0c0e14;
+  --color-surface-container: #171921;
+  --color-surface-container-low: #11131a;
+  --color-surface-container-high: #1d1f27;
+  --color-surface-variant: #23262f;
+  
+  --color-primary: #6366f1;
+  --color-primary-dim: #4f46e5;
+  --color-secondary: #2dd4bf; 
+  --color-tertiary: #a855f7;
+  
+  --color-on-surface: #ffffff;
+  --color-on-surface-variant: #94a3b8;
+  --color-on-error: #ffffff;
+  --color-error: #ef4444;
+  
+  --font-sans: var(--font-inter);
+  
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+}
+
+@layer base {
+  :root {
+    --background: #0c0e14;
+    --surface: #0c0e14;
+    --surface-container: #171921;
+    --surface-container-low: #11131a;
+    --surface-container-high: #1d1f27;
+    --surface-variant: #23262f;
+    --primary: #6366f1;
+    --primary-dim: #4f46e5;
+    --secondary: #2dd4bf;
+    --tertiary: #a855f7;
+    --on-surface: #ffffff;
+    --on-surface-variant: #94a3b8;
+  }
+
+  * {
+    border-color: var(--surface-variant);
+  }
+  
+  body {
+    background-color: var(--background);
+    color: var(--on-surface);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  .glow-primary {
+    box-shadow: 0 0 15px rgba(99,102,241,0.3);
+  }
+  
+  .glow-secondary {
+    box-shadow: 0 0 15px rgba(45,212,191,0.3);
+  }
+  
+  .glow-tertiary {
+    box-shadow: 0 0 15px rgba(168,85,247,0.3);
+  }
+
+  .ambient-shadow {
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  /* Scrollbar Customization */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #23262f;
+    border-radius: 99px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+}
+
+/* Glassmorphism utility */
+.glass {
+  background-color: rgba(23, 25, 33, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Animations */
+@keyframes slideUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out forwards;
+}
