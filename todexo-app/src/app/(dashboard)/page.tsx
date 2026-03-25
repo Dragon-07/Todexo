@@ -138,7 +138,7 @@ export default function TodayPage() {
                 <CalendarIcon className="text-white" size={28} />
              </div>
              <div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-on-surface">Mis Tareas</h1>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-on-surface">Mis tareas de hoy</h1>
                 <p className="text-on-surface-variant font-medium mt-1">Lo que tienes planeado para este día.</p>
              </div>
           </div>
