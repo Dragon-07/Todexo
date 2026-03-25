@@ -33,6 +33,8 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
   const [isPriorityMenuOpen, setIsPriorityMenuOpen] = useState(false);
   const [repeat, setRepeat] = useState<string | null>(task.repeat_type || null);
   const [isRepeatMenuOpen, setIsRepeatMenuOpen] = useState(false);
+  const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
+  const [timeSearch, setTimeSearch] = useState('');
   
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -64,6 +66,54 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
       repeat_type: repeat
     });
     onClose();
+  };
+
+  const generateTimeSlots = (query: string) => {
+    const slots: { display: string; value: string; isCustom?: boolean }[] = [];
+    const now = new Date();
+    
+    if (!query) {
+      const start = new Date();
+      start.setMinutes(Math.floor(now.getMinutes() / 15) * 15);
+      start.setSeconds(0);
+      for (let i = 0; i < 24; i++) {
+        const t = new Date(start.getTime() + i * 15 * 60000);
+        slots.push({ display: format(t, 'h:mm a'), value: format(t, 'HH:mm:ss') });
+      }
+      return slots;
+    }
+
+    const clean = query.replace(/\D/g, '');
+    const customSlots: any[] = [];
+    if (clean.length >= 1 && clean.length <= 4) {
+      let h = 0, m = 0;
+      if (clean.length <= 2) h = parseInt(clean);
+      else { h = parseInt(clean.slice(0, clean.length - 2)); m = parseInt(clean.slice(clean.length - 2)); }
+      if (h < 24 && m < 60) {
+        const hBase = h % 12 || 12;
+        const mStr = m.toString().padStart(2, '0');
+        customSlots.push({ display: `${hBase}:${mStr} AM`, value: `${(hBase === 12 ? 0 : hBase).toString().padStart(2, '0')}:${mStr}:00`, isCustom: true });
+        customSlots.push({ display: `${hBase}:${mStr} PM`, value: `${(hBase === 12 ? 12 : hBase + 12).toString().padStart(2, '0')}:${mStr}:00`, isCustom: true });
+      }
+    }
+
+    const intervalSlots: any[] = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const h12 = h % 12 || 12;
+        const time12 = `${h12}:${m.toString().padStart(2, '0')}`;
+        if (h12.toString() === query || time12.startsWith(query)) {
+          const d = new Date(); d.setHours(h, m, 0, 0);
+          intervalSlots.push({ display: format(d, 'h:mm a'), value: format(d, 'HH:mm:ss') });
+        }
+      }
+    }
+    
+    const combined = [...customSlots];
+    intervalSlots.sort((a,b) => a.value.localeCompare(b.value)).forEach(s => {
+      if (!combined.some(c => c.value === s.value)) combined.push(s);
+    });
+    return combined.slice(0, 12);
   };
 
   return (
@@ -122,13 +172,71 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
             <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Hora</label>
               <div className="relative group">
-                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-teal-400 transition-colors" size={16} />
-                <input 
-                  type="time"
-                  value={time || ''}
-                  onChange={(e) => setTime(e.target.value || null)}
-                  className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl pl-11 pr-3 py-2 text-on-surface font-bold focus:outline-none focus:border-teal-400/50 transition-all text-xs"
-                />
+                <button
+                  type="button"
+                  onClick={() => setIsTimeMenuOpen(!isTimeMenuOpen)}
+                  className="w-full flex items-center gap-3 bg-surface-container-low border border-surface-variant/30 rounded-xl px-4 py-2 text-on-surface font-bold focus:outline-none focus:border-teal-400/50 transition-all text-xs"
+                >
+                  <Clock className={clsx("transition-colors", isTimeMenuOpen ? "text-teal-400" : "text-on-surface-variant")} size={16} />
+                  <span>
+                    {time ? format(new Date(`2000-01-01T${time}`), 'h:mm a') : 'Sin hora'}
+                  </span>
+                </button>
+
+                {isTimeMenuOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-52 glass-modal rounded-2xl shadow-2xl z-[70] overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="p-2 border-b border-surface-variant/20 bg-surface-container-high/30">
+                      <input 
+                        autoFocus
+                        type="text"
+                        value={timeSearch}
+                        onChange={(e) => setTimeSearch(e.target.value)}
+                        placeholder="00:00"
+                        className="w-full px-3 py-1.5 text-lg font-black text-on-surface bg-surface-container-low rounded-xl border border-surface-variant/30 focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-on-surface-variant/20 text-center"
+                      />
+                    </div>
+                    <div className="max-h-[240px] overflow-y-auto py-1 custom-scrollbar">
+                      {(() => {
+                        const allSlots = generateTimeSlots(timeSearch);
+                        const custom = allSlots.filter(s => s.isCustom);
+                        const regular = allSlots.filter(s => !s.isCustom);
+                        return (
+                          <>
+                            {custom.map((s) => (
+                              <button 
+                                key={s.value}
+                                onClick={() => { setTime(s.value); setIsTimeMenuOpen(false); setTimeSearch(''); }}
+                                className="w-full text-left px-4 py-2 text-[11px] font-black text-primary bg-primary/5 hover:bg-primary/10 transition-colors border-b border-white/5 last:border-none"
+                              >
+                                {s.display}
+                              </button>
+                            ))}
+                            {regular.map((slot) => (
+                              <button
+                                key={slot.value}
+                                onClick={() => { setTime(slot.value); setIsTimeMenuOpen(false); setTimeSearch(''); }}
+                                className={clsx(
+                                  "w-full text-left px-4 py-2 text-[13px] font-black tracking-tight transition-colors border-b border-white/5 last:border-none",
+                                  time === slot.value ? "bg-primary/10 text-primary" : "text-on-surface/80 hover:bg-surface-variant hover:text-primary"
+                                )}
+                              >
+                                {slot.display}
+                              </button>
+                            ))}
+                            {time && (
+                              <button
+                                onClick={() => { setTime(null); setIsTimeMenuOpen(false); setTimeSearch(''); }}
+                                className="w-full text-left px-4 py-2 text-[10px] font-black text-red-500 hover:bg-red-500/10 transition-colors uppercase tracking-widest"
+                              >
+                                Eliminar hora
+                              </button>
+                            )}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
