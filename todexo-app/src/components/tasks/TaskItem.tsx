@@ -6,6 +6,7 @@ import { es } from 'date-fns/locale';
 
 export interface Task {
   id: string;
+  user_id: string;
   title: string;
   status: 'pending' | 'completed';
   time?: string;
@@ -14,6 +15,7 @@ export interface Task {
   due_time?: string | null;
   repeat_type?: string | null;
   priority?: string | number | null;
+  project_id?: string | null;
 }
 
 interface TaskItemProps {
@@ -77,13 +79,16 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
     <div 
       onClick={handleCardClick}
       className={clsx(
-        "group flex items-center justify-between p-4 rounded-3xl border transition-all cursor-pointer select-none",
+        "group flex items-center justify-between p-4 rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
         isCompleted 
-          ? "bg-surface-container-low/50 border-surface-variant/20 opacity-50 grayscale" 
+          ? "bg-surface-container-low/50 border-surface-variant/20" 
           : "bg-surface-container border-surface-variant/50 hover:bg-surface-container-high hover:border-primary/40 hover:scale-[1.01] ambient-shadow"
       )}
     >
-      <div className="flex items-center gap-4 flex-1 min-w-0">
+      <div className={clsx(
+        "flex items-center gap-4 flex-1 min-w-0 transition-all",
+        isCompleted && "opacity-50 grayscale"
+      )}>
         {/* Checkbox Icon with Confirmation Menu */}
         <div className="relative flex items-center justify-center flex-shrink-0" ref={completeMenuRef}>
           <button 
@@ -193,7 +198,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
         </div>
       </div>
 
-      <div className="flex items-center gap-2 relative" ref={menuRef}>
+      <div className="flex items-center gap-2 relative z-10" ref={menuRef}>
         <button 
           onClick={(e) => {
             e.stopPropagation();
@@ -201,7 +206,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
           }}
           className={clsx(
             "text-on-surface-variant transition-all p-2 rounded-xl hover:bg-surface-variant border border-transparent hover:border-surface-variant/50",
-            isMenuOpen ? "bg-surface-variant opacity-100" : "opacity-0 group-hover:opacity-100"
+            isMenuOpen ? "bg-surface-variant opacity-100" : isCompleted ? "opacity-40 hover:opacity-100" : "opacity-0 group-hover:opacity-100"
           )}
         >
           <MoreVertical size={18} />
@@ -209,7 +214,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
 
         {isMenuOpen && (
           <div className="absolute right-0 top-12 w-48 bg-surface-container-high border border-surface-variant/50 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-1.5">
+            <div className="p-1.5 grayscale-0">
               <button
                 onClick={(e) => {
                   e.stopPropagation();

@@ -6,6 +6,8 @@ import TaskItem, { Task } from '@/components/tasks/TaskItem';
 import FloatingQuickAdd from '@/components/FloatingQuickAdd';
 import TaskEditor from '@/components/tasks/TaskEditor';
 import { supabase } from '@/lib/supabase';
+import { calculateNextDueDate, RepeatType } from '@/lib/recurrence';
+import { format } from 'date-fns';
 
 export default function DashboardPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -46,6 +48,27 @@ export default function DashboardPage() {
 
     // Persist to Supabase
     await supabase.from('tasks').update({ status: newStatus }).eq('id', id);
+
+    // Handle recurrence if task was just completed
+    if (newStatus === 'completed' && task.repeat_type) {
+      const nextDueDate = calculateNextDueDate(task.due_date || new Date(), task.repeat_type as RepeatType);
+      
+      const payload = {
+        title: task.title,
+        user_id: task.user_id,
+        status: 'pending',
+        due_date: format(nextDueDate, 'yyyy-MM-dd'),
+        due_time: task.due_time,
+        repeat_type: task.repeat_type,
+        priority: task.priority,
+        project_id: task.project_id
+      };
+      
+      const { error } = await supabase.from('tasks').insert(payload);
+      if (!error) {
+        fetchTasks();
+      }
+    }
   };
 
   const deleteTask = async (id: string) => {

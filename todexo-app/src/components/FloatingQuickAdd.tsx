@@ -445,10 +445,10 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                               <span className="truncate">
                                 {selectedRepeat ? (() => {
                                   const d = selectedDate || new Date();
-                                  if (selectedRepeat === 'daily') return 'Día';
-                                  if (selectedRepeat === 'weekly') return `Sem. (${format(d, 'eee', { locale: es })})`;
-                                  if (selectedRepeat === 'weekday') return 'L-V';
-                                  if (selectedRepeat === 'monthly') return `Mes (${format(d, 'd')})`;
+                                  if (selectedRepeat === 'daily') return 'CADA DÍA';
+                                  if (selectedRepeat === 'weekly') return `CADA SEMANA EL ${format(d, 'eeee', { locale: es }).toUpperCase()}`;
+                                  if (selectedRepeat === 'weekday') return 'CADA DÍA LABORABLE (LUN - VIE)';
+                                  if (selectedRepeat === 'monthly') return `CADA MES EL ${format(d, 'd')}`;
                                   return 'Repetir';
                                 })() : 'Repetir'}
                               </span>
@@ -481,7 +481,10 @@ export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => 
                                             selectedRepeat === opt.id ? "bg-secondary/10 text-secondary" : "text-white/80 hover:bg-surface-variant hover:text-secondary"
                                           )}
                                         >
-                                          {opt.label}
+                                          {opt.id === 'daily' && 'Cada día'}
+                                          {opt.id === 'weekly' && `Cada semana el ${dayName}`}
+                                          {opt.id === 'weekday' && 'Cada día laborable (lun - vie)'}
+                                          {opt.id === 'monthly' && `Cada mes el ${dayNum}`}
                                         </button>
                                       ));
                                     })()}
