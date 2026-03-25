@@ -21,7 +21,7 @@ export default function StatsPage() {
       <div className="max-w-4xl mx-auto w-full flex flex-col gap-8">
         
         <header>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-2">Estadísticas y Progreso</h1>
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-onSurface mb-2">Estadísticas y Progreso</h1>
         </header>
 
         {/* Top Metrics Cards */}
@@ -31,7 +31,7 @@ export default function StatsPage() {
             <h3 className="text-[10px] uppercase font-bold tracking-widest text-onSurfaceVariant mb-2 flex items-center gap-2">
                <Flame size={14} className="text-[#FF6E84]" /> Racha Actual
             </h3>
-            <p className="text-3xl font-bold text-white mb-2">14 <span className="text-sm font-medium text-onSurfaceVariant">días</span></p>
+            <p className="text-3xl font-bold text-onSurface mb-2">14 <span className="text-sm font-medium text-onSurfaceVariant">días</span></p>
             {/* Minimal SVG sparkline */}
             <svg width="100%" height="24" viewBox="0 0 100 24" className="overflow-visible">
                <polyline points="0,20 20,24 40,15 60,10 80,18 100,2" fill="none" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -41,14 +41,14 @@ export default function StatsPage() {
           <div className="bg-surfaceContainer p-5 rounded-2xl border border-surfaceVariant flex items-center justify-between hover:-translate-y-1 transition-transform">
              <div>
                 <h3 className="text-[10px] uppercase font-bold tracking-widest text-onSurfaceVariant mb-2">Tareas Hoy</h3>
-                <p className="text-3xl font-bold text-white">7<span className="text-xl text-onSurfaceVariant">/12</span></p>
+                <p className="text-3xl font-bold text-onSurface">7<span className="text-xl text-onSurfaceVariant">/12</span></p>
              </div>
              <div className="relative w-12 h-12 flex items-center justify-center glow-tertiary rounded-full bg-surfaceContainerLow">
                  <svg className="w-full h-full transform -rotate-90 absolute inset-0" viewBox="0 0 36 36">
                     <circle cx="18" cy="18" r="15" fill="none" className="stroke-surfaceVariant" strokeWidth="3" />
                     <circle cx="18" cy="18" r="15" fill="none" className="stroke-tertiary" strokeWidth="3" strokeDasharray="94.248" strokeDashoffset={94.248 - (7/12) * 94.248} />
                  </svg>
-                 <span className="relative font-bold text-xs text-white z-10">58%</span>
+                 <span className="relative font-bold text-xs text-onSurface z-10">58%</span>
               </div>
           </div>
 
@@ -92,8 +92,14 @@ export default function StatsPage() {
                   </defs>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#aaaab3' }} dy={10} />
                   <Tooltip 
-                     contentStyle={{ backgroundColor: '#1d1f27', border: '1px solid #46484f', borderRadius: '12px', fontSize: '12px' }}
-                     itemStyle={{ color: '#F1F5F9' }}
+                     contentStyle={{ 
+                        backgroundColor: 'var(--surface-container-high)', 
+                        border: '1px solid var(--surface-variant)', 
+                        borderRadius: '12px', 
+                        fontSize: '12px',
+                        color: 'var(--on-surface)'
+                     }}
+                     itemStyle={{ color: 'var(--on-surface)' }}
                   />
                   <Area type="monotone" dataKey="tasks" stroke="#6366F1" strokeWidth={3} fillOpacity={1} fill="url(#colorTasks)" style={{ filter: 'drop-shadow(0px 4px 12px rgba(99, 102, 241, 0.4))' }} />
                 </AreaChart>
@@ -116,7 +122,7 @@ export default function StatsPage() {
             <div className="mt-6 bg-surfaceVariant/50 p-4 rounded-xl flex items-start gap-3">
                <div className="bg-tertiary/20 text-tertiary p-1.5 rounded-lg"><Target size={16} /></div>
                <div>
-                  <h4 className="text-xs font-bold text-white mb-0.5">Insight Semanal</h4>
+                  <h4 className="text-xs font-bold text-onSurface mb-0.5">Insight Semanal</h4>
                   <p className="text-[10px] text-onSurfaceVariant leading-relaxed">Tu enfoque en "Salud" ha mejorado un 15% respecto al mes pasado. ¡Sigue así!</p>
                </div>
             </div>
@@ -128,7 +134,7 @@ export default function StatsPage() {
         <div className="bg-surfaceContainer p-6 rounded-2xl border border-surfaceVariant">
            <div className="flex justify-between items-center mb-6">
               <h3 className="text-xs font-bold tracking-widest text-onSurfaceVariant uppercase">Historial de Logros</h3>
-              <button className="text-[10px] font-bold text-primary hover:text-white transition-colors">Ver todos</button>
+              <button className="text-[10px] font-bold text-primary hover:text-onSurface transition-colors">Ver todos</button>
            </div>
            
            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
@@ -173,12 +179,12 @@ function AchievementCard({ title, icon, unlocked = false, glowColor = "" }: { ti
       )}>
          <div className={clsx(
             "w-12 h-12 rounded-xl flex items-center justify-center",
-            unlocked ? "bg-background text-white ambient-shadow" : "bg-surfaceContainer text-onSurfaceVariant"
+            unlocked ? "bg-background text-onSurface ambient-shadow" : "bg-surfaceContainer text-onSurfaceVariant"
          )}>
             {icon}
          </div>
          <div>
-            <h4 className="text-xs font-bold text-white mb-0.5">{title}</h4>
+            <h4 className="text-xs font-bold text-onSurface mb-0.5">{title}</h4>
             <span className={clsx("text-[9px] font-bold px-2 py-0.5 rounded-full uppercase", unlocked ? "bg-tertiary/20 text-tertiary" : "text-onSurfaceVariant")}>
                {unlocked ? "Completado" : "Bloqueado"}
             </span>

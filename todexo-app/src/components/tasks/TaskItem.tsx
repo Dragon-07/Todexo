@@ -129,7 +129,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
                      onToggle(task.id);
                      setIsCompleteMenuOpen(false);
                    }}
-                   className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-white hover:bg-primary/20 rounded-xl transition-colors"
+                   className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-on-surface hover:bg-primary/20 rounded-xl transition-colors"
                  >
                    <CheckCircle2 size={16} className="text-primary" />
                    Completar

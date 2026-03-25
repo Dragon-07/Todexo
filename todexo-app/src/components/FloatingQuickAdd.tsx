@@ -56,7 +56,7 @@ export default function FloatingQuickAdd({
 
     return (
       <div key={monthOffset} className="px-3 py-3 border-b border-surface-variant/5">
-        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/90 mb-4 flex items-center gap-2">
+        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface/90 mb-4 flex items-center gap-2">
           {monthLabel}
         </h4>
         <div className="grid grid-cols-7 gap-0.5 text-center mb-2">
@@ -249,7 +249,7 @@ export default function FloatingQuickAdd({
                   <Plus size={24} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black text-white px-1">Nueva Tarea</h2>
+                  <h2 className="text-xl font-black text-on-surface px-1">Nueva Tarea</h2>
                   <p className="text-xs text-on-surface-variant font-medium px-1">Captura rápida con IA asistida</p>
                 </div>
               </div>
@@ -269,7 +269,7 @@ export default function FloatingQuickAdd({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Escribe lo que quieres lograr hoy..."
-                className="w-full bg-transparent text-2xl font-bold text-white placeholder:text-on-surface-variant/30 focus:outline-none min-h-[120px] resize-none border-none ring-0 p-0 leading-tight"
+                className="w-full bg-transparent text-2xl font-bold text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none min-h-[120px] resize-none border-none ring-0 p-0 leading-tight"
                 required
               />
 
@@ -333,7 +333,7 @@ export default function FloatingQuickAdd({
                                   <Icon size={14} className={clsx(opt.color)} />
                                   <span className={clsx(
                                     "text-xs font-bold transition-colors",
-                                    isSelected ? "text-primary" : "text-white group-hover:text-primary"
+                                    isSelected ? "text-primary" : "text-on-surface group-hover:text-primary"
                                   )}>
                                     {opt.label}
                                   </span>
@@ -387,7 +387,7 @@ export default function FloatingQuickAdd({
                                   value={timeSearch}
                                   onChange={(e) => setTimeSearch(e.target.value)}
                                   placeholder="00:00"
-                                  className="w-32 mx-auto block px-2 py-0.5 text-2xl font-black text-white bg-surface-container-high rounded-xl border border-surface-variant/30 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/20 text-center tracking-tight"
+                                  className="w-32 mx-auto block px-2 py-0.5 text-2xl font-black text-on-surface bg-surface-container-high rounded-xl border border-surface-variant/30 focus:outline-none focus:ring-4 focus:ring-primary/20 transition-all placeholder:text-on-surface-variant/20 text-center tracking-tight"
                                   onKeyDown={(e) => {
                                     if (e.key === 'Enter') {
                                       const slots = generateTimeSlots(timeSearch);
@@ -436,7 +436,7 @@ export default function FloatingQuickAdd({
                                             "w-full text-left px-4 py-2 text-[13px] font-black tracking-tight transition-colors border-b border-white/5 last:border-none",
                                             selectedTime === slot.value 
                                               ? "bg-primary/10 text-primary" 
-                                              : "text-white/80 hover:bg-surface-variant hover:text-primary"
+                                              : "text-on-surface/80 hover:bg-surface-variant hover:text-primary"
                                           )}
                                         >
                                           {slot.display}
@@ -455,7 +455,7 @@ export default function FloatingQuickAdd({
                               onClick={() => setIsRepeatMenuOpen(!isRepeatMenuOpen)}
                               className={clsx(
                                 "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border transition-all group text-[10px] font-bold h-[34px]",
-                                isRepeatMenuOpen || selectedRepeat ? "border-secondary text-secondary" : "border-surface-variant/30 text-white hover:bg-surface-variant hover:border-secondary/50"
+                                isRepeatMenuOpen || selectedRepeat ? "border-secondary text-secondary" : "border-surface-variant/30 text-on-surface hover:bg-surface-variant hover:border-secondary/50"
                               )}
                             >
                               <Repeat size={12} className={clsx("transition-transform", (isRepeatMenuOpen || selectedRepeat) ? "text-secondary" : "text-on-surface-variant group-hover:rotate-180 duration-500")} />
@@ -495,7 +495,7 @@ export default function FloatingQuickAdd({
                                           }}
                                           className={clsx(
                                             "w-full text-left px-4 py-2 text-[13px] font-black tracking-tight transition-colors border-b border-white/5 last:border-none uppercase",
-                                            selectedRepeat === opt.id ? "bg-secondary/10 text-secondary" : "text-white/80 hover:bg-surface-variant hover:text-secondary"
+                                            selectedRepeat === opt.id ? "bg-secondary/10 text-secondary" : "text-on-surface/80 hover:bg-surface-variant hover:text-secondary"
                                           )}
                                         >
                                           {opt.id === 'daily' && 'Cada día'}

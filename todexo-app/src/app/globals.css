@@ -1,22 +1,22 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0c0e14;
-  --color-surface: #0c0e14;
-  --color-surface-container: #171921;
-  --color-surface-container-low: #11131a;
-  --color-surface-container-high: #1d1f27;
-  --color-surface-variant: #23262f;
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-low: var(--surface-container-low);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-variant: var(--surface-variant);
   
-  --color-primary: #6366f1;
-  --color-primary-dim: #4f46e5;
-  --color-secondary: #2dd4bf; 
-  --color-tertiary: #a855f7;
+  --color-primary: var(--primary);
+  --color-primary-dim: var(--primary-dim);
+  --color-secondary: var(--secondary); 
+  --color-tertiary: var(--tertiary);
   
-  --color-on-surface: #ffffff;
-  --color-on-surface-variant: #94a3b8;
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-variant: var(--on-surface-variant);
   --color-on-error: #ffffff;
-  --color-error: #ef4444;
+  --color-error: var(--error);
   
   --font-sans: var(--font-inter);
   
@@ -27,6 +27,28 @@
 
 @layer base {
   :root {
+    /* Light Mode Palette */
+    --background: #f8fafc;
+    --surface: #ffffff;
+    --surface-container: #ffffff;
+    --surface-container-low: #f8fafc;
+    --surface-container-high: #f1f5f9;
+    --surface-variant: #e2e8f0;
+    
+    --primary: #6366f1;
+    --primary-dim: #4f46e5;
+    --secondary: #0d9488; 
+    --tertiary: #9333ea;
+    
+    --on-surface: #0f172a;
+    --on-surface-variant: #64748b;
+    --error: #ef4444;
+
+    --shadow-color: rgba(15, 23, 42, 0.08); /* Minimal shadow for light mode */
+  }
+
+  .dark {
+    /* Dark Mode Palette */
     --background: #0c0e14;
     --surface: #0c0e14;
     --surface-container: #171921;
@@ -39,6 +61,8 @@
     --tertiary: #a855f7;
     --on-surface: #ffffff;
     --on-surface-variant: #94a3b8;
+
+    --shadow-color: rgba(0, 0, 0, 0.5); /* Strong shadow for dark mode */
   }
 
   * {
@@ -67,7 +91,7 @@
   }
 
   .ambient-shadow {
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 32px var(--shadow-color);
   }
 
   /* Scrollbar Customization */

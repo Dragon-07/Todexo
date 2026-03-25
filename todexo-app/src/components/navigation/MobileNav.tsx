@@ -27,7 +27,7 @@ export default function MobileNav() {
             href={item.href}
             className={clsx(
               "flex flex-col items-center gap-1.5 px-4 py-2 transition-all group",
-              isActive ? "text-primary glow-primary" : "text-on-surface-variant hover:text-white"
+              isActive ? "text-primary glow-primary" : "text-on-surface-variant hover:text-on-surface"
             )}
           >
             <div className={clsx(

@@ -78,7 +78,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
             <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary border border-primary/20">
               <PencilLine size={16} />
             </div>
-            <h2 className="text-base font-black text-white tracking-tight">Editar Tarea</h2>
+            <h2 className="text-base font-black text-on-surface tracking-tight">Editar Tarea</h2>
           </div>
           <button 
             onClick={onClose}
@@ -97,7 +97,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
              <textarea 
                value={title}
                onChange={(e) => setTitle(e.target.value)}
-               className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl px-5 py-3 text-white font-bold focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-on-surface-variant/30 text-sm resize-none min-h-[120px] custom-scrollbar"
+               className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl px-5 py-3 text-on-surface font-bold focus:outline-none focus:border-primary/50 focus:ring-4 focus:ring-primary/10 transition-all placeholder:text-on-surface-variant/30 text-sm resize-none min-h-[120px] custom-scrollbar"
                placeholder="¿Qué hay que hacer?"
                rows={3}
              />
@@ -113,7 +113,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                   type="date"
                   value={date || ''}
                   onChange={(e) => setDate(e.target.value || null)}
-                  className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl pl-11 pr-3 py-2 text-white font-bold focus:outline-none focus:border-primary/50 transition-all text-xs [color-scheme:dark]"
+                  className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl pl-11 pr-3 py-2 text-on-surface font-bold focus:outline-none focus:border-primary/50 transition-all text-xs"
                 />
               </div>
             </div>
@@ -127,7 +127,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                   type="time"
                   value={time || ''}
                   onChange={(e) => setTime(e.target.value || null)}
-                  className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl pl-11 pr-3 py-2 text-white font-bold focus:outline-none focus:border-teal-400/50 transition-all text-xs [color-scheme:dark]"
+                  className="w-full bg-surface-container-low border border-surface-variant/30 rounded-xl pl-11 pr-3 py-2 text-on-surface font-bold focus:outline-none focus:border-teal-400/50 transition-all text-xs"
                 />
               </div>
             </div>

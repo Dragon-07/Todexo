@@ -151,19 +151,19 @@ export default function CalendarPage() {
       <header className="px-6 py-8 md:px-12 md:py-10 border-b border-surface-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-6">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim flex items-center justify-center shadow-2xl glow-secondary flex-shrink-0">
-            <Calendar className="text-white" size={28} />
+            <Calendar className="text-on-surface" size={28} />
           </div>
           <div className="flex items-center gap-3">
             <button 
               onClick={handlePrevMonth} 
-              className="p-3 rounded-2xl bg-surface-container hover:bg-surface-variant text-white transition-all ambient-shadow active:scale-95 group"
+              className="p-3 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
               title="Mes anterior"
             >
               <ChevronLeft size={22} className="group-hover:-translate-x-0.5 transition-transform" />
             </button>
             
             <div className="min-w-[180px] text-center">
-              <h1 className="text-4xl font-black tracking-tighter text-white capitalize">
+              <h1 className="text-4xl font-black tracking-tighter text-on-surface capitalize">
                 {monthName} <span className="opacity-30 font-light">{year}</span>
               </h1>
               <p className="text-on-surface-variant font-medium mt-1 uppercase tracking-widest text-[10px]">Tu horizonte de tareas</p>
@@ -171,7 +171,7 @@ export default function CalendarPage() {
 
             <button 
               onClick={handleNextMonth} 
-              className="p-3 rounded-2xl bg-surface-container hover:bg-surface-variant text-white transition-all ambient-shadow active:scale-95 group"
+              className="p-3 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
               title="Mes siguiente"
             >
               <ChevronRight size={22} className="group-hover:translate-x-0.5 transition-transform" />
@@ -193,7 +193,7 @@ export default function CalendarPage() {
             onClick={() => setViewMode('list')}
             className={clsx(
               "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all",
-              viewMode === 'list' ? "bg-primary text-white glow-primary" : "text-on-surface-variant hover:text-white"
+              viewMode === 'list' ? "bg-primary text-white glow-primary" : "text-on-surface-variant hover:text-on-surface"
             )}
           >
             <List size={18} />
@@ -203,7 +203,7 @@ export default function CalendarPage() {
             onClick={() => setViewMode('week')}
             className={clsx(
               "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all",
-              viewMode === 'week' ? "bg-primary text-white glow-primary" : "text-on-surface-variant hover:text-white"
+              viewMode === 'week' ? "bg-primary text-white glow-primary" : "text-on-surface-variant hover:text-on-surface"
             )}
           >
             <Columns size={18} />
@@ -213,7 +213,7 @@ export default function CalendarPage() {
             onClick={() => setViewMode('month')}
             className={clsx(
               "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all",
-              viewMode === 'month' ? "bg-primary text-white glow-primary" : "text-on-surface-variant hover:text-white"
+              viewMode === 'month' ? "bg-primary text-white glow-primary" : "text-on-surface-variant hover:text-on-surface"
             )}
           >
             <Grid3X3 size={18} />
@@ -299,7 +299,7 @@ export default function CalendarPage() {
                   )}>
                     <div className={clsx(
                       "w-7 h-7 flex items-center justify-center text-xs font-black rounded-lg mb-2 transition-all",
-                      isToday ? "bg-primary text-white shadow-lg glow-primary" : "text-on-surface-variant group-hover:text-white"
+                      isToday ? "bg-primary text-white shadow-lg glow-primary" : "text-on-surface-variant group-hover:text-on-surface"
                     )}>
                       {day}
                     </div>

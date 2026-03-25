@@ -13,15 +13,37 @@ import {
   Moon,
   Inbox,
   Sparkles,
-  LogOut
+  LogOut,
+  Sun
 } from 'lucide-react';
 import clsx from 'clsx';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
 
 export default function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+
+  useEffect(() => {
+    // Initial check for theme
+    const isDark = document.documentElement.classList.contains('dark');
+    setTheme(isDark ? 'dark' : 'light');
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    if (newTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -46,11 +68,21 @@ export default function Sidebar({ className }: { className?: string }) {
   return (
     <aside className={clsx("flex flex-col bg-surface-container-low border-r border-surface-variant p-6 h-full", className)}>
       {/* Brand */}
-      <div className="flex items-center gap-3 mb-10 px-2">
-        <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg glow-primary">
-          <span className="text-white font-bold text-lg">TX</span>
+      <div className="flex items-center justify-between mb-10 px-2">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg glow-primary">
+            <span className="text-white font-bold text-lg">TX</span>
+          </div>
+          <span className="text-xl font-bold text-on-surface tracking-tight">Todexo</span>
         </div>
-        <span className="text-xl font-bold text-white tracking-tight">Todexo</span>
+        
+        <button 
+          onClick={toggleTheme}
+          className="p-2 rounded-xl bg-surface-variant/30 text-on-surface-variant hover:text-primary transition-all active:scale-90"
+          title={theme === 'dark' ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
+        >
+          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
       </div>
 
       {/* Nav Section */}
@@ -68,11 +100,11 @@ export default function Sidebar({ className }: { className?: string }) {
                   className={clsx(
                     "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group",
                     isActive 
-                      ? "bg-surface-variant text-white font-medium shadow-sm" 
-                      : "text-on-surface-variant hover:text-white hover:bg-surface-container"
+                      ? "bg-surface-variant text-on-surface font-bold shadow-sm" 
+                      : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
                   )}
                 >
-                  <Icon size={18} className={clsx(isActive ? link.color : "group-hover:text-white transition-colors")} />
+                  <Icon size={18} className={clsx(isActive ? link.color : "group-hover:text-on-surface transition-colors")} />
                   <span className="text-sm">{link.label}</span>
                   {isActive && <div className="ml-auto w-1 h-1 rounded-full bg-primary glow-primary"></div>}
                 </Link>
@@ -85,7 +117,7 @@ export default function Sidebar({ className }: { className?: string }) {
           <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-4 px-2">Proyectos</h3>
           <nav className="space-y-1">
             {projects.map((project) => (
-              <button key={project.label} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:text-white hover:bg-surface-container transition-all group">
+              <button key={project.label} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all group">
                 <div className={clsx("w-2 h-2 rounded-full", project.color, "opacity-60 group-hover:opacity-100 transition-opacity")} />
                 <span className="text-sm">{project.label}</span>
               </button>
@@ -98,7 +130,7 @@ export default function Sidebar({ className }: { className?: string }) {
       <div className="pt-6 border-t border-surface-variant/50 space-y-2">
         <Link 
           href="/settings"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:text-white hover:bg-surface-container transition-all"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all"
         >
           <Settings size={18} />
           <span className="text-sm">Configuración</span>

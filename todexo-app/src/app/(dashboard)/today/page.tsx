@@ -115,14 +115,14 @@ export default function TodayPage() {
         <div className="flex flex-wrap items-center gap-4 mb-14">
           <div className="flex items-center gap-3 bg-surface-container px-4 py-2.5 rounded-2xl border border-surface-variant/50 ambient-shadow group hover:border-primary/30 transition-all cursor-default">
             <div className="w-1.5 h-1.5 rounded-full bg-primary glow-primary animate-pulse"></div>
-            <span className="text-sm font-bold text-white tracking-wide">Hoy</span>
+            <span className="text-sm font-bold text-on-surface tracking-wide">Hoy</span>
             <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
             <span className="text-xs font-medium text-on-surface-variant">{format(new Date(), "EEEE, d 'de' MMMM", { locale: es })}</span>
           </div>
 
           <div className="flex items-center gap-3 bg-surface-container px-4 py-2.5 rounded-2xl border border-surface-variant/50 ambient-shadow group hover:border-tertiary/30 transition-all cursor-default">
              <Trophy size={16} className="text-tertiary glow-tertiary" />
-             <span className="text-sm font-bold text-white tracking-wide">{progressPercent}%</span>
+             <span className="text-sm font-bold text-on-surface tracking-wide">{progressPercent}%</span>
              <span className="text-xs font-medium text-on-surface-variant">Completado</span>
           </div>
 
@@ -135,10 +135,10 @@ export default function TodayPage() {
         <header className="mb-12">
           <div className="flex items-center gap-6 mb-3">
              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dim flex items-center justify-center shadow-2xl glow-primary">
-                <CalendarIcon className="text-white" size={28} />
+                <CalendarIcon className="text-on-surface" size={28} />
              </div>
              <div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white">Hoy</h1>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-on-surface">Hoy</h1>
                 <p className="text-on-surface-variant font-medium mt-1">Lo que tienes planeado para este día.</p>
              </div>
           </div>
@@ -167,7 +167,7 @@ export default function TodayPage() {
                      <Sparkles size={40} />
                    </div>
                    <div className="space-y-2">
-                     <h3 className="font-black text-2xl text-white">Día despejado</h3>
+                     <h3 className="font-black text-2xl text-on-surface">Día despejado</h3>
                      <p className="text-on-surface-variant max-w-xs mx-auto">No tienes tareas para hoy. ¿Por qué no añades algo?</p>
                    </div>
                 </div>
@@ -179,7 +179,7 @@ export default function TodayPage() {
                    <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center text-secondary glow-secondary">
                       <CheckCircle2 size={32} />
                    </div>
-                   <h3 className="font-black text-xl text-white">¡Día terminado!</h3>
+                   <h3 className="font-black text-xl text-on-surface">¡Día terminado!</h3>
                    <p className="text-on-surface-variant text-sm">Has completado todas tus tareas de hoy.</p>
                 </div>
              )}
@@ -187,7 +187,7 @@ export default function TodayPage() {
              {/* Add Button Inline */}
              <button 
                 onClick={() => setIsQuickAddOpen(true)}
-                className="w-full p-5 rounded-3xl border border-dashed border-surface-variant/50 text-on-surface-variant font-bold hover:text-white hover:border-primary/50 hover:bg-surface-container-low transition-all flex items-center gap-4 group mt-6"
+                className="w-full p-5 rounded-3xl border border-dashed border-surface-variant/50 text-on-surface-variant font-bold hover:text-on-surface hover:border-primary/50 hover:bg-surface-container-low transition-all flex items-center gap-4 group mt-6"
               >
                 <div className="bg-surface-variant p-1.5 rounded-xl group-hover:bg-primary/20 transition-colors">
                    <Plus size={20} className="group-hover:text-primary transition-colors" />
