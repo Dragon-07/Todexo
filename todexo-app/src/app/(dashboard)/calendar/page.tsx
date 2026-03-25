@@ -10,7 +10,9 @@ import {
   Columns,
   Sparkles,
   Plus,
-  Clock
+  Clock,
+  Trash2,
+  Repeat
 } from 'lucide-react';
 import clsx from 'clsx';
 import TaskItem, { Task } from '@/components/tasks/TaskItem';
@@ -31,6 +33,7 @@ export default function CalendarPage() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [quickAddInitialDate, setQuickAddInitialDate] = useState<Date | null>(null);
+  const [selectedDayTasksDate, setSelectedDayTasksDate] = useState<Date | null>(null);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -99,48 +102,16 @@ export default function CalendarPage() {
     const { error } = await supabase.from('tasks').delete().eq('id', id);
     if (error) {
       console.error('Error deleting task:', error);
-      fetchTasks();
+      fetchTasks(); // Revert on error
     }
   };
 
-  const handleUpdateTask = async (updatedFields: Partial<Task>) => {
-    if (!editingTask) return;
-
-    // Update local state optimistically
-    setTasks(tasks.map(t => t.id === editingTask.id ? { ...t, ...updatedFields } : t));
-
-    // Persist to Supabase
-    const { error } = await supabase
-      .from('tasks')
-      .update(updatedFields)
-      .eq('id', editingTask.id);
-
-    if (error) {
-      console.error('Error updating task:', error);
-      fetchTasks();
-    }
-  };
-
-  const getLabelForDate = (date: Date | null) => {
-    if (!date) return 'Sin fecha';
-    const now = new Date();
-    if (isSameDay(date, now)) return 'Hoy';
-    if (isSameDay(date, addDays(now, 1))) return 'Mañana';
-    return format(date, "d 'de' MMM", { locale: es });
-  };
-
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1).getDay();
-    const lastDate = new Date(year, month + 1, 0).getDate();
-    return { firstDay, lastDate };
-  };
-
-  const { firstDay, lastDate } = getDaysInMonth(currentDate);
-  const days = Array.from({ length: lastDate }, (_, i) => i + 1);
-  const monthName = currentDate.toLocaleString('es-ES', { month: 'long' });
+  const monthName = format(currentDate, 'MMMM', { locale: es });
   const year = currentDate.getFullYear();
+  
+  const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+  const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
   const handlePrevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
@@ -234,49 +205,35 @@ export default function CalendarPage() {
         {viewMode === 'list' && (
           <div className="space-y-12 max-w-5xl">
             {tasks.length > 0 ? (
-              // Group tasks by date
-              Object.entries(
-                tasks.reduce((groups, task) => {
-                  const date = task.due_date || 'Sin fecha';
-                  if (!groups[date]) groups[date] = [];
-                  groups[date].push(task);
-                  return groups;
-                }, {} as Record<string, Task[]>)
-              ).sort((a, b) => {
-                if (a[0] === 'Sin fecha') return 1;
-                if (b[0] === 'Sin fecha') return -1;
-                return a[0].localeCompare(b[0]);
-              }).map(([dateStr, dayTasks]) => (
-                <section key={dateStr} className="space-y-4">
-                  <h3 className="text-xs font-black tracking-[0.2em] text-on-surface-variant uppercase mb-6 flex items-center gap-4">
-                    <span className="text-primary glow-primary">
-                      {dateStr === 'Sin fecha' ? 'Sin fecha' : getLabelForDate(parseISO(dateStr))}
-                    </span>
-                    <div className="h-[1px] flex-1 bg-surface-variant/30"></div>
-                  </h3>
-                  {dayTasks.map(task => (
-                    <TaskItem 
-                      key={task.id} 
-                      task={task} 
-                      onToggle={toggleTask} 
-                      onDelete={deleteTask} 
-                      onEdit={setEditingTask} 
-                    />
-                  ))}
-                </section>
-              ))
+              <div className="space-y-4">
+                {tasks.map(task => (
+                  <TaskItem 
+                    key={task.id} 
+                    task={task} 
+                    onToggle={toggleTask} 
+                    onDelete={deleteTask} 
+                    onEdit={setEditingTask}
+                  />
+                ))}
+              </div>
             ) : (
-              <div className="py-20 text-center opacity-40">No hay tareas programadas.</div>
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="w-20 h-20 rounded-full bg-surface-variant flex items-center justify-center mb-6">
+                  <Sparkles size={40} className="text-on-surface-variant opacity-20" />
+                </div>
+                <h3 className="text-2xl font-bold text-on-surface mb-2">No hay tareas programadas</h3>
+                <p className="text-on-surface-variant max-w-xs">Relájate o añade nuevas tareas para organizar tu calendario.</p>
+              </div>
             )}
           </div>
         )}
 
         {viewMode === 'week' && (
-          <div className="grid grid-cols-1 md:grid-cols-7 gap-4 h-full min-h-[600px]">
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-6 min-h-full">
             {(() => {
-              const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
-              const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-              const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+              const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+              const weekDays = Array.from({ length: 7 }, (_, i) => addDays(start, i));
+              const dayLabels = ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM'];
 
               return weekDays.map((dayDate, idx) => {
                 const dayTasks = tasks.filter(t => t.due_date && isSameDay(parseISO(t.due_date), dayDate));
@@ -343,15 +300,30 @@ export default function CalendarPage() {
                 const dayTasks = tasks.filter(t => t.due_date && isSameDay(parseISO(t.due_date), date));
                 
                 return (
-                  <div key={day} className={clsx(
-                    "min-h-[110px] p-2 bg-surface-container-low/50 hover:bg-surface-container-high transition-colors group relative",
-                    isToday && "bg-primary/5"
-                  )}>
-                    <div className={clsx(
-                      "w-6 h-6 flex items-center justify-center text-[10px] font-black rounded-lg mb-1.5 transition-all text-center",
-                      isToday ? "bg-primary text-white shadow-lg glow-primary" : "text-on-surface-variant group-hover:text-on-surface"
-                    )}>
-                      {day}
+                  <div 
+                    key={day} 
+                    onClick={() => setSelectedDayTasksDate(date)}
+                    className={clsx(
+                      "min-h-[110px] p-2 bg-surface-container-low/50 hover:bg-surface-container-high transition-colors group relative cursor-pointer",
+                      isToday && "bg-primary/5"
+                    )}
+                  >
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className={clsx(
+                        "w-6 h-6 flex items-center justify-center text-[10px] font-black rounded-lg transition-all text-center",
+                        isToday ? "bg-primary text-white shadow-lg glow-primary" : "text-on-surface-variant group-hover:text-on-surface"
+                      )}>
+                        {day}
+                      </div>
+                      <Plus 
+                        size={14} 
+                        className="text-on-surface-variant/40 opacity-0 group-hover:opacity-100 transition-all hover:text-primary"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setQuickAddInitialDate(date);
+                          setIsQuickAddOpen(true);
+                        }}
+                      />
                     </div>
 
                     <div className="space-y-1">
@@ -378,7 +350,7 @@ export default function CalendarPage() {
                         </div>
                       ))}
                       {dayTasks.length > 3 && (
-                        <div className="text-[8px] font-black text-on-surface-variant px-2 uppercase tracking-widest">
+                        <div className="text-[8px] font-black text-on-surface-variant px-2 uppercase tracking-widest text-center">
                           + {dayTasks.length - 3} más
                         </div>
                       )}
@@ -391,22 +363,95 @@ export default function CalendarPage() {
         )}
       </main>
 
+      {/* Day Details Modal */}
+      {selectedDayTasksDate && (
+        <div 
+          className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300"
+          onClick={() => setSelectedDayTasksDate(null)}
+        >
+          <div 
+            className="w-full max-w-lg glass-modal rounded-[2.5rem] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-300"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="p-8">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-3xl font-black text-on-surface capitalize">
+                    {format(selectedDayTasksDate, "EEEE, d 'de' MMMM", { locale: es })}
+                  </h2>
+                  <p className="text-on-surface-variant font-medium mt-1 uppercase tracking-widest text-[10px]">Tareas programadas</p>
+                </div>
+                <button 
+                  onClick={() => setSelectedDayTasksDate(null)}
+                  className="w-12 h-12 rounded-2xl bg-surface-container hover:bg-surface-variant flex items-center justify-center text-on-surface-variant transition-all hover:rotate-90 group"
+                >
+                  <Plus size={24} className="rotate-45 group-hover:text-red-400 transition-colors" />
+                </button>
+              </div>
+
+              <div className="space-y-3 max-h-[60vh] overflow-y-auto custom-scrollbar pr-2 pb-4">
+                {tasks.filter(t => t.due_date && isSameDay(parseISO(t.due_date), selectedDayTasksDate)).length > 0 ? (
+                  tasks.filter(t => t.due_date && isSameDay(parseISO(t.due_date), selectedDayTasksDate)).map(task => (
+                    <TaskItem 
+                      key={task.id}
+                      task={task}
+                      onToggle={toggleTask}
+                      onDelete={deleteTask}
+                      onEdit={(task) => {
+                        setEditingTask(task);
+                        setSelectedDayTasksDate(null);
+                      }}
+                      compact
+                    />
+                  ))
+                ) : (
+                  <div className="py-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-surface-variant/30 flex items-center justify-center mx-auto mb-4">
+                       <Calendar size={32} className="text-on-surface-variant/40" />
+                    </div>
+                    <p className="text-on-surface-variant font-bold">No hay tareas para este día</p>
+                    <button 
+                      onClick={() => {
+                        setQuickAddInitialDate(selectedDayTasksDate);
+                        setIsQuickAddOpen(true);
+                        setSelectedDayTasksDate(null);
+                      }}
+                      className="mt-4 px-6 py-2.5 rounded-2xl bg-primary text-white font-bold tracking-tight shadow-lg glow-primary active:scale-95 transition-all text-sm"
+                    >
+                      Añadir primera tarea
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Quick Add Floating Panel */}
       <FloatingQuickAdd 
-        onTaskAdded={() => {
+        isOpen={isQuickAddOpen} 
+        onClose={() => {
+          setIsQuickAddOpen(false);
+          setQuickAddInitialDate(null);
+        }} 
+        onTaskCreated={() => {
           fetchTasks();
           setIsQuickAddOpen(false);
-        }} 
-        open={isQuickAddOpen}
-        onOpenChange={setIsQuickAddOpen}
-        initialDueDate={quickAddInitialDate}
+        }}
+        initialDate={quickAddInitialDate}
       />
 
+      {/* Task Editor Modal */}
       {editingTask && (
         <TaskEditor 
           task={editingTask}
           isOpen={!!editingTask}
           onClose={() => setEditingTask(null)}
-          onSave={handleUpdateTask}
+          onUpdate={() => {
+            fetchTasks();
+            setEditingTask(null);
+          }}
         />
       )}
     </div>
