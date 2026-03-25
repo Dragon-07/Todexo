@@ -304,10 +304,10 @@ export default function FloatingQuickAdd({
 
                       <div className="max-h-[440px] flex flex-col custom-scrollbar">
                         {/* ATAJOS: FIJO ARRIBA */}
-                        <div className="flex-none py-0 border-b border-surface-variant/20 bg-white dark:bg-[#1f2937]/50">
-                          <div className="px-3 pt-3 pb-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex items-center relative backdrop-blur-md border-b border-surface-variant/5">
-                            <span className="relative z-10 opacity-30">Atajos</span>
-                            <span className="absolute left-1/2 -translate-x-1/2 text-secondary font-black text-[16px] tracking-[0.1em] uppercase truncate w-full text-center px-16 pointer-events-none">
+                        <div className="flex-none py-0 border-b border-surface-variant/20 bg-surface-container-high">
+                          <div className="px-3 pt-3 pb-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex items-center relative border-b border-surface-variant/5">
+                            <span className="relative z-10 opacity-60">Atajos</span>
+                            <span className="absolute left-1/2 -translate-x-1/2 text-primary font-black text-[16px] tracking-[0.1em] uppercase truncate w-full text-center px-16 pointer-events-none">
                               {selectedDate ? format(selectedDate, 'MMMM d', { locale: es }) : 'SIN FECHA'}
                             </span>
                           </div>
@@ -358,7 +358,7 @@ export default function FloatingQuickAdd({
                           {Array.from({ length: 15 }).map((_, i) => renderMonth(i))}
                         </div>
                       </div>
-                      <div className="p-2 bg-white dark:bg-[#1a1f2e] border-t border-surface-variant/20 grid grid-cols-3 gap-2 relative">
+                      <div className="p-2 bg-surface-container-high border-t border-surface-variant/20 grid grid-cols-3 gap-2 relative">
                         <div className="relative">
                           <button 
                             type="button" 
@@ -367,8 +367,10 @@ export default function FloatingQuickAdd({
                               if (!isTimeMenuOpen) setTimeSearch('');
                             }}
                             className={clsx(
-                              "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border transition-all group text-[10px] font-bold h-[34px]",
-                              isTimeMenuOpen ? "border-primary text-primary" : "border-surface-variant/30 text-on-surface-variant hover:bg-surface-variant hover:border-primary/50"
+                              "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border transition-all group text-[10px] font-black h-[34px]",
+                              isTimeMenuOpen 
+                                ? "bg-primary/20 border-primary text-primary shadow-sm shadow-primary/20" 
+                                : "bg-surface-variant/30 border-surface-variant/40 text-on-surface hover:bg-surface-variant hover:border-primary/50"
                             )}
                           >
                             {selectedTime ? (
@@ -455,8 +457,10 @@ export default function FloatingQuickAdd({
                               type="button" 
                               onClick={() => setIsRepeatMenuOpen(!isRepeatMenuOpen)}
                               className={clsx(
-                                "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border transition-all group text-[10px] font-bold h-[34px]",
-                                isRepeatMenuOpen || selectedRepeat ? "border-secondary text-secondary" : "border-surface-variant/30 text-on-surface hover:bg-surface-variant hover:border-secondary/50"
+                                "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border transition-all group text-[10px] font-black h-[34px]",
+                                isRepeatMenuOpen || selectedRepeat 
+                                  ? "bg-secondary/20 border-secondary text-secondary shadow-sm shadow-secondary/20" 
+                                  : "bg-surface-variant/30 border-surface-variant/40 text-on-surface hover:bg-surface-variant hover:border-secondary/50"
                               )}
                             >
                               <Repeat size={12} className={clsx("transition-transform", (isRepeatMenuOpen || selectedRepeat) ? "text-secondary" : "text-on-surface-variant group-hover:rotate-180 duration-500")} />
