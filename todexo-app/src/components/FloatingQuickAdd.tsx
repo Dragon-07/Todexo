@@ -208,14 +208,17 @@ export default function FloatingQuickAdd({
         status: 'pending',
         due_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null,
         due_time: selectedTime || null,
-        repeat_type: selectedRepeat
+        repeat_type: selectedRepeat,
+        priority: selectedPriority
       };
 
-      if (selectedPriority !== 0) {
-        payload.priority = selectedPriority;
-      }
+      const { error } = await supabase.from('tasks').insert(payload);
 
-      await supabase.from('tasks').insert(payload);
+      if (error) {
+        console.error('Error creating task:', error);
+        setLoading(false);
+        return;
+      }
 
       setTitle('');
       setSelectedPriority(0);
