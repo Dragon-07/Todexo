@@ -239,8 +239,8 @@ export default function FloatingQuickAdd({
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-xl flex items-center justify-center p-6 z-50 animate-in fade-in duration-300">
-          <div className="w-full max-w-xl glass-panel rounded-[2.5rem] border border-white/30 dark:border-white/10 p-8 relative overflow-visible">
+        <div className="fixed inset-0 bg-background/95 backdrop-blur-3xl flex items-center justify-center p-6 z-50 animate-in fade-in duration-300">
+          <div className="w-full max-w-xl glass-modal rounded-[2.5rem] p-8 relative overflow-visible shadow-[0_40px_100px_rgba(0,0,0,0.4)]">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
 
             <header className="flex items-center justify-between mb-8 relative">
@@ -269,7 +269,7 @@ export default function FloatingQuickAdd({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Escribe lo que quieres lograr hoy..."
-                className="w-full bg-transparent text-2xl font-bold text-on-surface placeholder:text-on-surface-variant/30 focus:outline-none min-h-[120px] resize-none border-none ring-0 p-0 leading-tight"
+                className="w-full bg-transparent text-2xl font-bold text-on-surface placeholder:text-on-surface-variant/20 focus:outline-none min-h-[120px] resize-none border-none ring-0 p-0 leading-tight relative z-10"
                 required
               />
 
@@ -300,11 +300,11 @@ export default function FloatingQuickAdd({
 
 
                   {isDateMenuOpen && (
-                    <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 glass-panel rounded-2xl border border-white/30 dark:border-white/10 shadow-[0_24px_48px_-12px_rgba(31,38,135,0.3)] z-[60] animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200">
+                    <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 bg-white dark:bg-[#1a1f2e] rounded-2xl border border-surface-variant/40 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5)] z-[60] animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200 overflow-hidden">
 
                       <div className="max-h-[440px] flex flex-col custom-scrollbar">
                         {/* ATAJOS: FIJO ARRIBA */}
-                        <div className="flex-none py-0 border-b border-surface-variant/20 bg-surface-container-high/50">
+                        <div className="flex-none py-0 border-b border-surface-variant/20 bg-white dark:bg-[#1f2937]/50">
                           <div className="px-3 pt-3 pb-1.5 text-[9px] font-black uppercase tracking-widest text-on-surface-variant flex items-center relative backdrop-blur-md border-b border-surface-variant/5">
                             <span className="relative z-10 opacity-30">Atajos</span>
                             <span className="absolute left-1/2 -translate-x-1/2 text-secondary font-black text-[16px] tracking-[0.1em] uppercase truncate w-full text-center px-16 pointer-events-none">
@@ -358,7 +358,7 @@ export default function FloatingQuickAdd({
                           {Array.from({ length: 15 }).map((_, i) => renderMonth(i))}
                         </div>
                       </div>
-                      <div className="p-2 bg-surface-container-high/60 border-t border-surface-variant/20 grid grid-cols-3 gap-2 relative">
+                      <div className="p-2 bg-white dark:bg-[#1a1f2e] border-t border-surface-variant/20 grid grid-cols-3 gap-2 relative">
                         <div className="relative">
                           <button 
                             type="button" 
@@ -367,8 +367,8 @@ export default function FloatingQuickAdd({
                               if (!isTimeMenuOpen) setTimeSearch('');
                             }}
                             className={clsx(
-                              "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border transition-all group text-[10px] font-bold h-[34px]",
-                              isTimeMenuOpen ? "border-primary text-primary" : "border-surface-variant/30 text-white hover:bg-surface-variant hover:border-primary/50"
+                              "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border transition-all group text-[10px] font-bold h-[34px]",
+                              isTimeMenuOpen ? "border-primary text-primary" : "border-surface-variant/30 text-on-surface-variant hover:bg-surface-variant hover:border-primary/50"
                             )}
                           >
                             {selectedTime ? (
@@ -380,7 +380,7 @@ export default function FloatingQuickAdd({
                           </button>
 
                           {isTimeMenuOpen && (
-                            <div className="absolute bottom-full left-0 mb-2 w-52 bg-surface-container rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
+                            <div className="absolute bottom-full left-0 mb-2 w-52 bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
                               <div className="p-2 border-b border-surface-variant/20 bg-surface-container-high/30 text-center">
                                 <input 
                                   autoFocus
@@ -455,7 +455,7 @@ export default function FloatingQuickAdd({
                               type="button" 
                               onClick={() => setIsRepeatMenuOpen(!isRepeatMenuOpen)}
                               className={clsx(
-                                "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border transition-all group text-[10px] font-bold h-[34px]",
+                                "w-full flex items-center justify-center gap-1.5 py-2 rounded-xl bg-gray-50 dark:bg-gray-800 border transition-all group text-[10px] font-bold h-[34px]",
                                 isRepeatMenuOpen || selectedRepeat ? "border-secondary text-secondary" : "border-surface-variant/30 text-on-surface hover:bg-surface-variant hover:border-secondary/50"
                               )}
                             >
@@ -473,7 +473,7 @@ export default function FloatingQuickAdd({
                             </button>
 
                             {isRepeatMenuOpen && (
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-surface-container rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70] overflow-hidden">
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70] overflow-hidden">
                                   <div className="py-1">
                                     {(() => {
                                       const d = selectedDate || new Date();
@@ -558,7 +558,7 @@ export default function FloatingQuickAdd({
                   </button>
 
                   {isPriorityMenuOpen && (
-                    <div className="absolute bottom-full left-0 mb-2 w-44 bg-surface-container rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
+                    <div className="absolute bottom-full left-0 mb-2 w-44 bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
                       <div className="py-1">
                         {[
                           { id: 3, label: 'Alta', color: 'text-red-400', bg: 'hover:bg-red-500/10', Icon: Flame, iconColor: 'fill-red-400/20' },
@@ -587,7 +587,7 @@ export default function FloatingQuickAdd({
                     </div>
                   )}
                 </div>
-                <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 text-on-surface-variant hover:text-primary transition-colors">
+                 <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-surface-variant/40 text-on-surface-variant hover:text-primary transition-colors">
                   <Clock size={14} />
                   Recordatorio
                 </button>

@@ -67,10 +67,10 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/95 backdrop-blur-2xl animate-in fade-in duration-300">
       <div 
         ref={modalRef}
-        className="w-full max-w-lg glass-panel rounded-[2.5rem] border border-white/30 dark:border-white/10 shadow-2xl overflow-visible animate-in zoom-in-95 duration-300"
+        className="w-full max-w-lg glass-modal rounded-[2.5rem] border border-white/30 dark:border-white/10 shadow-2xl overflow-visible animate-in zoom-in-95 duration-300"
       >
         {/* Header */}
         <div className="px-6 py-3 border-b border-surface-variant/30 flex items-center justify-between bg-surface-container-high/50">
