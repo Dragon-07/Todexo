@@ -93,64 +93,66 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
         compact ? "flex flex-col gap-1.5" : "flex items-center gap-4",
         isCompleted && "opacity-80 grayscale-[0.3]"
       )}>
-        {/* Checkbox Icon with Confirmation Menu */}
-        <div className="relative flex items-center justify-center flex-shrink-0" ref={completeMenuRef}>
-          <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isCompleted) {
-                onToggle(task.id);
-              } else {
-                setIsCompleteMenuOpen(!isCompleteMenuOpen);
-              }
-            }}
-            className="focus:outline-none"
-          >
-            {isCompleted ? (
-              <div className="text-secondary glow-secondary transition-all transform scale-100">
-                <CheckCircle2 size={24} strokeWidth={2.5} />
-              </div>
-            ) : (
-              <div className={clsx(
-                "relative flex items-center justify-center text-on-surface-variant/40 group-hover:text-primary transition-all group-hover:scale-110",
-                isCompleteMenuOpen && "text-primary scale-110"
-              )}>
-                <Circle size={28} strokeWidth={2.5} />
-                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-50 group-hover:scale-100">
-                  <CheckCircle2 size={18} className="text-primary fill-primary/10" strokeWidth={3} />
+        {/* Checkbox Icon - Hidden in compact mode */}
+        {!compact && (
+          <div className="relative flex items-center justify-center flex-shrink-0" ref={completeMenuRef}>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                if (isCompleted) {
+                  onToggle(task.id);
+                } else {
+                  setIsCompleteMenuOpen(!isCompleteMenuOpen);
+                }
+              }}
+              className="focus:outline-none"
+            >
+              {isCompleted ? (
+                <div className="text-secondary glow-secondary transition-all transform scale-100">
+                  <CheckCircle2 size={24} strokeWidth={2.5} />
                 </div>
+              ) : (
+                <div className={clsx(
+                  "relative flex items-center justify-center text-on-surface-variant/40 group-hover:text-primary transition-all group-hover:scale-110",
+                  isCompleteMenuOpen && "text-primary scale-110"
+                )}>
+                  <Circle size={28} strokeWidth={2.5} />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-50 group-hover:scale-100">
+                    <CheckCircle2 size={18} className="text-primary fill-primary/10" strokeWidth={3} />
+                  </div>
+                </div>
+              )}
+            </button>
+
+            {isCompleteMenuOpen && !isCompleted && (
+              <div className="absolute left-0 top-10 w-40 glass-modal rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in duration-200">
+                 <div className="p-1.5 flex flex-col gap-1">
+                   <button
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       onToggle(task.id);
+                       setIsCompleteMenuOpen(false);
+                     }}
+                     className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-on-surface hover:bg-primary/20 rounded-xl transition-colors"
+                   >
+                     <CheckCircle2 size={16} className="text-primary" />
+                     Completar
+                   </button>
+                   <button
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       setIsCompleteMenuOpen(false);
+                     }}
+                     className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-on-surface-variant hover:bg-surface-variant rounded-xl transition-colors"
+                   >
+                     <Circle size={16} />
+                     Continuar
+                   </button>
+                 </div>
               </div>
             )}
-          </button>
-
-          {isCompleteMenuOpen && !isCompleted && (
-            <div className="absolute left-0 top-10 w-40 glass-modal rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in duration-200">
-               <div className="p-1.5 flex flex-col gap-1">
-                 <button
-                   onClick={(e) => {
-                     e.stopPropagation();
-                     onToggle(task.id);
-                     setIsCompleteMenuOpen(false);
-                   }}
-                   className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-on-surface hover:bg-primary/20 rounded-xl transition-colors"
-                 >
-                   <CheckCircle2 size={16} className="text-primary" />
-                   Completar
-                 </button>
-                 <button
-                   onClick={(e) => {
-                     e.stopPropagation();
-                     setIsCompleteMenuOpen(false);
-                   }}
-                   className="w-full flex items-center gap-3 px-3 py-2 text-sm font-bold text-on-surface-variant hover:bg-surface-variant rounded-xl transition-colors"
-                 >
-                   <Circle size={16} />
-                   Continuar
-                 </button>
-               </div>
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className={clsx(
           "flex-1 min-w-0 transition-all",
