@@ -219,7 +219,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                 </button>
 
                 {isRepeatMenuOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-52 bg-surface-container rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
+                  <div className="absolute right-0 top-full mt-2 w-52 glass-modal rounded-2xl shadow-2xl z-[70] overflow-hidden animate-in zoom-in-95 duration-200">
                     <div className="py-1">
                       {[
                         { id: 'daily', label: 'Cada día' },

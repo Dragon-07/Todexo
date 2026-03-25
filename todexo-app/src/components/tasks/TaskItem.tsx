@@ -121,7 +121,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
           </button>
 
           {isCompleteMenuOpen && !isCompleted && (
-            <div className="absolute left-0 top-10 w-40 bg-surface-container-high border border-surface-variant/50 rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="absolute left-0 top-10 w-40 glass-modal rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in duration-200">
                <div className="p-1.5 flex flex-col gap-1">
                  <button
                    onClick={(e) => {
@@ -220,7 +220,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
         </button>
 
         {isMenuOpen && (
-          <div className="absolute right-0 top-12 w-48 bg-surface-container-high border border-surface-variant/50 rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in duration-200">
+          <div className="absolute right-0 top-12 w-48 glass-modal rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-1.5 flex flex-col gap-1">
               {isCompleted && (
                 <button

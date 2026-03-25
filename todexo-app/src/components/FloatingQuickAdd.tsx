@@ -300,7 +300,7 @@ export default function FloatingQuickAdd({
 
 
                   {isDateMenuOpen && (
-                    <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 bg-white dark:bg-[#1a1f2e] rounded-2xl border border-surface-variant/40 shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5)] z-[60] animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200 overflow-hidden">
+                    <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 glass-modal rounded-2xl shadow-[0_24px_48px_-12px_rgba(0,0,0,0.5)] z-[60] animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200 overflow-hidden">
 
                       <div className="max-h-[440px] flex flex-col custom-scrollbar">
                         {/* ATAJOS: FIJO ARRIBA */}
@@ -380,7 +380,7 @@ export default function FloatingQuickAdd({
                           </button>
 
                           {isTimeMenuOpen && (
-                            <div className="absolute bottom-full left-0 mb-2 w-52 bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
+                            <div className="absolute bottom-full left-0 mb-2 w-52 glass-modal rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden animate-in zoom-in-95 duration-200 z-[70]">
                               <div className="p-2 border-b border-surface-variant/20 bg-surface-container-high/30 text-center">
                                 <input 
                                   autoFocus
@@ -473,7 +473,7 @@ export default function FloatingQuickAdd({
                             </button>
 
                             {isRepeatMenuOpen && (
-                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70] overflow-hidden">
+                                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 glass-modal rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] animate-in zoom-in-95 duration-200 z-[70] overflow-hidden">
                                   <div className="py-1">
                                     {(() => {
                                       const d = selectedDate || new Date();
@@ -558,7 +558,7 @@ export default function FloatingQuickAdd({
                   </button>
 
                   {isPriorityMenuOpen && (
-                    <div className="absolute bottom-full left-0 mb-2 w-44 bg-white dark:bg-[#1a1f2e] rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.4)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
+                    <div className="absolute bottom-full right-0 mb-4 w-48 glass-modal rounded-[2.5rem] shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
                       <div className="py-1">
                         {[
                           { id: 3, label: 'Alta', color: 'text-red-400', bg: 'hover:bg-red-500/10', Icon: Flame, iconColor: 'fill-red-400/20' },
