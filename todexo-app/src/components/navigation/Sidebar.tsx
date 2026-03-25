@@ -25,26 +25,6 @@ export default function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-
-  useEffect(() => {
-    // Initial check for theme
-    const isDark = document.documentElement.classList.contains('dark');
-    setTheme(isDark ? 'dark' : 'light');
-  }, []);
-
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push('/login');
@@ -75,14 +55,6 @@ export default function Sidebar({ className }: { className?: string }) {
           </div>
           <span className="text-xl font-bold text-on-surface tracking-tight">Todexo</span>
         </div>
-        
-        <button 
-          onClick={toggleTheme}
-          className="p-2 rounded-xl bg-surface-variant/30 text-on-surface-variant hover:text-primary transition-all active:scale-90"
-          title={theme === 'dark' ? "Cambiar a modo claro" : "Cambiar a modo oscuro"}
-        >
-          {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
       </div>
 
       {/* Nav Section */}
