@@ -9,7 +9,8 @@ import {
   MinusCircle, 
   ChevronsDown, 
   PencilLine,
-  Check
+  Check,
+  Flag
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -28,6 +29,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
   const [date, setDate] = useState<string | null>(task.due_date || null);
   const [time, setTime] = useState<string | null>(task.due_time || null);
   const [priority, setPriority] = useState<number | string>(task.priority || 0);
+  const [isPriorityMenuOpen, setIsPriorityMenuOpen] = useState(false);
   
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -127,29 +129,62 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
 
           {/* Priority Selection */}
           <div className="space-y-2">
-             <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Prioridad</label>
-             <div className="grid grid-cols-4 gap-2">
-                {[
-                  { value: 3, label: 'Alta', icon: Flame, color: 'text-red-400', bg: 'bg-red-400/10', border: 'border-red-400/20' },
-                  { value: 2, label: 'Media', icon: MinusCircle, color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/20' },
-                  { value: 1, label: 'Baja', icon: ChevronsDown, color: 'text-blue-400', bg: 'bg-blue-400/10', border: 'border-blue-400/20' },
-                  { value: 0, label: 'Ninguna', icon: Check, color: 'text-on-surface-variant', bg: 'bg-surface-variant/10', border: 'border-surface-variant/20' },
-                ].map((p) => (
-                  <button
-                    key={p.value}
-                    onClick={() => setPriority(p.value)}
-                    className={clsx(
-                      "flex flex-col items-center gap-1.5 p-2 rounded-xl border transition-all",
-                      priority == p.value 
-                        ? `${p.bg} ${p.border} ${p.color} ring-2 ring-${p.color.split('-')[1]}-400/10 scale-105` 
-                        : "bg-surface-container-low border-surface-variant/10 text-on-surface-variant hover:border-surface-variant/30"
-                    )}
-                  >
-                    <p.icon size={16} />
-                    <span className="text-[8px] font-black uppercase tracking-wider">{p.label}</span>
-                  </button>
-                ))}
-             </div>
+            <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Prioridad</label>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setIsPriorityMenuOpen(!isPriorityMenuOpen)}
+                className={clsx(
+                  "flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-container-low border transition-all w-full",
+                  priority == 3 ? "border-red-500/50 text-red-400" :
+                  priority == 2 ? "border-orange-500/50 text-orange-400" :
+                  priority == 1 ? "border-blue-500/50 text-blue-400" :
+                  "border-surface-variant/40 text-on-surface-variant hover:text-primary hover:border-primary/30"
+                )}
+              >
+                <div className={clsx("flex items-center gap-2", priority == 0 && "opacity-60")}>
+                  {priority == 3 ? <Flame size={14} className="fill-red-400/20" /> :
+                   priority == 2 ? <MinusCircle size={14} className="fill-orange-400/20" /> :
+                   priority == 1 ? <ChevronsDown size={14} className="fill-blue-400/20" /> :
+                   <Flag size={14} />}
+                  <span className="text-xs font-black uppercase tracking-tight">
+                    {priority == 3 ? 'Alta' :
+                     priority == 2 ? 'Media' :
+                     priority == 1 ? 'Baja' : 'Sin prioridad'}
+                  </span>
+                </div>
+              </button>
+
+              {isPriorityMenuOpen && (
+                <div className="absolute top-full left-0 mt-2 w-44 bg-surface-container rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
+                  <div className="py-1">
+                    {[
+                      { id: 3, label: 'Alta', color: 'text-red-400', bg: 'hover:bg-red-500/10', Icon: Flame, iconColor: 'fill-red-400/20' },
+                      { id: 2, label: 'Media', color: 'text-orange-400', bg: 'hover:bg-orange-500/10', Icon: MinusCircle, iconColor: 'fill-orange-400/20' },
+                      { id: 1, label: 'Baja', color: 'text-blue-400', bg: 'hover:bg-blue-500/10', Icon: ChevronsDown, iconColor: 'fill-blue-400/20' },
+                      { id: 0, label: 'Sin prioridad', color: 'text-on-surface-variant/60', bg: 'hover:bg-white/5', Icon: Flag, iconColor: '' },
+                    ].map((p) => (
+                      <button
+                        key={p.id}
+                        type="button"
+                        onClick={() => {
+                          setPriority(p.id);
+                          setIsPriorityMenuOpen(false);
+                        }}
+                        className={clsx(
+                          "w-full text-left px-4 py-2 text-[13px] font-black transition-colors border-b border-white/5 last:border-none uppercase flex items-center gap-3",
+                          priority == p.id ? "bg-surface-variant/20" : p.bg,
+                          p.color
+                        )}
+                      >
+                        <p.Icon size={14} className={p.iconColor} />
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
