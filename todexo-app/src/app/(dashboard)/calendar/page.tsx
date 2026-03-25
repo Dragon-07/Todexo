@@ -106,6 +106,26 @@ export default function CalendarPage() {
     }
   };
 
+  const updateTask = async (updatedFields: Partial<Task>) => {
+    if (!editingTask) return;
+    
+    // Update local state optimistically
+    setTasks(prev => prev.map(t => t.id === editingTask.id ? { ...t, ...updatedFields } : t));
+    
+    const { error } = await supabase
+      .from('tasks')
+      .update(updatedFields)
+      .eq('id', editingTask.id);
+      
+    if (error) {
+      console.error('Error updating task:', error);
+      fetchTasks(); // Revert on error
+    } else {
+      // Sync with DB to be sure
+      fetchTasks();
+    }
+  };
+
   const monthName = format(currentDate, 'MMMM', { locale: es });
   const year = currentDate.getFullYear();
   
@@ -328,10 +348,17 @@ export default function CalendarPage() {
 
                     <div className="space-y-1">
                       {dayTasks.slice(0, 3).map(task => (
-                        <div key={task.id} className={clsx(
-                          "text-[9px] font-bold px-2 py-0.5 rounded-md text-on-surface truncate border flex items-center justify-between gap-2",
-                          task.status === 'completed' ? "bg-surface-container-low/70 border-surface-variant/20 opacity-80" : "bg-surface-container-high border-surface-variant/30"
-                        )}>
+                        <div 
+                          key={task.id} 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingTask(task);
+                          }}
+                          className={clsx(
+                            "text-[9px] font-bold px-2 py-0.5 rounded-md text-on-surface truncate border flex items-center justify-between gap-2 transition-all hover:ring-2 hover:ring-primary/30",
+                            task.status === 'completed' ? "bg-surface-container-low/70 border-surface-variant/20 opacity-80" : "bg-surface-container-high border-surface-variant/30"
+                          )}
+                        >
                            <div className="flex items-center gap-1.5 truncate">
                              <div className={clsx("w-1.5 h-1.5 rounded-full flex-shrink-0", 
                                task.status === 'completed' ? "bg-surface-variant" :
@@ -448,10 +475,7 @@ export default function CalendarPage() {
           task={editingTask}
           isOpen={!!editingTask}
           onClose={() => setEditingTask(null)}
-          onUpdate={() => {
-            fetchTasks();
-            setEditingTask(null);
-          }}
+          onSave={updateTask}
         />
       )}
     </div>
