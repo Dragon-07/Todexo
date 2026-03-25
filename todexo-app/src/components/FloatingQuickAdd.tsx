@@ -7,10 +7,27 @@ import clsx from 'clsx';
 import { format, addDays, nextMonday, nextSaturday, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, addMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-export default function FloatingQuickAdd({ onTaskAdded }: { onTaskAdded?: () => void }) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function FloatingQuickAdd({ 
+  onTaskAdded,
+  initialDueDate,
+  open: externalOpen,
+  onOpenChange: externalOnOpenChange
+}: { 
+  onTaskAdded?: () => void,
+  initialDueDate?: Date | null,
+  open?: boolean,
+  onOpenChange?: (open: boolean) => void
+}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
+  
+  const setIsOpen = (newOpen: boolean) => {
+    setInternalOpen(newOpen);
+    externalOnOpenChange?.(newOpen);
+  };
+
   const [isDateMenuOpen, setIsDateMenuOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
+  const [selectedDate, setSelectedDate] = useState<Date | null>(initialDueDate !== undefined ? initialDueDate : new Date());
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
