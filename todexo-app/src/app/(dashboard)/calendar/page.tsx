@@ -133,12 +133,20 @@ export default function CalendarPage() {
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
 
-  const handlePrevMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  const handlePrev = () => {
+    if (viewMode === 'week') {
+      setCurrentDate(prev => addDays(prev, -7));
+    } else {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+    }
   };
 
-  const handleNextMonth = () => {
-    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  const handleNext = () => {
+    if (viewMode === 'week') {
+      setCurrentDate(prev => addDays(prev, 7));
+    } else {
+      setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+    }
   };
 
   return (
@@ -150,22 +158,45 @@ export default function CalendarPage() {
           </div>
           <div className="flex items-center gap-3">
             <button 
-              onClick={handlePrevMonth} 
+              onClick={handlePrev} 
               className="p-2.5 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
-              title="Mes anterior"
+              title={viewMode === 'week' ? "Semana anterior" : "Mes anterior"}
             >
               <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
             </button>
             
             <div className="text-left">
               <h1 className="text-3xl font-black tracking-tighter text-on-surface capitalize">
-                {monthName} <span className="opacity-30 font-light">{year}</span>
+                {viewMode === 'week' ? (
+                  (() => {
+                    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+                    const end = addDays(start, 6);
+                    if (start.getMonth() === end.getMonth()) {
+                      return (
+                        <>
+                          <span className="text-primary">{format(start, 'd')}</span> al <span className="text-primary">{format(end, 'd')}</span> de {monthName}
+                        </>
+                      );
+                    }
+                    return (
+                      <span className="text-2xl md:text-3xl">
+                        <span className="text-primary">{format(start, 'd')}</span> {format(start, 'MMM', { locale: es })} al <span className="text-primary">{format(end, 'd')}</span> {format(end, 'MMM', { locale: es })}
+                      </span>
+                    );
+                  })()
+                ) : (
+                  <>
+                    {monthName} <span className="opacity-30 font-light">{year}</span>
+                  </>
+                )}
               </h1>
-              <p className="text-on-surface-variant font-medium mt-0.5 uppercase tracking-widest text-[9px]">Tu horizonte de tareas</p>
+              <p className="text-on-surface-variant font-medium mt-0.5 uppercase tracking-widest text-[9px]">
+                {viewMode === 'week' ? 'Tu programa semanal' : 'Tu horizonte de tareas'}
+              </p>
             </div>
 
             <button 
-              onClick={handleNextMonth} 
+              onClick={handleNext} 
               className="p-2.5 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
               title="Mes siguiente"
             >
@@ -262,12 +293,22 @@ export default function CalendarPage() {
                 return (
                   <div key={idx} className="flex flex-col gap-4 min-w-[200px] md:min-w-0">
                     <div className={clsx(
-                      "text-[10px] font-black uppercase tracking-widest text-center mb-2 px-2 py-2 rounded-xl border transition-all",
+                      "group/dayheader relative text-[10px] font-black uppercase tracking-widest text-center mb-2 px-2 py-2.5 rounded-xl border transition-all flex items-center justify-center",
                       isTodayStr 
                         ? "bg-primary text-white border-primary shadow-lg glow-primary" 
                         : "bg-surface-container text-on-surface-variant border-surface-variant/30"
                     )}>
-                      {dayLabels[idx]} <span className="opacity-60 ml-1">{format(dayDate, 'd')}</span>
+                      <span>{dayLabels[idx]} <span className="opacity-60 ml-0.5">{format(dayDate, 'd')}</span></span>
+                      <button 
+                         onClick={() => {
+                           setQuickAddInitialDate(dayDate);
+                           setIsQuickAddOpen(true);
+                         }}
+                         className="absolute right-2 p-1 rounded-lg hover:bg-white/10 opacity-0 group-hover/dayheader:opacity-100 transition-all active:scale-90"
+                         title="Añadir tarea a este día"
+                      >
+                         <Plus size={14} className={isTodayStr ? "text-white" : "text-primary"} />
+                      </button>
                     </div>
                     
                     <div className="flex-1 space-y-3">
@@ -283,16 +324,6 @@ export default function CalendarPage() {
                         </div>
                       ))}
                       
-                      <button 
-                         onClick={() => {
-                           setQuickAddInitialDate(dayDate);
-                           setIsQuickAddOpen(true);
-                         }}
-                         className="w-full h-24 rounded-3xl border-2 border-dashed border-surface-variant/20 hover:border-primary/40 hover:bg-primary/5 transition-all group flex flex-col items-center justify-center gap-2"
-                      >
-                        <Plus size={20} className="text-on-surface-variant group-hover:text-primary transition-colors" />
-                        <span className="text-[9px] font-bold text-on-surface-variant opacity-0 group-hover:opacity-100 uppercase transition-opacity">Añadir</span>
-                      </button>
                     </div>
                   </div>
                 );
@@ -457,16 +488,16 @@ export default function CalendarPage() {
 
       {/* Quick Add Floating Panel */}
       <FloatingQuickAdd 
-        isOpen={isQuickAddOpen} 
-        onClose={() => {
-          setIsQuickAddOpen(false);
-          setQuickAddInitialDate(null);
+        open={isQuickAddOpen} 
+        onOpenChange={(open) => {
+          setIsQuickAddOpen(open);
+          if (!open) setQuickAddInitialDate(null);
         }} 
-        onTaskCreated={() => {
+        onTaskAdded={() => {
           fetchTasks();
           setIsQuickAddOpen(false);
         }}
-        initialDate={quickAddInitialDate}
+        initialDueDate={quickAddInitialDate}
       />
 
       {/* Task Editor Modal */}
