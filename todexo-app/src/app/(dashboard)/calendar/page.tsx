@@ -150,7 +150,7 @@ export default function CalendarPage() {
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden animate-slide-up">
-      <header className="px-6 py-8 md:px-12 md:py-10 border-b border-surface-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <header className="px-6 py-8 md:px-12 md:py-10 md:pr-32 border-b border-surface-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-6">
           <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim flex items-center justify-center shadow-2xl glow-secondary flex-shrink-0">
             <Calendar className="text-on-surface" size={28} />
@@ -164,7 +164,7 @@ export default function CalendarPage() {
               <ChevronLeft size={22} className="group-hover:-translate-x-0.5 transition-transform" />
             </button>
             
-            <div className="min-w-[180px] text-center">
+            <div className="text-left">
               <h1 className="text-4xl font-black tracking-tighter text-on-surface capitalize">
                 {monthName} <span className="opacity-30 font-light">{year}</span>
               </h1>
@@ -225,9 +225,9 @@ export default function CalendarPage() {
       </header>
 
 
-      <main className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12">
+      <main className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12 md:pr-32">
         {viewMode === 'list' && (
-          <div className="space-y-12 max-w-3xl mx-auto">
+          <div className="space-y-12 max-w-5xl">
             {tasks.length > 0 ? (
               // Group tasks by date
               Object.entries(

@@ -109,8 +109,8 @@ export default function TodayPage() {
   const progressPercent = tasks.length === 0 ? 0 : Math.round((completedTasks.length / tasks.length) * 100);
 
   return (
-    <div className="flex-1 overflow-y-auto px-6 py-8 md:p-12 pb-32 animate-slide-up h-full">
-      <div className="max-w-3xl mx-auto flex flex-col min-h-full">
+    <div className="flex-1 overflow-y-auto px-6 py-8 md:p-12 md:pr-32 pb-32 animate-slide-up h-full">
+      <div className="max-w-5xl flex flex-col min-h-full">
         
         {/* Stats Section */}
         <div className="flex flex-wrap items-center gap-4 mb-14">
