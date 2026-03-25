@@ -27,42 +27,50 @@
 
 @layer base {
   :root {
-    /* Light Mode Palette */
-    --background: #f8fafc;
-    --surface: #ffffff;
-    --surface-container: #ffffff;
-    --surface-container-low: #f8fafc;
-    --surface-container-high: #f1f5f9;
-    --surface-variant: #e2e8f0;
+    /* === MONETRY LIGHT MODE === */
+    /* Surfaces (glassmorphism) */
+    --surface: rgba(255, 255, 255, 0.55);
+    --surface-container: rgba(255, 255, 255, 0.45);
+    --surface-container-low: rgba(255, 255, 255, 0.30);
+    --surface-container-high: rgba(255, 255, 255, 0.65);
+    --surface-variant: rgba(200, 220, 240, 0.50);
     
+    /* Accent Colors */
     --primary: #6366f1;
     --primary-dim: #4f46e5;
-    --secondary: #0d9488; 
-    --tertiary: #9333ea;
+    --secondary: #10b981;  /* Esmeralda — idéntico a Monetry */
+    --tertiary: #8b5cf6;
     
-    --on-surface: #0f172a;
+    /* Text */
+    --on-surface: #1e293b;
     --on-surface-variant: #64748b;
     --error: #ef4444;
 
-    --shadow-color: rgba(15, 23, 42, 0.08); /* Minimal shadow for light mode */
+    /* Shadow suave azulado (como en Monetry) */
+    --shadow-color: rgba(31, 38, 135, 0.15);
   }
 
   .dark {
-    /* Dark Mode Palette */
-    --background: #0c0e14;
-    --surface: #0c0e14;
-    --surface-container: #171921;
-    --surface-container-low: #11131a;
-    --surface-container-high: #1d1f27;
-    --surface-variant: #23262f;
-    --primary: #6366f1;
-    --primary-dim: #4f46e5;
-    --secondary: #2dd4bf;
-    --tertiary: #a855f7;
-    --on-surface: #ffffff;
+    /* === MONETRY DARK MODE === */
+    /* Surfaces (glassmorphism oscuro) */
+    --surface: rgba(17, 24, 39, 0.70);
+    --surface-container: rgba(17, 24, 39, 0.60);
+    --surface-container-low: rgba(17, 24, 39, 0.45);
+    --surface-container-high: rgba(17, 24, 39, 0.80);
+    --surface-variant: rgba(255, 255, 255, 0.08);
+
+    /* Accent Colors (versiones brillantes) */
+    --primary: #818cf8;
+    --primary-dim: #6366f1;
+    --secondary: #34d399;
+    --tertiary: #a78bfa;
+
+    /* Text */
+    --on-surface: #f1f5f9;
     --on-surface-variant: #94a3b8;
 
-    --shadow-color: rgba(0, 0, 0, 0.5); /* Strong shadow for dark mode */
+    /* Shadow profundo */
+    --shadow-color: rgba(0, 0, 0, 0.40);
   }
 
   * {
@@ -70,7 +78,6 @@
   }
   
   body {
-    background-color: var(--background);
     color: var(--on-surface);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -78,46 +85,76 @@
 }
 
 @layer components {
+  /* ================================================================
+   * GLASSMORPHISM — Base visual de todos los paneles (estilo Monetry)
+   * ================================================================ */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.45);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  }
+
+  .dark .glass-panel {
+    background: rgba(17, 24, 39, 0.60);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Glass legacy (alias) */
+  .glass {
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.45);
+  }
+
+  .dark .glass {
+    background: rgba(17, 24, 39, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+  }
+
+  /* Glows */
   .glow-primary {
-    box-shadow: 0 0 15px rgba(99,102,241,0.3);
+    box-shadow: 0 0 18px rgba(99, 102, 241, 0.35);
   }
   
   .glow-secondary {
-    box-shadow: 0 0 15px rgba(45,212,191,0.3);
+    box-shadow: 0 0 18px rgba(16, 185, 129, 0.30);
   }
   
   .glow-tertiary {
-    box-shadow: 0 0 15px rgba(168,85,247,0.3);
+    box-shadow: 0 0 18px rgba(139, 92, 246, 0.30);
   }
 
   .ambient-shadow {
     box-shadow: 0 8px 32px var(--shadow-color);
   }
 
-  /* Scrollbar Customization */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: #23262f;
+    background: rgba(99, 102, 241, 0.25);
     border-radius: 99px;
   }
-  
   ::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
+    background: rgba(99, 102, 241, 0.50);
   }
 }
 
-/* Glassmorphism utility */
-.glass {
-  background-color: rgba(23, 25, 33, 0.6);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+/* ================================================================
+ * FONDO GRADIENTE ABSTRACTO (exacto a Monetry)
+ * ================================================================ */
+.bg-gradient-abstract {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+.dark .bg-gradient-abstract {
+  background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+  background-attachment: fixed;
 }
 
 /* Animations */

@@ -36,7 +36,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} bg-background text-on-surface min-h-screen transition-colors duration-300`}>
+      <body className={`${inter.variable} bg-gradient-abstract text-on-surface min-h-screen transition-colors duration-300`}>
           {children}
       </body>
     </html>

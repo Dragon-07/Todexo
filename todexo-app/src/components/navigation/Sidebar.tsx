@@ -66,7 +66,7 @@ export default function Sidebar({ className }: { className?: string }) {
   ];
 
   return (
-    <aside className={clsx("flex flex-col bg-surface-container-low border-r border-surface-variant p-6 h-full", className)}>
+    <aside className={clsx("flex flex-col glass-panel border-r border-white/20 dark:border-white/10 p-6 h-full", className)}>
       {/* Brand */}
       <div className="flex items-center justify-between mb-10 px-2">
         <div className="flex items-center gap-3">

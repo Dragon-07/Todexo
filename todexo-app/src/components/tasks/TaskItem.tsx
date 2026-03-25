@@ -82,8 +82,8 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
         "group flex items-center justify-between p-4 rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
         (isMenuOpen || isCompleteMenuOpen) ? "z-[100]" : "z-0",
         isCompleted 
-          ? "bg-surface-container-low/50 border-surface-variant/20" 
-          : "bg-surface-container border-surface-variant/50 hover:bg-surface-container-high hover:border-primary/40 hover:scale-[1.01] ambient-shadow"
+          ? "glass-panel opacity-60 border-white/20 dark:border-white/10" 
+          : "glass-panel border-white/30 dark:border-white/10 hover:brightness-105 hover:scale-[1.01] ambient-shadow"
       )}
     >
       <div className={clsx(

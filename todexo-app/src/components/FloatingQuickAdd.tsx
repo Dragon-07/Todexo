@@ -240,7 +240,7 @@ export default function FloatingQuickAdd({
 
       {isOpen && (
         <div className="fixed inset-0 bg-background/80 backdrop-blur-xl flex items-center justify-center p-6 z-50 animate-in fade-in duration-300">
-          <div className="w-full max-w-xl bg-surface-container rounded-[2.5rem] border border-surface-variant p-8 ambient-shadow relative overflow-visible">
+          <div className="w-full max-w-xl glass-panel rounded-[2.5rem] border border-white/30 dark:border-white/10 p-8 relative overflow-visible">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
 
             <header className="flex items-center justify-between mb-8 relative">
@@ -300,7 +300,8 @@ export default function FloatingQuickAdd({
 
 
                   {isDateMenuOpen && (
-                    <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 bg-surface-container rounded-2xl border border-surface-variant shadow-[0_24px_48px_-12px_rgba(0,0,0,0.8)] z-[60] animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200">
+                    <div className="absolute bottom-full md:bottom-auto md:left-full md:ml-4 md:-top-64 mb-2 left-0 w-64 glass-panel rounded-2xl border border-white/30 dark:border-white/10 shadow-[0_24px_48px_-12px_rgba(31,38,135,0.3)] z-[60] animate-in slide-in-from-bottom-2 md:slide-in-from-left-2 duration-200">
+
                       <div className="max-h-[440px] flex flex-col custom-scrollbar">
                         {/* ATAJOS: FIJO ARRIBA */}
                         <div className="flex-none py-0 border-b border-surface-variant/20 bg-surface-container-high/50">
