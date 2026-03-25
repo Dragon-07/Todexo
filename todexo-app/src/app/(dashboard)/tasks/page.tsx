@@ -172,7 +172,7 @@ export default function AllTasksPage() {
 
         {/* Completed Section */}
         {completedTasks.length > 0 && !loading && (
-          <div className="mt-20 opacity-60 hover:opacity-100 transition-all pb-12">
+          <div className="mt-20 opacity-80 hover:opacity-100 transition-all pb-12">
             <div className="flex items-center gap-3 mb-8">
               <h3 className="text-xs font-black tracking-[0.2em] text-on-surface-variant uppercase">Completadas</h3>
               <div className="h-[1px] flex-1 bg-surface-variant/50"></div>

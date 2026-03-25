@@ -82,13 +82,13 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
         "group flex items-center justify-between p-4 rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
         (isMenuOpen || isCompleteMenuOpen) ? "z-[100]" : "z-0",
         isCompleted 
-          ? "glass-panel opacity-60 border-white/20 dark:border-white/10" 
+          ? "glass-panel opacity-85 border-white/20 dark:border-white/10" 
           : "glass-panel border-white/30 dark:border-white/10 hover:brightness-105 hover:scale-[1.01] ambient-shadow"
       )}
     >
       <div className={clsx(
         "flex items-center gap-4 flex-1 min-w-0 transition-all",
-        isCompleted && "opacity-50 grayscale"
+        isCompleted && "opacity-80 grayscale-[0.3]"
       )}>
         {/* Checkbox Icon with Confirmation Menu */}
         <div className="relative flex items-center justify-center flex-shrink-0" ref={completeMenuRef}>
@@ -152,7 +152,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
         <div className="flex items-center gap-4 flex-1 min-w-0 overflow-hidden">
           <span className={clsx(
             "text-base font-bold transition-all truncate flex-1 min-w-0",
-            isCompleted ? "text-on-surface/40 line-through tracking-wide" : "text-on-surface tracking-tight"
+            isCompleted ? "text-on-surface/60 line-through tracking-wide" : "text-on-surface tracking-tight"
           )}>
             {task.title}
           </span>
