@@ -80,6 +80,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
       onClick={handleCardClick}
       className={clsx(
         "group flex items-center justify-between p-4 rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
+        (isMenuOpen || isCompleteMenuOpen) ? "z-[100]" : "z-0",
         isCompleted 
           ? "bg-surface-container-low/50 border-surface-variant/20" 
           : "bg-surface-container border-surface-variant/50 hover:bg-surface-container-high hover:border-primary/40 hover:scale-[1.01] ambient-shadow"
@@ -120,7 +121,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
           </button>
 
           {isCompleteMenuOpen && !isCompleted && (
-            <div className="absolute left-0 top-10 w-40 bg-surface-container-high border border-surface-variant/50 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="absolute left-0 top-10 w-40 bg-surface-container-high border border-surface-variant/50 rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in duration-200">
                <div className="p-1.5 flex flex-col gap-1">
                  <button
                    onClick={(e) => {
@@ -213,8 +214,8 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
         </button>
 
         {isMenuOpen && (
-          <div className="absolute right-0 top-12 w-48 bg-surface-container-high border border-surface-variant/50 rounded-2xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-1.5 grayscale-0">
+          <div className="absolute right-0 top-12 w-48 bg-surface-container-high border border-surface-variant/50 rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in duration-200">
+            <div className="p-1.5">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
