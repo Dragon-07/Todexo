@@ -26,6 +26,7 @@ export default function TodayPage() {
         .from('tasks')
         .select('*')
         .eq('due_date', todayStr)
+        .order('due_time', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false });
       
       if (data && !error) {
