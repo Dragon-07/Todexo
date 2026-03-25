@@ -9,7 +9,7 @@ import {
   BarChart2, 
   Focus, 
   Settings,
-  Sun,
+  ListTodo,
   Moon,
   Inbox,
   Sparkles,
@@ -30,7 +30,7 @@ export default function Sidebar({ className }: { className?: string }) {
   };
 
   const mainLinks = [
-    { icon: Sun, href: '/', label: 'Hoy', color: 'text-primary' },
+    { icon: ListTodo, href: '/', label: 'Mis Tareas', color: 'text-primary' },
     { icon: Calendar, href: '/calendar', label: 'Calendario', color: 'text-secondary' },
     { icon: LayoutGrid, href: '/projects', label: 'Proyectos', color: 'text-tertiary' },
     { icon: BarChart2, href: '/stats', label: 'Estadísticas', color: 'text-secondary' },

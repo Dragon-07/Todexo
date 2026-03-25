@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Calendar, LayoutGrid, BarChart2, Plus } from 'lucide-react';
+import { ListTodo, Calendar, LayoutGrid, BarChart2, Plus } from 'lucide-react';
 import clsx from 'clsx';
 
 export default function MobileNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { icon: Home, href: '/', label: 'Hoy' },
+    { icon: ListTodo, href: '/', label: 'Mis Tareas' },
     { icon: Calendar, href: '/calendar', label: 'Fechas' },
     { icon: LayoutGrid, href: '/projects', label: 'Proyectos' },
     { icon: BarChart2, href: '/stats', label: 'Avances' },
