@@ -150,12 +150,40 @@ export default function CalendarPage() {
     <div className="flex-1 flex flex-col h-full overflow-hidden animate-slide-up">
       <header className="px-6 py-8 md:px-12 md:py-10 border-b border-surface-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-6">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim flex items-center justify-center shadow-2xl glow-secondary">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim flex items-center justify-center shadow-2xl glow-secondary flex-shrink-0">
             <Calendar className="text-white" size={28} />
           </div>
-          <div>
-            <h1 className="text-4xl font-black tracking-tighter text-white capitalize">{monthName} <span className="opacity-40">{year}</span></h1>
-            <p className="text-on-surface-variant font-medium mt-1 uppercase tracking-widest text-[10px]">Tu horizonte de tareas</p>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handlePrevMonth} 
+              className="p-3 rounded-2xl bg-surface-container hover:bg-surface-variant text-white transition-all ambient-shadow active:scale-95 group"
+              title="Mes anterior"
+            >
+              <ChevronLeft size={22} className="group-hover:-translate-x-0.5 transition-transform" />
+            </button>
+            
+            <div className="min-w-[180px] text-center">
+              <h1 className="text-4xl font-black tracking-tighter text-white capitalize">
+                {monthName} <span className="opacity-30 font-light">{year}</span>
+              </h1>
+              <p className="text-on-surface-variant font-medium mt-1 uppercase tracking-widest text-[10px]">Tu horizonte de tareas</p>
+            </div>
+
+            <button 
+              onClick={handleNextMonth} 
+              className="p-3 rounded-2xl bg-surface-container hover:bg-surface-variant text-white transition-all ambient-shadow active:scale-95 group"
+              title="Mes siguiente"
+            >
+              <ChevronRight size={22} className="group-hover:translate-x-0.5 transition-transform" />
+            </button>
+
+            <button 
+              onClick={() => setCurrentDate(new Date())} 
+              className="ml-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-[0.1em] text-primary hover:bg-primary/20 transition-all ambient-shadow active:scale-95 flex items-center gap-2"
+            >
+               <Clock size={14} />
+               Hoy
+            </button>
           </div>
         </div>
 
@@ -194,27 +222,6 @@ export default function CalendarPage() {
         </div>
       </header>
 
-      {/* Navigation & Toolbar */}
-      <div className="px-6 py-4 md:px-12 border-b border-surface-variant/20 flex items-center justify-between bg-surface-container-low/50 backdrop-blur-md">
-         <div className="flex items-center gap-4">
-            <button onClick={handlePrevMonth} className="p-2 rounded-xl hover:bg-surface-variant text-white transition-colors">
-               <ChevronLeft size={20} />
-            </button>
-            <button onClick={() => setCurrentDate(new Date())} className="px-4 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 text-xs font-bold text-white hover:text-primary mb-2 transition-colors mt-2">
-               Hoy
-            </button>
-            <button onClick={handleNextMonth} className="p-2 rounded-xl hover:bg-surface-variant text-white transition-colors">
-               <ChevronRight size={20} />
-            </button>
-         </div>
-
-         <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary/20 text-primary border border-primary/30 text-xs font-black uppercase tracking-wider hover:bg-primary/30 transition-all">
-               <Sparkles size={14} />
-               Planear con IA
-            </button>
-         </div>
-      </div>
 
       <main className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12">
         {viewMode === 'list' && (
