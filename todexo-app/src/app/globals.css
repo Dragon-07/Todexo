@@ -92,14 +92,42 @@
     background: rgba(255, 255, 255, 0.45);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.55);
-    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+    border: 1.5px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 12px 40px rgba(31, 38, 135, 0.15);
   }
 
   .dark .glass-panel {
     background: rgba(17, 24, 39, 0.60);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Pequeño contenedor de cristal para iconos */
+  .glass-icon-container {
+    background: rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .dark .glass-icon-container {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Color Blobs (manchas de color traseras) */
+  .color-blob {
+    position: absolute;
+    width: 6rem;
+    height: 6rem;
+    border-radius: 9999px;
+    filter: blur(40px);
+    opacity: 0.25;
+    pointer-events: none;
+    z-index: 0;
   }
 
   /* Glass legacy (alias) */

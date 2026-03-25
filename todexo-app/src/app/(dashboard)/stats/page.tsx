@@ -25,50 +25,72 @@ export default function StatsPage() {
         </header>
 
         {/* Top Metrics Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           
-          <div className="bg-surfaceContainer p-5 rounded-2xl border border-surfaceVariant hover:-translate-y-1 transition-transform">
-            <h3 className="text-[10px] uppercase font-bold tracking-widest text-onSurfaceVariant mb-2 flex items-center gap-2">
-               <Flame size={14} className="text-[#FF6E84]" /> Racha Actual
-            </h3>
-            <p className="text-3xl font-bold text-onSurface mb-2">14 <span className="text-sm font-medium text-onSurfaceVariant">días</span></p>
-            {/* Minimal SVG sparkline */}
-            <svg width="100%" height="24" viewBox="0 0 100 24" className="overflow-visible">
-               <polyline points="0,20 20,24 40,15 60,10 80,18 100,2" fill="none" stroke="#6366F1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-
-          <div className="bg-surfaceContainer p-5 rounded-2xl border border-surfaceVariant flex items-center justify-between hover:-translate-y-1 transition-transform">
-             <div>
-                <h3 className="text-[10px] uppercase font-bold tracking-widest text-onSurfaceVariant mb-2">Tareas Hoy</h3>
-                <p className="text-3xl font-bold text-onSurface">7<span className="text-xl text-onSurfaceVariant">/12</span></p>
-             </div>
-             <div className="relative w-12 h-12 flex items-center justify-center glow-tertiary rounded-full bg-surfaceContainerLow">
-                 <svg className="w-full h-full transform -rotate-90 absolute inset-0" viewBox="0 0 36 36">
-                    <circle cx="18" cy="18" r="15" fill="none" className="stroke-surfaceVariant" strokeWidth="3" />
-                    <circle cx="18" cy="18" r="15" fill="none" className="stroke-tertiary" strokeWidth="3" strokeDasharray="94.248" strokeDashoffset={94.248 - (7/12) * 94.248} />
-                 </svg>
-                 <span className="relative font-bold text-xs text-onSurface z-10">58%</span>
+          <div className="glass-panel p-5 rounded-2xl md:p-6 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <h3 className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">Racha Actual</h3>
+              <div className="glass-icon-container p-2">
+                <Flame size={16} className="text-orange-500" />
               </div>
+            </div>
+            <div className="relative z-10">
+              <p className="text-3xl font-bold text-on-surface mb-2">14 <span className="text-sm font-medium text-on-surface-variant">días</span></p>
+              <svg width="100%" height="24" viewBox="0 0 100 24" className="overflow-visible opacity-60">
+                <polyline points="0,20 20,24 40,15 60,10 80,18 100,2" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            {/* Color Blob */}
+            <div className="color-blob -right-6 -bottom-6 bg-orange-500/40"></div>
           </div>
 
-          <div className="bg-surfaceContainer p-5 rounded-2xl border border-surfaceVariant hover:-translate-y-1 transition-transform">
-             <h3 className="text-[10px] uppercase font-bold tracking-widest text-onSurfaceVariant mb-2">Esta Semana</h3>
-             <div className="flex items-end justify-between h-12 gap-1 mt-4">
-                {[15, 30, 20, 45, 35, 60, 50].map((h, i) => (
-                   <div key={i} className="w-full bg-[#6366F1] rounded-sm opacity-80 hover:opacity-100 hover:glow-primary transition-opacity" style={{ height: `${h}%` }}></div>
-                ))}
-             </div>
+          <div className="glass-panel p-5 rounded-2xl md:p-6 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <h3 className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">Tareas Hoy</h3>
+              <div className="glass-icon-container p-2">
+                <Zap size={16} className="text-amber-500" />
+              </div>
+            </div>
+            <div className="flex items-end justify-between relative z-10">
+              <p className="text-3xl font-bold text-on-surface">7<span className="text-xl text-on-surface-variant font-medium">/12</span></p>
+              <div className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white/5 dark:bg-black/20">
+                <svg className="w-full h-full transform -rotate-90 absolute inset-0" viewBox="0 0 36 36">
+                  <circle cx="18" cy="18" r="15" fill="none" className="stroke-white/10 dark:stroke-white/5" strokeWidth="3" />
+                  <circle cx="18" cy="18" r="15" fill="none" className="stroke-primary" strokeWidth="3" strokeDasharray="94.248" strokeDashoffset={94.248 - (7/12) * 94.248} />
+                </svg>
+                <span className="relative font-bold text-[10px] text-on-surface z-10">58%</span>
+              </div>
+            </div>
+            <div className="color-blob -right-6 -bottom-6 bg-amber-500/40"></div>
           </div>
 
-          <div className="bg-surfaceContainer p-5 rounded-2xl border border-surfaceVariant hover:-translate-y-1 transition-transform flex flex-col justify-between">
-             <h3 className="text-[10px] uppercase font-bold tracking-widest text-onSurfaceVariant mb-2 flex justify-between">
-                Tasa de Éxito <span className="text-tertiary">↗</span>
-             </h3>
-             <div>
-                <p className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">87%</p>
-                <p className="text-[10px] text-tertiary mt-1">+4.2% desde la última semana</p>
-             </div>
+          <div className="glass-panel p-5 rounded-2xl md:p-6 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <h3 className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">Semana</h3>
+              <div className="glass-icon-container p-2">
+                <Target size={16} className="text-indigo-500" />
+              </div>
+            </div>
+            <div className="flex items-end justify-between h-10 gap-1 mt-2 relative z-10">
+              {[15, 30, 20, 45, 35, 60, 50].map((h, i) => (
+                <div key={i} className="w-full bg-primary/60 rounded-sm hover:bg-primary transition-all duration-300" style={{ height: `${h}%` }}></div>
+              ))}
+            </div>
+            <div className="color-blob -right-6 -bottom-6 bg-indigo-500/40"></div>
+          </div>
+
+          <div className="glass-panel p-5 rounded-2xl md:p-6 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
+            <div className="flex justify-between items-start mb-4 relative z-10">
+              <h3 className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">Tasa Éxito</h3>
+              <div className="glass-icon-container p-2">
+                <Award size={16} className="text-emerald-500" />
+              </div>
+            </div>
+            <div className="relative z-10 mt-auto">
+              <p className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">87%</p>
+              <p className="text-[9px] font-bold text-secondary mt-1">↗ +4.2% esta semana</p>
+            </div>
+            <div className="color-blob -right-6 -bottom-6 bg-emerald-500/40"></div>
           </div>
 
         </div>
@@ -77,7 +99,7 @@ export default function StatsPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           
           {/* Productivity Area Chart */}
-          <div className="bg-surfaceContainer p-6 rounded-2xl border border-surfaceVariant">
+          <div className="glass-panel p-6 rounded-2xl md:p-8">
             <h3 className="text-xs font-bold tracking-widest text-onSurfaceVariant uppercase mb-6 flex justify-between">
                Productividad Semanal <span className="text-[10px] bg-surfaceVariant px-2 py-1 rounded-md">Últimos 7 días</span>
             </h3>
@@ -108,7 +130,7 @@ export default function StatsPage() {
           </div>
 
           {/* Area Distribution */}
-          <div className="bg-surfaceContainer p-6 rounded-2xl border border-surfaceVariant flex flex-col">
+          <div className="glass-panel p-6 rounded-2xl md:p-8 flex flex-col">
             <h3 className="text-xs font-bold tracking-widest text-onSurfaceVariant uppercase mb-6">Distribución por Área</h3>
             
             <div className="space-y-5 flex-1">
@@ -131,7 +153,7 @@ export default function StatsPage() {
         </div>
 
         {/* Achievements Section */}
-        <div className="bg-surfaceContainer p-6 rounded-2xl border border-surfaceVariant">
+        <div className="glass-panel p-6 rounded-2xl md:p-8">
            <div className="flex justify-between items-center mb-6">
               <h3 className="text-xs font-bold tracking-widest text-onSurfaceVariant uppercase">Historial de Logros</h3>
               <button className="text-[10px] font-bold text-primary hover:text-onSurface transition-colors">Ver todos</button>
@@ -174,18 +196,18 @@ function AchievementCard({ title, icon, unlocked = false, glowColor = "" }: { ti
       <div className={clsx(
          "p-4 rounded-2xl flex flex-col items-center text-center gap-3 transition-all duration-300",
          unlocked 
-            ? `bg-surfaceContainerHigh ghost-border-primary hover:-translate-y-1 ${glowColor}` 
-            : "bg-surfaceContainerLow border border-surfaceVariant/50 opacity-60"
+            ? `glass-panel shadow-lg hover:-translate-y-1 ${glowColor}` 
+            : "glass shadow-inner opacity-40 grayscale border-white/5"
       )}>
          <div className={clsx(
             "w-12 h-12 rounded-xl flex items-center justify-center",
-            unlocked ? "bg-background text-onSurface ambient-shadow" : "bg-surfaceContainer text-onSurfaceVariant"
+            unlocked ? "glass-icon-container text-on-surface" : "bg-white/5 text-on-surface-variant"
          )}>
             {icon}
          </div>
          <div>
-            <h4 className="text-xs font-bold text-onSurface mb-0.5">{title}</h4>
-            <span className={clsx("text-[9px] font-bold px-2 py-0.5 rounded-full uppercase", unlocked ? "bg-tertiary/20 text-tertiary" : "text-onSurfaceVariant")}>
+            <h4 className="text-xs font-bold text-on-surface mb-0.5">{title}</h4>
+            <span className={clsx("text-[9px] font-bold px-2 py-0.5 rounded-full uppercase", unlocked ? "bg-primary/20 text-primary" : "text-on-surface-variant")}>
                {unlocked ? "Completado" : "Bloqueado"}
             </span>
          </div>
