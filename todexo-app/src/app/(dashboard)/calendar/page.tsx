@@ -37,6 +37,8 @@ export default function CalendarPage() {
       const { data, error } = await supabase
         .from('tasks')
         .select('*')
+        .order('due_date', { ascending: true, nullsFirst: false })
+        .order('due_time', { ascending: true, nullsFirst: false })
         .order('created_at', { ascending: false });
       
       if (data && !error) {
@@ -235,7 +237,11 @@ export default function CalendarPage() {
                   groups[date].push(task);
                   return groups;
                 }, {} as Record<string, Task[]>)
-              ).sort((a, b) => a[0].localeCompare(b[0])).map(([dateStr, dayTasks]) => (
+              ).sort((a, b) => {
+                if (a[0] === 'Sin fecha') return 1;
+                if (b[0] === 'Sin fecha') return -1;
+                return a[0].localeCompare(b[0]);
+              }).map(([dateStr, dayTasks]) => (
                 <section key={dateStr} className="space-y-4">
                   <h3 className="text-xs font-black tracking-[0.2em] text-on-surface-variant uppercase mb-6 flex items-center gap-4">
                     <span className="text-primary glow-primary">
