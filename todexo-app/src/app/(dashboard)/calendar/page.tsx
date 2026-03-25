@@ -152,33 +152,33 @@ export default function CalendarPage() {
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden animate-slide-up">
-      <header className="px-6 py-8 md:px-12 md:py-10 md:pr-32 border-b border-surface-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <header className="px-6 py-4 md:px-12 md:py-6 md:pr-32 border-b border-surface-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-6">
-          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim flex items-center justify-center shadow-2xl glow-secondary flex-shrink-0">
-            <Calendar className="text-on-surface" size={28} />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim flex items-center justify-center shadow-xl glow-secondary flex-shrink-0">
+            <Calendar className="text-on-surface" size={24} />
           </div>
           <div className="flex items-center gap-3">
             <button 
               onClick={handlePrevMonth} 
-              className="p-3 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
+              className="p-2.5 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
               title="Mes anterior"
             >
-              <ChevronLeft size={22} className="group-hover:-translate-x-0.5 transition-transform" />
+              <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
             </button>
             
             <div className="text-left">
-              <h1 className="text-4xl font-black tracking-tighter text-on-surface capitalize">
+              <h1 className="text-3xl font-black tracking-tighter text-on-surface capitalize">
                 {monthName} <span className="opacity-30 font-light">{year}</span>
               </h1>
-              <p className="text-on-surface-variant font-medium mt-1 uppercase tracking-widest text-[10px]">Tu horizonte de tareas</p>
+              <p className="text-on-surface-variant font-medium mt-0.5 uppercase tracking-widest text-[9px]">Tu horizonte de tareas</p>
             </div>
 
             <button 
               onClick={handleNextMonth} 
-              className="p-3 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
+              className="p-2.5 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
               title="Mes siguiente"
             >
-              <ChevronRight size={22} className="group-hover:translate-x-0.5 transition-transform" />
+              <ChevronRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
             </button>
 
             <button 
@@ -227,7 +227,10 @@ export default function CalendarPage() {
       </header>
 
 
-      <main className="flex-1 overflow-y-auto custom-scrollbar p-6 md:p-12 md:pr-32">
+      <main className={clsx(
+        "flex-1 overflow-y-auto custom-scrollbar md:pr-32",
+        viewMode === 'month' ? "p-4 md:p-6" : "p-6 md:p-12"
+      )}>
         {viewMode === 'list' && (
           <div className="space-y-12 max-w-5xl">
             {tasks.length > 0 ? (
@@ -325,12 +328,12 @@ export default function CalendarPage() {
           <div>
             <div className="grid grid-cols-7 gap-px rounded-3xl overflow-hidden border border-surface-variant ambient-shadow bg-surface-variant/20">
               {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => (
-                <div key={day} className="bg-surface-container py-3 text-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant">{day}</div>
+                <div key={day} className="bg-surface-container py-2 text-center text-[10px] font-black uppercase tracking-widest text-on-surface-variant">{day}</div>
               ))}
               
               {/* Empty days at the start */}
               {Array.from({ length: firstDay === 0 ? 6 : firstDay - 1 }).map((_, i) => (
-                <div key={`empty-${i}`} className="min-h-[140px] bg-surface-container-low/30"></div>
+                <div key={`empty-${i}`} className="min-h-[110px] bg-surface-container-low/30"></div>
               ))}
               
               {/* Actual days */}
@@ -341,11 +344,11 @@ export default function CalendarPage() {
                 
                 return (
                   <div key={day} className={clsx(
-                    "min-h-[140px] p-3 bg-surface-container-low/50 hover:bg-surface-container-high transition-colors group relative",
+                    "min-h-[110px] p-2 bg-surface-container-low/50 hover:bg-surface-container-high transition-colors group relative",
                     isToday && "bg-primary/5"
                   )}>
                     <div className={clsx(
-                      "w-7 h-7 flex items-center justify-center text-xs font-black rounded-lg mb-2 transition-all",
+                      "w-6 h-6 flex items-center justify-center text-[10px] font-black rounded-lg mb-1.5 transition-all text-center",
                       isToday ? "bg-primary text-white shadow-lg glow-primary" : "text-on-surface-variant group-hover:text-on-surface"
                     )}>
                       {day}
