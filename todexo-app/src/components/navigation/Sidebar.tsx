@@ -30,8 +30,8 @@ export default function Sidebar({ className }: { className?: string }) {
   };
 
   const mainLinks = [
-    { icon: Sparkles, href: '/today', label: 'Hoy', color: 'text-primary' },
-    { icon: ListTodo, href: '/', label: 'Mis Tareas', color: 'text-primary' },
+    { icon: Sparkles, href: '/', label: 'Hoy', color: 'text-primary' },
+    { icon: ListTodo, href: '/tasks', label: 'Mis Tareas', color: 'text-primary' },
     { icon: Calendar, href: '/calendar', label: 'Calendario', color: 'text-secondary' },
     { icon: LayoutGrid, href: '/projects', label: 'Proyectos', color: 'text-tertiary' },
     { icon: BarChart2, href: '/stats', label: 'Estadísticas', color: 'text-secondary' },

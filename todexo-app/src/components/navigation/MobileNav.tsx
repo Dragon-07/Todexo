@@ -9,8 +9,8 @@ export default function MobileNav() {
   const pathname = usePathname();
 
   const navItems = [
-    { icon: Sparkles, href: '/today', label: 'Hoy' },
-    { icon: ListTodo, href: '/', label: 'Tareas' },
+    { icon: Sparkles, href: '/', label: 'Hoy' },
+    { icon: ListTodo, href: '/tasks', label: 'Tareas' },
     { icon: Calendar, href: '/calendar', label: 'Fechas' },
     { icon: LayoutGrid, href: '/projects', label: 'Proyectos' },
     { icon: BarChart2, href: '/stats', label: 'Avances' },
