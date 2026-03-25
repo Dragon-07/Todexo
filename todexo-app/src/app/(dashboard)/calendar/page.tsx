@@ -307,7 +307,7 @@ export default function CalendarPage() {
                     <div className="space-y-1">
                       {dayTasks.slice(0, 3).map(task => (
                         <div key={task.id} className={clsx(
-                          "text-[9px] font-bold px-2 py-0.5 rounded-md text-white truncate border flex items-center justify-between gap-2",
+                          "text-[9px] font-bold px-2 py-0.5 rounded-md text-on-surface truncate border flex items-center justify-between gap-2",
                           task.status === 'completed' ? "bg-surface-container-low/50 border-surface-variant/20 opacity-50" : "bg-surface-container-high border-surface-variant/30"
                         )}>
                            <div className="flex items-center gap-1.5 truncate">

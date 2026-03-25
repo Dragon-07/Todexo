@@ -43,38 +43,38 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto bg-surfaceContainer p-8 rounded-3xl border border-surfaceVariant ambient-shadow relative overflow-hidden group">
+    <div className="w-full max-w-sm mx-auto bg-surface-container p-8 rounded-3xl border border-surface-variant ambient-shadow relative overflow-hidden group">
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
       
       <div className="text-center mb-8 relative">
         <div className="w-12 h-12 mx-auto rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-4 shadow-lg glow-primary">
           <span className="text-white font-bold text-xl">TX</span>
         </div>
-        <h2 className="text-2xl font-bold text-white mb-2">{isLogin ? 'Bienvenido a Todexo' : 'Únete a Todexo'}</h2>
-        <p className="text-sm text-onSurfaceVariant">Organiza tu vida con elegancia.</p>
+        <h2 className="text-2xl font-bold text-on-surface mb-2">{isLogin ? 'Bienvenido a Todexo' : 'Únete a Todexo'}</h2>
+        <p className="text-sm text-on-surface-variant">Organiza tu vida con elegancia.</p>
       </div>
 
       <form onSubmit={handleAuth} className="space-y-4 relative">
         {error && <div className="p-3 bg-error/20 border border-error/50 rounded-xl text-error text-sm text-center">{error}</div>}
         
         <div>
-          <label className="block text-xs font-bold text-onSurfaceVariant uppercase tracking-wider mb-2">Email</label>
+          <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Email</label>
           <input 
             type="email" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-surfaceContainerLow border border-surfaceVariant rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all [&:-webkit-autofill]:bg-surfaceContainerLow [&:-webkit-autofill]:text-white [&:-webkit-autofill]:shadow-[0_0_0_1000px_#11131a_inset] autofill:bg-transparent"
+            className="w-full bg-surface-container-low border border-surface-variant rounded-xl px-4 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all [&:-webkit-autofill]:bg-surface-container-low [&:-webkit-autofill]:text-on-surface [&:-webkit-autofill]:shadow-[0_0_0_1000px_#11131a_inset] autofill:bg-transparent"
             placeholder="tu@email.com"
             required
           />
         </div>
         <div>
-          <label className="block text-xs font-bold text-onSurfaceVariant uppercase tracking-wider mb-2">Contraseña</label>
+          <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Contraseña</label>
           <input 
             type="password" 
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-surfaceContainerLow border border-surfaceVariant rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all [&:-webkit-autofill]:bg-surfaceContainerLow [&:-webkit-autofill]:text-white [&:-webkit-autofill]:shadow-[0_0_0_1000px_#11131a_inset] autofill:bg-transparent"
+            className="w-full bg-surface-container-low border border-surface-variant rounded-xl px-4 py-3 text-on-surface focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all [&:-webkit-autofill]:bg-surface-container-low [&:-webkit-autofill]:text-on-surface [&:-webkit-autofill]:shadow-[0_0_0_1000px_#11131a_inset] autofill:bg-transparent"
             placeholder="••••••••"
             required
           />
@@ -92,7 +92,7 @@ export default function AuthForm() {
       <div className="mt-6 text-center relative">
         <button 
           onClick={() => setIsLogin(!isLogin)} 
-          className="text-sm text-onSurfaceVariant hover:text-white transition-colors"
+          className="text-sm text-on-surface-variant hover:text-on-surface transition-colors"
         >
           {isLogin ? '¿No tienes cuenta? Regístrate' : '¿Ya tienes cuenta? Inicia sesión'}
         </button>

@@ -114,14 +114,14 @@ export default function AllTasksPage() {
         <div className="flex flex-wrap items-center gap-4 mb-14">
           <div className="flex items-center gap-3 bg-surface-container px-4 py-2.5 rounded-2xl border border-surface-variant/50 ambient-shadow group hover:border-primary/30 transition-all cursor-default">
             <div className="w-1.5 h-1.5 rounded-full bg-primary glow-primary group-hover:animate-pulse"></div>
-            <span className="text-sm font-bold text-white tracking-wide">Todas las tareas</span>
+            <span className="text-sm font-bold text-on-surface tracking-wide">Todas las tareas</span>
             <span className="w-1.5 h-1.5 rounded-full bg-on-surface-variant/30"></span>
             <span className="text-xs font-medium text-on-surface-variant">{pendingTasks.length} pendientes</span>
           </div>
 
           <div className="flex items-center gap-3 bg-surface-container px-4 py-2.5 rounded-2xl border border-surface-variant/50 ambient-shadow group hover:border-tertiary/30 transition-all cursor-default">
              <Trophy size={16} className="text-tertiary glow-tertiary" />
-             <span className="text-sm font-bold text-white tracking-wide">{progressPercent}%</span>
+             <span className="text-sm font-bold text-on-surface tracking-wide">{progressPercent}%</span>
              <span className="text-xs font-medium text-on-surface-variant">Progreso total</span>
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function AllTasksPage() {
                 <Sparkles className="text-white" size={28} />
              </div>
              <div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white">Mis Tareas</h1>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-on-surface">Mis Tareas</h1>
                 <p className="text-on-surface-variant font-medium mt-1">Todas tus tareas y proyectos en un solo lugar.</p>
              </div>
           </div>
@@ -162,7 +162,7 @@ export default function AllTasksPage() {
                      <CheckCircle2 size={40} />
                    </div>
                    <div className="space-y-2">
-                     <h3 className="font-black text-2xl text-white">¡Lista vacía!</h3>
+                     <h3 className="font-black text-2xl text-on-surface">¡Lista vacía!</h3>
                      <p className="text-on-surface-variant max-w-xs mx-auto">No tienes tareas pendientes por ahora.</p>
                    </div>
                 </div>

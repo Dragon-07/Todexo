@@ -236,7 +236,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                           }}
                           className={clsx(
                             "w-full text-left px-4 py-2 text-[13px] font-black transition-colors border-b border-white/5 last:border-none uppercase flex items-center gap-3",
-                            repeat === opt.id ? "bg-secondary/10 text-secondary" : "text-white/80 hover:bg-surface-variant hover:text-secondary"
+                            repeat === opt.id ? "bg-secondary/10 text-secondary" : "text-on-surface-variant hover:bg-surface-variant hover:text-secondary"
                           )}
                         >
                           <Repeat size={12} />
@@ -283,7 +283,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
               "flex-1 px-4 py-3.5 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all mt-2 border",
               hasChanges 
                 ? "bg-primary text-white border-primary/50 glow-primary scale-[1.02] shadow-xl" 
-                : "bg-surface-container-high border-surface-variant/50 text-white/40 cursor-not-allowed opacity-50"
+                : "bg-surface-container-high border-surface-variant/50 text-on-surface-variant/40 cursor-not-allowed opacity-50"
             )}
           >
             Guardar Cambios
