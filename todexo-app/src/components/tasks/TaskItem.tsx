@@ -103,10 +103,13 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
               </div>
             ) : (
               <div className={clsx(
-                "text-on-surface-variant/40 group-hover:text-primary transition-all group-hover:scale-110",
+                "relative flex items-center justify-center text-on-surface-variant/40 group-hover:text-primary transition-all group-hover:scale-110",
                 isCompleteMenuOpen && "text-primary scale-110"
               )}>
-                <Circle size={24} strokeWidth={2} />
+                <Circle size={28} strokeWidth={2.5} />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-50 group-hover:scale-100">
+                  <CheckCircle2 size={18} className="text-primary fill-primary/10" strokeWidth={3} />
+                </div>
               </div>
             )}
           </button>
