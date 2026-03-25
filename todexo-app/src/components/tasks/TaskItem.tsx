@@ -23,9 +23,10 @@ interface TaskItemProps {
   onToggle: (id: string) => void;
   onDelete?: (id: string) => void;
   onEdit?: (task: Task) => void;
+  compact?: boolean;
 }
 
-export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
+export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = false }: TaskItemProps) {
   const isCompleted = task.status === 'completed';
 
   const getLabelForDate = (dateStr: string | null | undefined) => {
@@ -79,7 +80,8 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
     <div 
       onClick={handleCardClick}
       className={clsx(
-        "group flex items-center justify-between p-4 rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
+        "group flex items-center justify-between rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
+        compact ? "p-3 rounded-2xl gap-2" : "p-4 gap-4",
         (isMenuOpen || isCompleteMenuOpen) ? "z-[100]" : "z-0",
         isCompleted 
           ? "glass-panel opacity-85 border-white/20 dark:border-white/10" 
@@ -87,7 +89,8 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
       )}
     >
       <div className={clsx(
-        "flex items-center gap-4 flex-1 min-w-0 transition-all",
+        "flex-1 min-w-0 transition-all",
+        compact ? "flex flex-col gap-1.5" : "flex items-center gap-4",
         isCompleted && "opacity-80 grayscale-[0.3]"
       )}>
         {/* Checkbox Icon with Confirmation Menu */}
@@ -149,49 +152,58 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
           )}
         </div>
 
-        <div className="flex items-center gap-4 flex-1 min-w-0 overflow-hidden">
+        <div className={clsx(
+          "flex-1 min-w-0 transition-all",
+          compact ? "space-y-0.5" : "space-y-1"
+        )}>
           <span className={clsx(
-            "text-base font-bold transition-all truncate flex-1 min-w-0",
+            "transition-all truncate block",
+            compact ? "text-sm font-bold" : "text-base md:text-lg font-black",
             isCompleted ? "text-on-surface/60 line-through tracking-wide" : "text-on-surface tracking-tight"
           )}>
             {task.title}
           </span>
           
-          <div className="flex items-center gap-2 transition-opacity flex-shrink-0">
-            {dateLabel && (
+          <div className={clsx(
+            "flex items-center transition-opacity flex-shrink-0 flex-wrap",
+            compact ? "gap-1.5" : "gap-2"
+          )}>
+            {dateLabel && !compact && (
               <div className="flex items-center gap-1.5 text-[10px] uppercase font-black text-on-surface-variant bg-surface-variant/20 px-2 py-1 rounded-lg border border-surface-variant/10">
                 <Calendar size={12} />
                 <span>{dateLabel}</span>
               </div>
             )}
             {(task.time || task.due_time) && (
-              <div className="flex items-center gap-1.5 text-[10px] lowercase font-black text-teal-400 bg-teal-400/5 px-2 py-1 rounded-lg border border-teal-400/10">
-                <Clock size={12} />
+              <div className="flex items-center gap-1 text-[10px] lowercase font-black text-teal-400 bg-teal-400/5 px-1.5 py-0.5 rounded-md border border-teal-400/10 whitespace-nowrap">
+                <Clock size={10} />
                 <span>{task.due_time ? format(new Date(`2000-01-01T${task.due_time}`), 'h:mm a') : task.time}</span>
               </div>
             )}
             
-            {/* Priority Badge - Corregido para tipos string y number */}
+            {/* Priority Badge */}
             {!isCompleted && (isHigh || isMedium || isLow) ? (
               <div className={clsx(
-                "flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest border shadow-sm",
+                "flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-tight border shadow-sm",
                 isHigh ? "bg-red-500/15 text-red-400 border-red-500/30" : 
                 isMedium ? "bg-orange-500/15 text-orange-400 border-orange-500/30" : 
                 isLow ? "bg-blue-500/15 text-blue-400 border-blue-500/30" : ""
               )}>
-                {isHigh ? <Flame size={12} className="fill-red-400/20" /> :
-                 isMedium ? <MinusCircle size={12} className="fill-orange-400/20" /> :
-                 isLow ? <ChevronsDown size={12} className="fill-blue-400/20" /> : null}
-                <span>
-                    {isHigh ? 'Alta' :
-                     isMedium ? 'Media' :
-                     isLow ? 'Baja' : ''}
-                </span>
+                {isHigh ? <Flame size={10} className="fill-red-400/20" /> :
+                 isMedium ? <MinusCircle size={10} className="fill-orange-400/20" /> :
+                 isLow ? <ChevronsDown size={10} className="fill-blue-400/20" /> : null}
+                {!compact && (
+                  <span>
+                      {isHigh ? 'Alta' :
+                       isMedium ? 'Media' :
+                       isLow ? 'Baja' : ''}
+                  </span>
+                )}
               </div>
             ) : null}
 
             {task.repeat_type && (
-              <div className="flex items-center gap-1.5 text-[10px] uppercase font-black text-secondary bg-secondary/15 px-2 py-1 rounded-md border border-secondary/30">
+              <div className="flex items-center gap-1 text-[9px] uppercase font-black text-secondary bg-secondary/15 px-1.5 py-0.5 rounded-md border border-secondary/30 whitespace-nowrap">
                 <Repeat size={10} className="flex-shrink-0" />
                 <span>
                   {task.repeat_type === 'daily' && 'Cada día'}

@@ -18,7 +18,7 @@ import { supabase } from '@/lib/supabase';
 import { calculateNextDueDate, RepeatType } from '@/lib/recurrence';
 import FloatingQuickAdd from '@/components/FloatingQuickAdd';
 import TaskEditor from '@/components/tasks/TaskEditor';
-import { format, isSameDay, parseISO, addDays } from 'date-fns';
+import { format, isSameDay, parseISO, addDays, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 type ViewMode = 'list' | 'week' | 'month';
@@ -29,6 +29,8 @@ export default function CalendarPage() {
   const [loading, setLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [quickAddInitialDate, setQuickAddInitialDate] = useState<Date | null>(null);
 
   const fetchTasks = async () => {
     setLoading(true);
@@ -267,16 +269,55 @@ export default function CalendarPage() {
         )}
 
         {viewMode === 'week' && (
-          <div className="grid grid-cols-1 md:grid-cols-7 gap-4 h-full min-h-[500px]">
-            {['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'].map(day => (
-              <div key={day} className="flex flex-col gap-4">
-                <div className="text-[10px] font-black uppercase tracking-widest text-on-surface-variant text-center mb-2 px-2 py-1 rounded-lg bg-surface-container">{day}</div>
-                <div className="flex-1 rounded-3xl border border-dashed border-surface-variant/30 hover:border-surface-variant p-4 transition-all group cursor-pointer flex flex-col items-center justify-center gap-3">
-                  <Plus size={20} className="text-on-surface-variant group-hover:text-primary transition-colors" />
-                  <span className="text-[10px] font-bold text-on-surface-variant opacity-0 group-hover:opacity-100 uppercase transition-opacity">Añadir</span>
-                </div>
-              </div>
-            ))}
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-4 h-full min-h-[600px]">
+            {(() => {
+              const weekStart = startOfWeek(currentDate, { weekStartsOn: 1 });
+              const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+              const dayLabels = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+              return weekDays.map((dayDate, idx) => {
+                const dayTasks = tasks.filter(t => t.due_date && isSameDay(parseISO(t.due_date), dayDate));
+                const isTodayStr = isSameDay(new Date(), dayDate);
+
+                return (
+                  <div key={idx} className="flex flex-col gap-4 min-w-[200px] md:min-w-0">
+                    <div className={clsx(
+                      "text-[10px] font-black uppercase tracking-widest text-center mb-2 px-2 py-2 rounded-xl border transition-all",
+                      isTodayStr 
+                        ? "bg-primary text-white border-primary shadow-lg glow-primary" 
+                        : "bg-surface-container text-on-surface-variant border-surface-variant/30"
+                    )}>
+                      {dayLabels[idx]} <span className="opacity-60 ml-1">{format(dayDate, 'd')}</span>
+                    </div>
+                    
+                    <div className="flex-1 space-y-3">
+                      {dayTasks.map(task => (
+                        <div key={task.id} className="group relative">
+                          <TaskItem 
+                            task={task} 
+                            onToggle={toggleTask} 
+                            onDelete={deleteTask} 
+                            onEdit={setEditingTask}
+                            compact
+                          />
+                        </div>
+                      ))}
+                      
+                      <button 
+                         onClick={() => {
+                           setQuickAddInitialDate(dayDate);
+                           setIsQuickAddOpen(true);
+                         }}
+                         className="w-full h-24 rounded-3xl border-2 border-dashed border-surface-variant/20 hover:border-primary/40 hover:bg-primary/5 transition-all group flex flex-col items-center justify-center gap-2"
+                      >
+                        <Plus size={20} className="text-on-surface-variant group-hover:text-primary transition-colors" />
+                        <span className="text-[9px] font-bold text-on-surface-variant opacity-0 group-hover:opacity-100 uppercase transition-opacity">Añadir</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              });
+            })()}
           </div>
         )}
 
@@ -347,7 +388,15 @@ export default function CalendarPage() {
         )}
       </main>
 
-      <FloatingQuickAdd onTaskAdded={fetchTasks} />
+      <FloatingQuickAdd 
+        onTaskAdded={() => {
+          fetchTasks();
+          setIsQuickAddOpen(false);
+        }} 
+        open={isQuickAddOpen}
+        onOpenChange={setIsQuickAddOpen}
+        initialDueDate={quickAddInitialDate}
+      />
 
       {editingTask && (
         <TaskEditor 
