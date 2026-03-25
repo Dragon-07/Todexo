@@ -221,7 +221,20 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
 
         {isMenuOpen && (
           <div className="absolute right-0 top-12 w-48 bg-surface-container-high border border-surface-variant/50 rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in duration-200">
-            <div className="p-1.5">
+            <div className="p-1.5 flex flex-col gap-1">
+              {isCompleted && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggle(task.id);
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-primary hover:bg-primary/10 rounded-xl transition-colors"
+                >
+                  <Repeat size={16} />
+                  Reanudar Tarea
+                </button>
+              )}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
