@@ -191,8 +191,14 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemP
             ) : null}
 
             {task.repeat_type && (
-              <div className="flex items-center gap-1.5 text-[10px] uppercase font-black text-secondary bg-secondary/15 p-1 rounded-md border border-secondary/30">
-                <Repeat size={12} />
+              <div className="flex items-center gap-1.5 text-[10px] uppercase font-black text-secondary bg-secondary/15 px-2 py-1 rounded-md border border-secondary/30">
+                <Repeat size={10} className="flex-shrink-0" />
+                <span>
+                  {task.repeat_type === 'daily' && 'Cada día'}
+                  {task.repeat_type === 'weekly' && 'Semanal'}
+                  {task.repeat_type === 'weekday' && 'Lun-Vie'}
+                  {task.repeat_type === 'monthly' && 'Mensual'}
+                </span>
               </div>
             )}
           </div>
