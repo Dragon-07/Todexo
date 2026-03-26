@@ -131,7 +131,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
         onClick={() => !isCompleted && onEdit && onEdit(task)}
         className={clsx(
           "group flex items-center justify-between rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
-          compact ? "p-3 rounded-2xl gap-2" : "p-4 gap-4",
+          compact ? "p-2.5 rounded-2xl gap-2" : "py-2.5 px-5 rounded-3xl gap-4",
           isMenuOpen ? "z-[200] brightness-110" : "z-0",
           isCompleted
             ? "glass-panel opacity-85 border-white/20 dark:border-white/10 grayscale"
@@ -285,7 +285,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
       onClick={handleCardClick}
       className={clsx(
         "group flex items-center justify-between rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
-        compact ? "p-3 rounded-2xl gap-2" : "p-4 gap-4",
+        compact ? "p-2 rounded-2xl gap-2" : "py-1.5 px-5 rounded-[2rem] gap-4",
         (isMenuOpen || isCompleteMenuOpen) ? "z-[100]" : "z-0",
         isCompleted 
           ? "glass-panel opacity-85 border-white/20 dark:border-white/10" 
@@ -313,16 +313,16 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
             >
               {isCompleted ? (
                 <div className="text-secondary glow-secondary transition-all transform scale-100">
-                  <CheckCircle2 size={24} strokeWidth={2.5} />
+                  <CheckCircle2 size={32} strokeWidth={2.5} />
                 </div>
               ) : (
                 <div className={clsx(
                   "relative flex items-center justify-center text-on-surface-variant/40 group-hover:text-primary transition-all group-hover:scale-110",
-                  isCompleteMenuOpen && "text-primary scale-110"
+                  isCompleteMenuOpen && "text-primary scale-110 transitions-all duration-300"
                 )}>
-                  <Circle size={28} strokeWidth={2.5} />
+                  <Circle size={36} strokeWidth={2} />
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-50 group-hover:scale-100">
-                    <CheckCircle2 size={18} className="text-primary fill-primary/10" strokeWidth={3} />
+                    <CheckCircle2 size={24} className="text-primary fill-primary/10" strokeWidth={2.5} />
                   </div>
                 </div>
               )}
