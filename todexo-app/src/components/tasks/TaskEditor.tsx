@@ -184,7 +184,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+    <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/20 backdrop-blur-sm p-4 animate-in fade-in duration-300">
       <div 
         ref={modalRef}
         className="w-full max-w-lg glass-modal rounded-[3rem] shadow-[0_32px_128px_rgba(0,0,0,0.8)] border border-white/20 animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[90vh]"
