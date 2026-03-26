@@ -256,16 +256,59 @@ export default function CalendarPage() {
         {viewMode === 'list' && (
           <div className="space-y-12 max-w-5xl">
             {tasks.length > 0 ? (
-              <div className="space-y-4">
-                {tasks.map(task => (
-                  <TaskItem 
-                    key={task.id} 
-                    task={task} 
-                    onToggle={toggleTask} 
-                    onDelete={deleteTask} 
-                    onEdit={setEditingTask}
-                  />
-                ))}
+              <div className="space-y-10">
+                {Object.entries(
+                  tasks.reduce((groups: Record<string, Task[]>, task) => {
+                    const key = task.due_date || 'sin-fecha';
+                    if (!groups[key]) groups[key] = [];
+                    groups[key].push(task);
+                    return groups;
+                  }, {})
+                )
+                .sort(([a], [b]) => {
+                  if (a === 'sin-fecha') return 1;
+                  if (b === 'sin-fecha') return -1;
+                  return a.localeCompare(b);
+                })
+                .map(([dateStr, dayTasks]) => {
+                   const isNoDate = dateStr === 'sin-fecha';
+                   const dateObj = !isNoDate ? parseISO(dateStr) : null;
+                   const isTodayDay = dateObj ? isSameDay(new Date(), dateObj) : false;
+                   
+                   return (
+                     <div key={dateStr} className="space-y-6">
+                       <div className="flex items-center gap-4 group">
+                         <div className={clsx(
+                           "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border transition-all",
+                           isTodayDay 
+                             ? "bg-primary text-white border-primary shadow-lg glow-primary" 
+                             : "bg-surface-container text-on-surface-variant border-surface-variant/30"
+                         )}>
+                           {isNoDate ? 'Sin fecha definida' : (
+                             <>
+                               {isTodayDay && <span className="mr-2 opacity-60">Hoy — </span>}
+                               {format(dateObj!, "EEEE, d 'de' MMMM", { locale: es })}
+                             </>
+                           )}
+                         </div>
+                         <div className="h-px flex-1 bg-surface-variant/20 group-hover:bg-primary/20 transition-colors" />
+                         <span className="text-[10px] font-bold text-on-surface-variant/30 uppercase tracking-[0.15em]">{dayTasks.length} {dayTasks.length === 1 ? 'tarea' : 'tareas'}</span>
+                       </div>
+                       
+                       <div className="space-y-3">
+                         {dayTasks.map(task => (
+                           <TaskItem 
+                             key={task.id} 
+                             task={task} 
+                             onToggle={toggleTask} 
+                             onDelete={deleteTask} 
+                             onEdit={setEditingTask}
+                           />
+                         ))}
+                       </div>
+                     </div>
+                   );
+                })}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-20 text-center">
