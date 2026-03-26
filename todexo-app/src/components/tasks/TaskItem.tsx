@@ -193,6 +193,41 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
                   <span>{format(new Date(`2000-01-01T${task.due_time}`), 'h:mm a')}</span>
                 </div>
               )}
+
+              {/* Prioridad en el Recordatorio */}
+              {!isCompleted && (isHigh || isMedium || isLow) && (
+                <div className={clsx(
+                  "flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-tight border shadow-sm",
+                  isHigh ? "bg-red-500/20 text-red-400 border-red-400/30" : 
+                  isMedium ? "bg-orange-500/20 text-orange-400 border-orange-400/30" : 
+                  isLow ? "bg-blue-500/20 text-blue-400 border-blue-400/30" : ""
+                )}>
+                  {isHigh ? <Flame size={10} className="fill-red-400/20" /> :
+                   isMedium ? <MinusCircle size={10} className="fill-orange-400/20" /> :
+                   isLow ? <ChevronsDown size={10} className="fill-blue-400/20" /> : null}
+                  <span>
+                      {isHigh ? 'Alta' :
+                       isMedium ? 'Media' :
+                       isLow ? 'Baja' : ''}
+                  </span>
+                </div>
+              )}
+
+              {/* Repetición en el Recordatorio */}
+              {task.repeat_type && (
+                <div className={clsx(
+                   "flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border",
+                   isCompleted ? "bg-white/5 border-white/10 text-on-surface-variant/30" : "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
+                )}>
+                  <Repeat size={10} strokeWidth={3} />
+                  <span>
+                    {task.repeat_type === 'daily' && 'Cada día'}
+                    {task.repeat_type === 'weekly' && 'Semanal'}
+                    {task.repeat_type === 'weekday' && 'Lun-Vie'}
+                    {task.repeat_type === 'monthly' && 'Mensual'}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Título refinado con truncado */}

@@ -250,7 +250,9 @@ export default function FloatingQuickAdd({
           payload.reminder_at,
           selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null,
           selectedTime,
-          user.id
+          user.id,
+          selectedPriority,
+          selectedRepeat
         );
       }
       // ===========================================

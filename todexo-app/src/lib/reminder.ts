@@ -8,7 +8,9 @@ export async function manageReminderTask(
   newReminderAt: string | null,
   mainTaskDueDate: string | null,
   mainTaskDueTime: string | null,
-  userId: string
+  userId: string,
+  priority: number | string = 0,
+  repeatType: string | null = null
 ) {
   // 1. Caso: Se ha ELIMINADO el recordatorio
   if (oldReminderAt && !newReminderAt) {
@@ -51,7 +53,9 @@ export async function manageReminderTask(
           title: reminderTitle,
           due_date: dueDate,
           due_time: dueTime,
-          status: 'pending' // Si se mueve la fecha, lo reactivamos
+          status: 'pending', // Si se mueve la fecha, lo reactivamos
+          priority: priority,
+          repeat_type: repeatType
         })
         .eq('id', existingReminder.id);
     } else {
@@ -62,7 +66,8 @@ export async function manageReminderTask(
         status: 'pending',
         due_date: dueDate,
         due_time: dueTime,
-        priority: 0,
+        priority: priority,
+        repeat_type: repeatType,
         is_reminder: true,
         reminder_for_task_id: mainTaskId
       });

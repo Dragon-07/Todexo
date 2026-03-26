@@ -127,7 +127,9 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
         finalReminderAt,
         date,
         time,
-        task.user_id
+        task.user_id,
+        Number(priority),
+        repeat
       );
     }
 
