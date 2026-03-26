@@ -17,6 +17,8 @@ export interface Task {
   priority?: string | number | null;
   project_id?: string | null;
   reminder_at?: string | null;
+  is_reminder?: boolean;
+  reminder_for_task_id?: string | null;
 }
 
 interface TaskItemProps {
@@ -76,6 +78,115 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
   const handleCardClick = () => {
     if (onEdit) onEdit(task);
   };
+
+  // === RENDERIZADO PREMIUM PARA TAREAS-RECORDATORIO ===
+  if (task.is_reminder) {
+    return (
+      <div
+        className={clsx(
+          "group flex items-center justify-between rounded-3xl border transition-all cursor-default select-none relative overflow-hidden",
+          compact ? "p-3 rounded-2xl gap-2" : "p-4 gap-4",
+          isCompleted
+            ? "glass-panel opacity-60 border-amber-500/10 bg-amber-500/5 grayscale"
+            : "glass-panel border-amber-500/30 bg-amber-500/5 hover:brightness-110 active:scale-[0.99] ambient-shadow"
+        )}
+      >
+        {/* Resplandor ámbar de fondo (Glow) */}
+        {!isCompleted && (
+          <div className="absolute -left-20 -top-20 w-40 h-40 bg-amber-500/20 blur-[100px] pointer-events-none" />
+        )}
+        
+        {/* Indicador lateral LED ámbar */}
+        <div className={clsx(
+          "absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r-lg transition-all duration-500",
+          isCompleted ? "bg-amber-500/20" : "bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]"
+        )} />
+
+        <div className="flex items-center gap-4 flex-1 min-w-0 pl-4">
+          {/* Campana de recordatorio Premium */}
+          <div className={clsx(
+            "flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center border transition-all duration-500",
+            isCompleted
+              ? "bg-surface-variant/20 border-white/5 text-on-surface-variant/40"
+              : "bg-amber-500/15 border-amber-500/30 text-amber-500 group-hover:scale-110 group-hover:rotate-12"
+          )}>
+            <Bell size={18} className={isCompleted ? "" : "fill-amber-500/20 glow-amber"} />
+          </div>
+
+          <div className="flex-1 min-w-0 py-1">
+            {/* Header del Recordatorio */}
+            <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+              <span className={clsx(
+                "text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-0.5 rounded-full border transition-colors",
+                isCompleted 
+                  ? "bg-white/5 border-white/10 text-on-surface-variant/40" 
+                  : "bg-amber-500/20 border-amber-500/40 text-amber-400"
+              )}>
+                Recordatorio
+              </span>
+              {task.due_time && (
+                <div className={clsx(
+                  "flex items-center gap-1.5 text-[11px] font-bold transition-opacity",
+                  isCompleted ? "text-on-surface-variant/30" : "text-amber-500/80"
+                )}>
+                  <Clock size={12} strokeWidth={2.5} />
+                  <span>{format(new Date(`2000-01-01T${task.due_time}`), 'h:mm a')}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Título refinado */}
+            <p className={clsx(
+              "text-base md:text-lg font-black transition-all",
+              isCompleted 
+                ? "text-on-surface/30 line-through tracking-wider" 
+                : "text-on-surface/90 tracking-tight group-hover:text-on-surface"
+            )}>
+              {task.title.replace(/^🔔\s*/, '')}
+            </p>
+          </div>
+        </div>
+
+        {/* Acciones */}
+        <div className="flex items-center gap-2 relative z-10" ref={menuRef}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsMenuOpen(!isMenuOpen);
+            }}
+            className={clsx(
+              "transition-all p-2 rounded-xl border border-transparent",
+              isMenuOpen 
+                ? "bg-amber-500/20 text-amber-500 border-amber-500/30" 
+                : "text-on-surface-variant/40 hover:bg-amber-500/10 hover:text-amber-400 opacity-0 group-hover:opacity-100"
+            )}
+          >
+            <MoreVertical size={20} />
+          </button>
+
+          {isMenuOpen && (
+            <div className="absolute right-0 top-12 w-52 glass-modal rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+              <div className="p-2 flex flex-col gap-1.5">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onDelete) onDelete(task.id);
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                >
+                  <Trash2 size={16} />
+                  Eliminar Recordatorio
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+  // =====================================================
+  // =====================================================
 
   return (
     <div 

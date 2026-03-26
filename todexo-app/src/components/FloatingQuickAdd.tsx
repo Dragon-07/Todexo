@@ -226,13 +226,58 @@ export default function FloatingQuickAdd({
         payload.reminder_at = reminderDate.toISOString();
       }
 
-      const { error } = await supabase.from('tasks').insert(payload);
+      // Insertar la tarea principal y obtener su ID
+      const { data: insertedTask, error } = await supabase
+        .from('tasks')
+        .insert(payload)
+        .select('id')
+        .single();
 
       if (error) {
         console.error('Error creating task:', error);
         setLoading(false);
         return;
       }
+
+      // === CREAR TAREA-RECORDATORIO AUTOMÁTICA ===
+      // Solo si hay recordatorio Y hora específica seleccionada
+      if (selectedReminder && selectedTime && selectedDate && insertedTask) {
+        const mainTaskFullDate = new Date(selectedDate);
+        const [h, m, s] = selectedTime.split(':').map(Number);
+        mainTaskFullDate.setHours(h, m, s);
+
+        // Calcular hora del recordatorio (N minutos antes)
+        const reminderDateTime = new Date(mainTaskFullDate.getTime() - selectedReminder * 60000);
+        const reminderTimeStr = format(reminderDateTime, 'HH:mm:ss');
+        const reminderDateStr = format(reminderDateTime, 'yyyy-MM-dd');
+
+        // Texto de hora de la tarea principal (para mostrar en el recordatorio)
+        const mainTimeLabel = format(mainTaskFullDate, 'h:mm a');
+
+        // Etiqueta del recordatorio según los minutos
+        const reminderLabel = selectedReminder === 5 ? '5 min' :
+          selectedReminder === 15 ? '15 min' :
+          selectedReminder === 30 ? '30 min' :
+          selectedReminder === 60 ? '1 hora' :
+          selectedReminder === 1440 ? '1 día' : `${selectedReminder} min`;
+
+        const reminderPayload = {
+          title: `🔔 ${title} · a las ${mainTimeLabel}`,
+          user_id: user.id,
+          status: 'pending',
+          due_date: reminderDateStr,
+          due_time: reminderTimeStr,
+          is_reminder: true,
+          reminder_for_task_id: insertedTask.id,
+          priority: 0,
+        };
+
+        const { error: reminderError } = await supabase.from('tasks').insert(reminderPayload);
+        if (reminderError) {
+          console.error('Error creating reminder task:', reminderError);
+        }
+      }
+      // ===========================================
 
       setTitle('');
       setSelectedPriority(0);
