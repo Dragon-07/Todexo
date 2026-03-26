@@ -11,7 +11,8 @@ import {
   PencilLine,
   Check,
   Flag,
-  Repeat
+  Repeat,
+  Bell
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -35,6 +36,9 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
   const [isRepeatMenuOpen, setIsRepeatMenuOpen] = useState(false);
   const [isTimeMenuOpen, setIsTimeMenuOpen] = useState(false);
   const [timeSearch, setTimeSearch] = useState('');
+  const [reminderAt, setReminderAt] = useState<string | null>(task.reminder_at || null);
+  const [isReminderMenuOpen, setIsReminderMenuOpen] = useState(false);
+  const [selectedReminderMinutes, setSelectedReminderMinutes] = useState<number | null>(null);
   
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +49,8 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
       setTime(task.due_time || null);
       setPriority(task.priority || 0);
       setRepeat(task.repeat_type || null);
+      setReminderAt(task.reminder_at || null);
+      setSelectedReminderMinutes(null);
     }
   }, [isOpen, task]);
 
@@ -54,16 +60,36 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                     date !== (task.due_date || null) || 
                     time !== (task.due_time || null) || 
                     priority != (task.priority || 0) ||
-                    repeat !== (task.repeat_type || null);
+                    repeat !== (task.repeat_type || null) ||
+                    reminderAt !== (task.reminder_at || null) ||
+                    selectedReminderMinutes !== null;
 
   const handleSave = () => {
     if (!hasChanges) return;
+    
+    let finalReminderAt = reminderAt;
+    
+    if (selectedReminderMinutes && date) {
+      const fullDueDate = new Date(date);
+      if (time) {
+        const [h, m, s] = time.split(':').map(Number);
+        fullDueDate.setHours(h, m, s);
+      } else {
+        fullDueDate.setHours(9, 0, 0);
+      }
+      const reminderDate = new Date(fullDueDate.getTime() - selectedReminderMinutes * 60000);
+      finalReminderAt = reminderDate.toISOString();
+    } else if (selectedReminderMinutes === null && reminderAt === null) {
+       finalReminderAt = null;
+    }
+
     onSave({
       title,
       due_date: date,
       due_time: time,
       priority,
-      repeat_type: repeat
+      repeat_type: repeat,
+      reminder_at: finalReminderAt
     });
     onClose();
   };
@@ -361,6 +387,76 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                           className="w-full text-left px-4 py-2 text-[10px] font-black text-red-500 hover:bg-red-500/10 transition-colors uppercase tracking-widest"
                         >
                           Eliminar repetición
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Reminder Selection */}
+            <div className="space-y-2">
+              <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Recordatorio</label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsReminderMenuOpen(!isReminderMenuOpen)}
+                  className={clsx(
+                    "flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-container-low border transition-all w-full",
+                    (reminderAt || selectedReminderMinutes) ? "border-amber-400/50 text-amber-500 shadow-sm shadow-amber-400/10" :
+                    "border-surface-variant/40 text-on-surface-variant hover:text-amber-500 hover:border-amber-400/30"
+                  )}
+                >
+                  <Bell size={14} className={clsx("transition-transform", (reminderAt || selectedReminderMinutes) ? "text-amber-500 fill-amber-500/10" : "text-on-surface-variant")} />
+                  <span className="text-xs font-black uppercase tracking-tight truncate">
+                    {selectedReminderMinutes === 5 ? '5 min antes' :
+                     selectedReminderMinutes === 15 ? '15 min antes' :
+                     selectedReminderMinutes === 30 ? '30 min antes' :
+                     selectedReminderMinutes === 60 ? '1 hora antes' :
+                     selectedReminderMinutes === 1440 ? '1 día antes' :
+                     reminderAt ? format(parseISO(reminderAt), "d MMM, h:mm a", { locale: es }) : 'Sin recordatorio'}
+                  </span>
+                </button>
+
+                {isReminderMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-52 glass-modal rounded-2xl shadow-2xl z-[70] overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="py-1">
+                      {[
+                        { id: 5, label: '5 min antes' },
+                        { id: 15, label: '15 min antes' },
+                        { id: 30, label: '30 min antes' },
+                        { id: 60, label: '1 hora antes' },
+                        { id: 1440, label: '1 día antes' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedReminderMinutes(opt.id);
+                            setReminderAt(null);
+                            setIsReminderMenuOpen(false);
+                          }}
+                          className={clsx(
+                            "w-full text-left px-4 py-2 text-[13px] font-black transition-colors border-b border-white/5 last:border-none uppercase flex items-center gap-3",
+                            selectedReminderMinutes === opt.id ? "bg-amber-400/10 text-amber-500" : "text-on-surface-variant hover:bg-surface-variant hover:text-amber-500"
+                          )}
+                        >
+                          <Bell size={12} />
+                          {opt.label}
+                        </button>
+                      ))}
+                      {(reminderAt || selectedReminderMinutes) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setReminderAt(null);
+                            setSelectedReminderMinutes(null);
+                            setIsReminderMenuOpen(false);
+                          }}
+                          className="w-full text-left px-4 py-2 text-[11px] font-black text-red-500 hover:bg-red-500/10 transition-colors uppercase tracking-widest"
+                        >
+                          Eliminar recordatorio
                         </button>
                       )}
                     </div>

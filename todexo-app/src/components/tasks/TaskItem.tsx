@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
-import { Circle, CheckCircle2, MoreVertical, Tag, Clock, Calendar, Flame, MinusCircle, ChevronsDown, Repeat, Trash2 } from 'lucide-react';
+import { Circle, CheckCircle2, MoreVertical, Tag, Clock, Calendar, Flame, MinusCircle, ChevronsDown, Repeat, Trash2, Bell } from 'lucide-react';
 import { format, parseISO, isSameDay, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -16,6 +16,7 @@ export interface Task {
   repeat_type?: string | null;
   priority?: string | number | null;
   project_id?: string | null;
+  reminder_at?: string | null;
 }
 
 interface TaskItemProps {
@@ -180,6 +181,13 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
               <div className="flex items-center gap-1 text-[10px] lowercase font-black text-teal-400 bg-teal-400/5 px-1.5 py-0.5 rounded-md border border-teal-400/10 whitespace-nowrap">
                 <Clock size={10} />
                 <span>{task.due_time ? format(new Date(`2000-01-01T${task.due_time}`), 'h:mm a') : task.time}</span>
+              </div>
+            )}
+
+            {task.reminder_at && (
+              <div className="flex items-center gap-1 text-[10px] font-black text-amber-400 bg-amber-400/5 px-1.5 py-0.5 rounded-md border border-amber-400/10 whitespace-nowrap">
+                <Bell size={10} className="fill-amber-400/20" />
+                {!compact && <span>Recordatorio</span>}
               </div>
             )}
             

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Sparkles, X, Plus, Clock, Calendar, Flag, Sun, Sofa, FastForward, Slash, ChevronDown, CalendarDays, Repeat, Flame, MinusCircle, ChevronsDown } from 'lucide-react';
+import { Sparkles, X, Plus, Clock, Calendar, Flag, Sun, Sofa, FastForward, Slash, ChevronDown, CalendarDays, Repeat, Flame, MinusCircle, ChevronsDown, Bell } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import clsx from 'clsx';
 import { format, addDays, nextMonday, nextSaturday, startOfMonth, endOfMonth, eachDayOfInterval, isToday, isSameDay, addMonths } from 'date-fns';
@@ -37,6 +37,8 @@ export default function FloatingQuickAdd({
   const [selectedRepeat, setSelectedRepeat] = useState<string | null>(null);
   const [isPriorityMenuOpen, setIsPriorityMenuOpen] = useState(false);
   const [selectedPriority, setSelectedPriority] = useState<number>(0);
+  const [isReminderMenuOpen, setIsReminderMenuOpen] = useState(false);
+  const [selectedReminder, setSelectedReminder] = useState<number | null>(null);
 
   const dateOptions = [
     { label: 'Hoy', date: new Date(), time: null, icon: Calendar, color: 'text-green-400' },
@@ -212,6 +214,18 @@ export default function FloatingQuickAdd({
         priority: selectedPriority
       };
 
+      if (selectedReminder && selectedDate) {
+        const fullDueDate = new Date(selectedDate);
+        if (selectedTime) {
+          const [h, m, s] = selectedTime.split(':').map(Number);
+          fullDueDate.setHours(h, m, s);
+        } else {
+          fullDueDate.setHours(9, 0, 0);
+        }
+        const reminderDate = new Date(fullDueDate.getTime() - selectedReminder * 60000);
+        payload.reminder_at = reminderDate.toISOString();
+      }
+
       const { error } = await supabase.from('tasks').insert(payload);
 
       if (error) {
@@ -225,6 +239,7 @@ export default function FloatingQuickAdd({
       setSelectedDate(new Date());
       setSelectedTime(null);
       setSelectedRepeat(null);
+      setSelectedReminder(null);
       setIsOpen(false);
       onTaskAdded?.();
     }
@@ -594,10 +609,58 @@ export default function FloatingQuickAdd({
                     </div>
                   )}
                 </div>
-                 <button type="button" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-50 dark:bg-gray-800 border border-surface-variant/40 text-on-surface-variant hover:text-primary transition-colors">
-                  <Clock size={14} />
-                  Recordatorio
-                </button>
+                <div className="relative">
+                  <button 
+                    type="button" 
+                    onClick={() => setIsReminderMenuOpen(!isReminderMenuOpen)}
+                    className={clsx(
+                      "flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all",
+                      selectedReminder 
+                        ? "bg-amber-400/10 border-amber-400/50 text-amber-500 shadow-sm shadow-amber-400/20" 
+                        : "bg-surface-container-high border-surface-variant/40 text-on-surface-variant hover:text-amber-500"
+                    )}
+                  >
+                    <Bell size={14} className={clsx(selectedReminder && "fill-amber-500/20")} />
+                    <span>
+                      {selectedReminder === 5 ? '5 min antes' :
+                       selectedReminder === 15 ? '15 min antes' :
+                       selectedReminder === 30 ? '30 min antes' :
+                       selectedReminder === 60 ? '1 hora antes' :
+                       selectedReminder === 1440 ? '1 día antes' : 'Recordatorio'}
+                    </span>
+                  </button>
+
+                  {isReminderMenuOpen && (
+                    <div className="absolute bottom-full right-0 mb-4 w-48 glass-modal rounded-[2.5rem] shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
+                      <div className="py-1">
+                        {[
+                          { id: 5, label: '5 min antes' },
+                          { id: 15, label: '15 min antes' },
+                          { id: 30, label: '30 min antes' },
+                          { id: 60, label: '1 hora antes' },
+                          { id: 1440, label: '1 día antes' },
+                          { id: null, label: 'Sin recordatorio' },
+                        ].map((r) => (
+                          <button
+                            key={String(r.id)}
+                            type="button"
+                            onClick={() => {
+                              setSelectedReminder(r.id);
+                              setIsReminderMenuOpen(false);
+                            }}
+                            className={clsx(
+                              "w-full text-left px-4 py-2 text-[13px] font-black transition-colors border-b border-white/5 last:border-none uppercase flex items-center gap-3",
+                              selectedReminder === r.id ? "bg-amber-400/10 text-amber-500" : "text-on-surface-variant/80 hover:bg-amber-400/10 hover:text-amber-500"
+                            )}
+                          >
+                            <Bell size={14} className={selectedReminder === r.id ? "fill-amber-500/20" : ""} />
+                            {r.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 
                 <button 
                   type="button" 
