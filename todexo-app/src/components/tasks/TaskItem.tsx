@@ -150,6 +150,17 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
               )}>
                 Recordatorio
               </span>
+              
+              {task.due_date && (
+                <div className={clsx(
+                  "flex items-center gap-1.5 text-[11px] font-bold transition-opacity uppercase",
+                  isCompleted ? "text-on-surface-variant/30" : "text-amber-500/80"
+                )}>
+                  <Calendar size={12} strokeWidth={2.5} />
+                  <span>{format(parseISO(task.due_date), 'd MMM', { locale: es })}</span>
+                </div>
+              )}
+
               {task.due_time && (
                 <div className={clsx(
                   "flex items-center gap-1.5 text-[11px] font-bold transition-opacity",
@@ -161,9 +172,9 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
               )}
             </div>
 
-            {/* Título refinado */}
+            {/* Título refinado con truncado */}
             <p className={clsx(
-              "text-base md:text-lg font-black transition-all",
+              "text-base md:text-lg font-black transition-all truncate",
               isCompleted 
                 ? "text-on-surface/30 line-through tracking-wider" 
                 : "text-on-surface/90 tracking-tight group-hover:text-on-surface"

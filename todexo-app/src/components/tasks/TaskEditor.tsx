@@ -19,6 +19,9 @@ import { es } from 'date-fns/locale';
 import clsx from 'clsx';
 import { Task } from './TaskItem';
 
+import { manageReminderTask } from '@/lib/reminder';
+import { supabase } from '@/lib/supabase';
+
 interface TaskEditorProps {
   task: Task;
   isOpen: boolean;
@@ -64,7 +67,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                     reminderAt !== (task.reminder_at || null) ||
                     selectedReminderMinutes !== null;
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!hasChanges) return;
     
     let finalReminderAt = reminderAt;
@@ -81,6 +84,20 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
       finalReminderAt = reminderDate.toISOString();
     } else if (selectedReminderMinutes === null && reminderAt === null) {
        finalReminderAt = null;
+    }
+
+    // Gestionamos el recordatorio en la base de datos (crear/actualizar/borrar)
+    // Solo si el recordatorio existe o va a existir
+    if (task.reminder_at || finalReminderAt) {
+      await manageReminderTask(
+        task.id,
+        title,
+        task.reminder_at || null,
+        finalReminderAt,
+        date,
+        time,
+        task.user_id
+      );
     }
 
     onSave({
