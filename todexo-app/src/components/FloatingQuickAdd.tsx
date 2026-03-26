@@ -63,8 +63,8 @@ export default function FloatingQuickAdd({
           {monthLabel}
         </h4>
         <div className="grid grid-cols-7 gap-0.5 text-center mb-2">
-          {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map(d => (
-            <span key={d} className="text-[9px] font-black text-on-surface-variant/80 uppercase tracking-tighter">{d}</span>
+          {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((d, i) => (
+            <span key={`${d}-${i}`} className="text-[9px] font-black text-on-surface-variant/80 uppercase tracking-tighter">{d}</span>
           ))}
         </div>
         <div className="grid grid-cols-7 gap-0.5">
