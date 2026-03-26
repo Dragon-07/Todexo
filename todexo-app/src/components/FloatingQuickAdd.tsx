@@ -295,7 +295,11 @@ export default function FloatingQuickAdd({
                 <div className="relative">
                   <button
                     type="button"
-                    onClick={() => setIsDateMenuOpen(!isDateMenuOpen)}
+                    onClick={() => {
+                      setIsDateMenuOpen(!isDateMenuOpen);
+                      setIsPriorityMenuOpen(false);
+                      setIsReminderMenuOpen(false);
+                    }}
                     className={clsx(
                       "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border border-surface-variant/40 transition-all",
                       isDateMenuOpen ? "text-primary border-primary/50" : "text-on-surface-variant hover:text-primary"
@@ -559,7 +563,11 @@ export default function FloatingQuickAdd({
                 <div className="relative">
                   <button 
                     type="button" 
-                    onClick={() => setIsPriorityMenuOpen(!isPriorityMenuOpen)}
+                    onClick={() => {
+                      setIsPriorityMenuOpen(!isPriorityMenuOpen);
+                      setIsDateMenuOpen(false);
+                      setIsReminderMenuOpen(false);
+                    }}
                     className={clsx(
                       "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-container-high border transition-all",
                       selectedPriority === 3 ? "border-red-500/50 text-red-400" :
@@ -612,7 +620,11 @@ export default function FloatingQuickAdd({
                 <div className="relative">
                   <button 
                     type="button" 
-                    onClick={() => setIsReminderMenuOpen(!isReminderMenuOpen)}
+                    onClick={() => {
+                      setIsReminderMenuOpen(!isReminderMenuOpen);
+                      setIsDateMenuOpen(false);
+                      setIsPriorityMenuOpen(false);
+                    }}
                     className={clsx(
                       "flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all",
                       selectedReminder 

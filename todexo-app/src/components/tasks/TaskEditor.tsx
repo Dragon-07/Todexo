@@ -200,7 +200,12 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
               <div className="relative group">
                 <button
                   type="button"
-                  onClick={() => setIsTimeMenuOpen(!isTimeMenuOpen)}
+                  onClick={() => {
+                    setIsTimeMenuOpen(!isTimeMenuOpen);
+                    setIsPriorityMenuOpen(false);
+                    setIsRepeatMenuOpen(false);
+                    setIsReminderMenuOpen(false);
+                  }}
                   className="w-full flex items-center gap-3 bg-surface-container-low border border-surface-variant/30 rounded-xl px-4 py-2 text-on-surface font-bold focus:outline-none focus:border-teal-400/50 transition-all text-xs"
                 >
                   <Clock className={clsx("transition-colors", isTimeMenuOpen ? "text-teal-400" : "text-on-surface-variant")} size={16} />
@@ -275,7 +280,12 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setIsPriorityMenuOpen(!isPriorityMenuOpen)}
+                  onClick={() => {
+                    setIsPriorityMenuOpen(!isPriorityMenuOpen);
+                    setIsRepeatMenuOpen(false);
+                    setIsReminderMenuOpen(false);
+                    setIsTimeMenuOpen(false);
+                  }}
                   className={clsx(
                     "flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-container-low border transition-all w-full",
                     priority == 3 ? "border-red-500/50 text-red-400" :
@@ -298,7 +308,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                 </button>
 
                 {isPriorityMenuOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-44 bg-surface-container rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
+                  <div className="absolute top-full left-0 mt-2 w-44 glass-modal rounded-2xl shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden border border-surface-variant/30 animate-in zoom-in-95 duration-200 z-[70]">
                     <div className="py-1">
                       {[
                         { id: 3, label: 'Alta', color: 'text-red-400', bg: 'hover:bg-red-500/10', Icon: Flame, iconColor: 'fill-red-400/20' },
@@ -335,7 +345,12 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setIsRepeatMenuOpen(!isRepeatMenuOpen)}
+                  onClick={() => {
+                    setIsRepeatMenuOpen(!isRepeatMenuOpen);
+                    setIsPriorityMenuOpen(false);
+                    setIsReminderMenuOpen(false);
+                    setIsTimeMenuOpen(false);
+                  }}
                   className={clsx(
                     "flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-container-low border transition-all w-full",
                     repeat ? "border-secondary/50 text-secondary" :
@@ -401,7 +416,12 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => setIsReminderMenuOpen(!isReminderMenuOpen)}
+                  onClick={() => {
+                    setIsReminderMenuOpen(!isReminderMenuOpen);
+                    setIsPriorityMenuOpen(false);
+                    setIsRepeatMenuOpen(false);
+                    setIsTimeMenuOpen(false);
+                  }}
                   className={clsx(
                     "flex items-center gap-2 px-3 py-2 rounded-xl bg-surface-container-low border transition-all w-full",
                     (reminderAt || selectedReminderMinutes) ? "border-amber-400/50 text-amber-500 shadow-sm shadow-amber-400/10" :
