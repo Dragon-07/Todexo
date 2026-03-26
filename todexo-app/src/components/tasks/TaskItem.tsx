@@ -84,23 +84,25 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
     return (
       <div
         className={clsx(
-          "group flex items-center justify-between rounded-3xl border transition-all cursor-default select-none relative overflow-hidden",
+          "group flex items-center justify-between rounded-3xl border transition-all cursor-default select-none relative overflow-visible",
           compact ? "p-3 rounded-2xl gap-2" : "p-4 gap-4",
           isCompleted
             ? "glass-panel opacity-60 border-amber-500/10 bg-amber-500/5 grayscale"
             : "glass-panel border-amber-500/30 bg-amber-500/5 hover:brightness-110 active:scale-[0.99] ambient-shadow"
         )}
       >
-        {/* Resplandor ámbar de fondo (Glow) */}
-        {!isCompleted && (
-          <div className="absolute -left-20 -top-20 w-40 h-40 bg-amber-500/20 blur-[100px] pointer-events-none" />
-        )}
-        
-        {/* Indicador lateral LED ámbar */}
-        <div className={clsx(
-          "absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r-lg transition-all duration-500",
-          isCompleted ? "bg-amber-500/20" : "bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]"
-        )} />
+        {/* Capa de efectos de fondo (Glow y LED) con overflow-hidden para no salirse de los bordes redondeados */}
+        <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+          {!isCompleted && (
+            <div className="absolute -left-20 -top-20 w-40 h-40 bg-amber-500/20 blur-[100px]" />
+          )}
+          
+          {/* Indicador lateral LED ámbar */}
+          <div className={clsx(
+            "absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r-lg transition-all duration-500",
+            isCompleted ? "bg-amber-500/20" : "bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]"
+          )} />
+        </div>
 
         <div className="flex items-center gap-4 flex-1 min-w-0 pl-4">
           {/* Campana de recordatorio Premium */}
