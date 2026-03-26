@@ -12,7 +12,7 @@ export default function MobileNav() {
     { icon: Sparkles, href: '/', label: 'Hoy' },
     { icon: ListTodo, href: '/tasks', label: 'Tareas' },
     { icon: Calendar, href: '/calendar', label: 'Fechas' },
-    { icon: LayoutGrid, href: '/projects', label: 'Proyectos' },
+    { icon: LayoutGrid, href: '/projects', label: 'pendientes' },
     { icon: BarChart2, href: '/stats', label: 'Avances' },
   ];
 

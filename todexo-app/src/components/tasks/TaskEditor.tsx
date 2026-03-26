@@ -192,7 +192,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
         className="w-full max-w-lg glass-modal rounded-[3rem] shadow-[0_32px_128px_rgba(0,0,0,0.8)] border border-white/20 animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[90vh]"
       >
         {/* Header con estilo Glass */}
-        <div className="p-6 flex items-center justify-between border-b border-white/10 shrink-0 bg-surface-container-high/30">
+        <div className="p-4 flex items-center justify-between border-b border-white/10 shrink-0 bg-surface-container-high/30">
           <div className="flex items-center gap-4">
             <div className={clsx(
               "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner transition-colors duration-500",
@@ -216,8 +216,8 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
         </div>
 
         <div className={clsx(
-          "p-6 overflow-y-auto custom-scrollbar",
-          task.is_reminder ? "flex-initial space-y-4" : "flex-1 space-y-8"
+          "p-4 overflow-y-auto custom-scrollbar",
+          task.is_reminder ? "flex-initial space-y-3" : "flex-1 space-y-4"
         )}>
           {/* SECCIÓN ESPECIAL PARA RECORDATORIOS */}
           {task.is_reminder && (
@@ -251,21 +251,21 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
 
           {/* Title input - Hidden if it's a reminder */}
           {!task.is_reminder && (
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Título de la tarea</label>
               <textarea 
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="¿Qué tienes programado?"
-                className="w-full bg-surface-container border-2 border-surface-variant/20 rounded-[1.5rem] px-5 py-4 text-lg font-bold text-on-surface min-h-[120px] focus:outline-none focus:border-primary/50 transition-all resize-none shadow-inner placeholder:text-on-surface-variant/20 tracking-tight custom-scrollbar"
+                className="w-full bg-surface-container border-2 border-surface-variant/20 rounded-[1.5rem] px-5 py-3 text-lg font-bold text-on-surface min-h-[80px] focus:outline-none focus:border-primary/50 transition-all resize-none shadow-inner placeholder:text-on-surface-variant/20 tracking-tight custom-scrollbar"
               />
             </div>
           )}
 
           {!task.is_reminder && (
             <>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
                   <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Fecha</label>
                   <div className="relative group">
                     <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors" size={16} />
@@ -277,8 +277,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                     />
                   </div>
                 </div>
-
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1">Hora</label>
                   <div className="relative group">
                     <button
@@ -333,8 +332,8 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
                   <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1 font-amber-500">Recordatorio</label>
                   <div className="relative">
                     <button
@@ -389,7 +388,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                   <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1 border-white/5">Prioridad</label>
                   <div className="relative">
                     <button
@@ -439,7 +438,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                   </div>
                 </div>
 
-                <div className="col-span-2 space-y-2">
+                <div className="col-span-2 space-y-1.5">
                   <label className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant px-1 border-white/5">Repetir</label>
                   <div className="relative">
                     <button
@@ -505,15 +504,15 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
             <div className="flex gap-4">
               <button 
                 onClick={onClose}
-                className="flex-1 py-4 bg-surface-variant/30 hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 font-black text-[10px] uppercase tracking-[0.2em] border border-white/5 rounded-2xl transition-all"
+                className="flex-1 py-3 bg-surface-variant/30 hover:bg-red-500/10 text-on-surface-variant hover:text-red-400 font-black text-[10px] uppercase tracking-[0.2em] border border-white/5 rounded-2xl transition-all"
               >
-                Cancelar
+                Continuar
               </button>
               <button 
                 onClick={handleSave}
                 disabled={!hasChanges}
                 className={clsx(
-                  "flex-[2] py-4 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl",
+                  "flex-[2] py-3 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl",
                   hasChanges 
                     ? "bg-primary text-on-primary glow-primary hover:brightness-110 active:scale-[0.98]" 
                     : "bg-surface-variant/10 text-on-surface-variant opacity-50 cursor-not-allowed"

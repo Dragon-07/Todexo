@@ -86,7 +86,7 @@ export default function Sidebar({ className }: { className?: string }) {
         </div>
 
         <div>
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-4 px-2">Proyectos</h3>
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-4 px-2">pendientes</h3>
           <nav className="space-y-1">
             {projects.map((project) => (
               <button key={project.label} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all group">

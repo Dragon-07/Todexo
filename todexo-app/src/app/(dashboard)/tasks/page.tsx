@@ -170,7 +170,7 @@ export default function AllTasksPage() {
              </div>
              <div>
                 <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-on-surface">Mis Tareas</h1>
-                <p className="text-on-surface-variant font-medium mt-1">Todas tus tareas y proyectos en un solo lugar.</p>
+                <p className="text-on-surface-variant font-medium mt-1">Todas tus tareas pendientes en un solo lugar.</p>
              </div>
           </div>
         </header>

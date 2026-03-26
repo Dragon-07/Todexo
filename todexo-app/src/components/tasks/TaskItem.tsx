@@ -140,11 +140,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
       >
         {/* Capa de efectos de fondo (Glow y LED) con overflow-hidden para no salirse de los bordes redondeados */}
         <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-          {/* Indicador lateral LED ámbar suave */}
-          <div className={clsx(
-            "absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r-lg transition-all duration-500",
-            isCompleted ? "bg-amber-500/20" : "bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]"
-          )} />
+          {/* Indicador lateral eliminado a petición del usuario */}
         </div>
 
         <div className="flex items-center gap-4 flex-1 min-w-0 pl-4">
