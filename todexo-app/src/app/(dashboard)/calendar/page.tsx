@@ -156,61 +156,70 @@ export default function CalendarPage() {
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary to-secondary-dim flex items-center justify-center shadow-xl glow-secondary flex-shrink-0">
             <Calendar className="text-on-surface" size={24} />
           </div>
-          <div className="flex items-center gap-3">
-            <button 
-              onClick={handlePrev} 
-              className="p-2.5 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
-              title={viewMode === 'week' ? "Semana anterior" : "Mes anterior"}
-            >
-              <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
-            </button>
-            
+          {viewMode !== 'list' ? (
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={handlePrev} 
+                className="p-2.5 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
+                title={viewMode === 'week' ? "Semana anterior" : "Mes anterior"}
+              >
+                <ChevronLeft size={20} className="group-hover:-translate-x-0.5 transition-transform" />
+              </button>
+              
+              <div className="text-left">
+                <h1 className="text-3xl font-black tracking-tighter text-on-surface capitalize">
+                  {viewMode === 'week' ? (
+                    (() => {
+                      const start = startOfWeek(currentDate, { weekStartsOn: 1 });
+                      const end = addDays(start, 6);
+                      if (start.getMonth() === end.getMonth()) {
+                        return (
+                          <>
+                            <span className="text-primary">{format(start, 'd')}</span> al <span className="text-primary">{format(end, 'd')}</span> de {monthName}
+                          </>
+                        );
+                      }
+                      return (
+                        <span className="text-2xl md:text-3xl">
+                          <span className="text-primary">{format(start, 'd')}</span> {format(start, 'MMM', { locale: es })} al <span className="text-primary">{format(end, 'd')}</span> {format(end, 'MMM', { locale: es })}
+                        </span>
+                      );
+                    })()
+                  ) : (
+                    <>
+                      {monthName} <span className="opacity-30 font-light">{year}</span>
+                    </>
+                  )}
+                </h1>
+                <p className="text-on-surface-variant font-medium mt-0.5 uppercase tracking-widest text-[9px]">
+                  {viewMode === 'week' ? 'Tu programa semanal' : 'Tu horizonte de tareas'}
+                </p>
+              </div>
+
+              <button 
+                onClick={handleNext} 
+                className="p-2.5 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
+                title="Mes siguiente"
+              >
+                <ChevronRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
+              </button>
+
+              <button 
+                onClick={() => setCurrentDate(new Date())} 
+                className="ml-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-[0.1em] text-primary hover:bg-primary/20 transition-all ambient-shadow active:scale-95 flex items-center gap-2"
+              >
+                 <Clock size={14} />
+                 Hoy
+              </button>
+            </div>
+          ) : (
             <div className="text-left">
               <h1 className="text-3xl font-black tracking-tighter text-on-surface capitalize">
-                {viewMode === 'week' ? (
-                  (() => {
-                    const start = startOfWeek(currentDate, { weekStartsOn: 1 });
-                    const end = addDays(start, 6);
-                    if (start.getMonth() === end.getMonth()) {
-                      return (
-                        <>
-                          <span className="text-primary">{format(start, 'd')}</span> al <span className="text-primary">{format(end, 'd')}</span> de {monthName}
-                        </>
-                      );
-                    }
-                    return (
-                      <span className="text-2xl md:text-3xl">
-                        <span className="text-primary">{format(start, 'd')}</span> {format(start, 'MMM', { locale: es })} al <span className="text-primary">{format(end, 'd')}</span> {format(end, 'MMM', { locale: es })}
-                      </span>
-                    );
-                  })()
-                ) : (
-                  <>
-                    {monthName} <span className="opacity-30 font-light">{year}</span>
-                  </>
-                )}
+                Agenda del <span className="text-primary">Calendario</span>
               </h1>
-              <p className="text-on-surface-variant font-medium mt-0.5 uppercase tracking-widest text-[9px]">
-                {viewMode === 'week' ? 'Tu programa semanal' : 'Tu horizonte de tareas'}
-              </p>
+              <p className="text-on-surface-variant font-medium mt-0.5 uppercase tracking-widest text-[9px]">Tu flujo de tareas completo</p>
             </div>
-
-            <button 
-              onClick={handleNext} 
-              className="p-2.5 rounded-2xl bg-surface-container hover:bg-surface-variant text-on-surface transition-all ambient-shadow active:scale-95 group"
-              title="Mes siguiente"
-            >
-              <ChevronRight size={20} className="group-hover:translate-x-0.5 transition-transform" />
-            </button>
-
-            <button 
-              onClick={() => setCurrentDate(new Date())} 
-              className="ml-2 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-[10px] font-black uppercase tracking-[0.1em] text-primary hover:bg-primary/20 transition-all ambient-shadow active:scale-95 flex items-center gap-2"
-            >
-               <Clock size={14} />
-               Hoy
-            </button>
-          </div>
+          )}
         </div>
 
         {/* View Switcher */}
