@@ -655,8 +655,7 @@ export default function FloatingQuickAdd({
                   >
                     <Bell size={14} className={clsx(selectedReminder && "fill-amber-500/20")} />
                     <span>
-                      {selectedReminder === 5 ? '5 min antes' :
-                       selectedReminder === 15 ? '15 min antes' :
+                      {selectedReminder === 15 ? '15 min antes' :
                        selectedReminder === 30 ? '30 min antes' :
                        selectedReminder === 60 ? '1 hora antes' :
                        selectedReminder === 1440 ? '1 día antes' : 'Recordatorio'}
@@ -667,7 +666,6 @@ export default function FloatingQuickAdd({
                     <div className="absolute bottom-full right-0 mb-4 w-48 glass-modal rounded-[2.5rem] shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-200">
                       <div className="py-1">
                         {[
-                          { id: 5, label: '5 min antes' },
                           { id: 15, label: '15 min antes' },
                           { id: 30, label: '30 min antes' },
                           { id: 60, label: '1 hora antes' },

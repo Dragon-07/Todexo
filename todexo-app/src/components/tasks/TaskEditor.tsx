@@ -447,8 +447,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                 >
                   <Bell size={14} className={clsx("transition-transform", (reminderAt || selectedReminderMinutes) ? "text-amber-500 fill-amber-500/10" : "text-on-surface-variant")} />
                   <span className="text-xs font-black uppercase tracking-tight truncate">
-                    {selectedReminderMinutes === 5 ? '5 min antes' :
-                     selectedReminderMinutes === 15 ? '15 min antes' :
+                    {selectedReminderMinutes === 15 ? '15 min antes' :
                      selectedReminderMinutes === 30 ? '30 min antes' :
                      selectedReminderMinutes === 60 ? '1 hora antes' :
                      selectedReminderMinutes === 1440 ? '1 día antes' :
@@ -460,7 +459,6 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                   <div className="absolute right-0 top-full mt-2 w-52 glass-modal rounded-2xl shadow-2xl z-[70] overflow-hidden animate-in zoom-in-95 duration-200">
                     <div className="py-1">
                       {[
-                        { id: 5, label: '5 min antes' },
                         { id: 15, label: '15 min antes' },
                         { id: 30, label: '30 min antes' },
                         { id: 60, label: '1 hora antes' },
