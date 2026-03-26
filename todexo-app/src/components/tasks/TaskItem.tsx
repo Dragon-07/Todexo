@@ -109,6 +109,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
         className={clsx(
           "group flex items-center justify-between rounded-3xl border transition-all cursor-default select-none relative overflow-visible",
           compact ? "p-3 rounded-2xl gap-2" : "p-4 gap-4",
+          isMenuOpen ? "z-[200] brightness-110" : "z-0",
           isCompleted
             ? "glass-panel opacity-60 border-amber-500/10 bg-amber-500/5 grayscale"
             : "glass-panel border-amber-500/30 bg-amber-500/5 hover:brightness-110 active:scale-[0.99] ambient-shadow"
@@ -173,7 +174,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
         </div>
 
         {/* Acciones */}
-        <div className="flex items-center gap-2 relative z-10" ref={menuRef}>
+        <div className="flex items-center gap-2 relative z-50" ref={menuRef}>
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -190,16 +191,18 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
           </button>
 
           {isMenuOpen && (
-            <div className="absolute right-0 top-12 w-52 bg-surface-container-high dark:bg-slate-900 border border-white/10 rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute right-0 top-12 w-52 bg-[#1c1d21] border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[300] overflow-hidden animate-in fade-in zoom-in-95 duration-200 backdrop-blur-md">
               <div className="p-2 flex flex-col gap-1.5">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDeleteReminder();
                   }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                  className="w-full flex items-center gap-3 px-3 py-3 text-sm font-black text-red-500 hover:bg-red-500/10 rounded-xl transition-all active:scale-[0.98] group/btn"
                 >
-                  <Trash2 size={16} />
+                  <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center group-hover/btn:bg-red-500/20 transition-colors">
+                    <Trash2 size={16} />
+                  </div>
                   Eliminar Recordatorio
                 </button>
               </div>
