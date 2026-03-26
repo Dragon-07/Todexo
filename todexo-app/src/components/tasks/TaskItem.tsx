@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Circle, CheckCircle2, MoreVertical, Tag, Clock, Calendar, Flame, MinusCircle, ChevronsDown, Repeat, Trash2, Bell } from 'lucide-react';
 import { format, parseISO, isSameDay, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { supabase } from '@/lib/supabase';
 
 export interface Task {
   id: string;
@@ -77,6 +78,28 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
 
   const handleCardClick = () => {
     if (onEdit) onEdit(task);
+  };
+
+  // Funión especial para eliminar el recordatorio y limpiar la tarea original
+  const handleDeleteReminder = async () => {
+    try {
+      // 1. Si tiene una tarea asociada, limpiamos su campo reminder_at
+      if (task.reminder_for_task_id) {
+        await supabase
+          .from('tasks')
+          .update({ reminder_at: null })
+          .eq('id', task.reminder_for_task_id);
+      }
+      
+      // 2. Ejecutamos la eliminación de la tarea-recordatorio (la fila actual)
+      if (onDelete) {
+        onDelete(task.id);
+      }
+    } catch (error) {
+      console.error('Error al eliminar recordatorio:', error);
+    } finally {
+      setIsMenuOpen(false);
+    }
   };
 
   // === RENDERIZADO PREMIUM PARA TAREAS-RECORDATORIO ===
@@ -167,13 +190,12 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
           </button>
 
           {isMenuOpen && (
-            <div className="absolute right-0 top-12 w-52 glass-modal rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute right-0 top-12 w-52 bg-surface-container-high dark:bg-slate-900 border border-white/10 rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
               <div className="p-2 flex flex-col gap-1.5">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (onDelete) onDelete(task.id);
-                    setIsMenuOpen(false);
+                    handleDeleteReminder();
                   }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
                 >
