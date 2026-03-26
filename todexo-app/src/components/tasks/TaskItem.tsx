@@ -102,124 +102,193 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
     }
   };
 
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [mainTaskData, setMainTaskData] = useState<{
+    title: string;
+    due_date?: string | null;
+    due_time?: string | null;
+  } | null>(null);
+
+  // Cargar datos de la tarea original al expandir
+  useEffect(() => {
+    if (task.is_reminder && isExpanded && task.reminder_for_task_id && !mainTaskData) {
+      const fetchMainTask = async () => {
+        const { data } = await supabase
+          .from('tasks')
+          .select('title, due_date, due_time')
+          .eq('id', task.reminder_for_task_id)
+          .single();
+        if (data) setMainTaskData(data);
+      };
+      fetchMainTask();
+    }
+  }, [isExpanded, task.is_reminder, task.reminder_for_task_id]);
+
   // === RENDERIZADO PREMIUM PARA TAREAS-RECORDATORIO ===
   if (task.is_reminder) {
     return (
       <div
+        onClick={() => !isCompleted && setIsExpanded(!isExpanded)}
         className={clsx(
-          "group flex items-center justify-between rounded-3xl border transition-all cursor-default select-none relative overflow-visible",
-          compact ? "p-3 rounded-2xl gap-2" : "p-4 gap-4",
+          "group flex flex-col rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
+          compact ? "p-3 rounded-2xl gap-2" : "p-4 gap-2",
           isMenuOpen ? "z-[200] brightness-110" : "z-0",
           isCompleted
             ? "glass-panel opacity-60 border-amber-500/10 bg-amber-500/5 grayscale"
-            : "glass-panel border-amber-500/30 bg-amber-500/5 hover:brightness-110 active:scale-[0.99] ambient-shadow"
+            : "glass-panel border-amber-500/30 bg-amber-500/10 hover:brightness-105 active:scale-[0.99] ambient-shadow",
+          isExpanded && !isCompleted && "ring-2 ring-amber-500/30 scale-[1.02]"
         )}
       >
-        {/* Capa de efectos de fondo (Glow y LED) con overflow-hidden para no salirse de los bordes redondeados */}
+        {/* Capa de efectos de fondo */}
         <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
           {!isCompleted && (
             <div className="absolute -left-20 -top-20 w-40 h-40 bg-amber-500/20 blur-[100px]" />
           )}
-          
-          {/* Indicador lateral LED ámbar */}
           <div className={clsx(
-            "absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r-lg transition-all duration-500",
+            "absolute left-0 top-0 bottom-0 w-1 rounded-r-lg transition-all duration-500",
             isCompleted ? "bg-amber-500/20" : "bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]"
           )} />
         </div>
 
-        <div className="flex items-center gap-4 flex-1 min-w-0 pl-4">
-          {/* Campana de recordatorio Premium */}
-          <div className={clsx(
-            "flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center border transition-all duration-500",
-            isCompleted
-              ? "bg-surface-variant/20 border-white/5 text-on-surface-variant/40"
-              : "bg-amber-500/15 border-amber-500/30 text-amber-500 group-hover:scale-110 group-hover:rotate-12"
-          )}>
-            <Bell size={18} className={isCompleted ? "" : "fill-amber-500/20 glow-amber"} />
-          </div>
-
-          <div className="flex-1 min-w-0 py-1">
-            {/* Header del Recordatorio */}
-            <div className="flex items-center gap-3 mb-1.5 flex-wrap">
-              <span className={clsx(
-                "text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-0.5 rounded-full border transition-colors",
-                isCompleted 
-                  ? "bg-white/5 border-white/10 text-on-surface-variant/40" 
-                  : "bg-amber-500/20 border-amber-500/40 text-amber-400"
-              )}>
-                Recordatorio
-              </span>
-              
-              {task.due_date && (
-                <div className={clsx(
-                  "flex items-center gap-1.5 text-[11px] font-bold transition-opacity uppercase",
-                  isCompleted ? "text-on-surface-variant/30" : "text-amber-500/80"
-                )}>
-                  <Calendar size={12} strokeWidth={2.5} />
-                  <span>{format(parseISO(task.due_date), 'd MMM', { locale: es })}</span>
-                </div>
-              )}
-
-              {task.due_time && (
-                <div className={clsx(
-                  "flex items-center gap-1.5 text-[11px] font-bold transition-opacity",
-                  isCompleted ? "text-on-surface-variant/30" : "text-amber-500/80"
-                )}>
-                  <Clock size={12} strokeWidth={2.5} />
-                  <span>{format(new Date(`2000-01-01T${task.due_time}`), 'h:mm a')}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Título refinado con truncado */}
-            <p className={clsx(
-              "text-base md:text-lg font-black transition-all truncate",
-              isCompleted 
-                ? "text-on-surface/30 line-through tracking-wider" 
-                : "text-on-surface/90 tracking-tight group-hover:text-on-surface"
+        <div className="flex items-start justify-between w-full">
+          <div className="flex items-center gap-4 flex-1 min-w-0 pl-2">
+            <div className={clsx(
+              "flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center border transition-all duration-500",
+              isCompleted
+                ? "bg-surface-variant/20 border-white/5 text-on-surface-variant/40"
+                : "bg-amber-500/15 border-amber-500/30 text-amber-500"
             )}>
-              {task.title.replace(/^🔔\s*/, '')}
-            </p>
+              <Bell size={18} className={isCompleted ? "" : "fill-amber-500/20 glow-amber"} />
+            </div>
+
+            <div className="flex-1 min-w-0 py-1">
+              <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+                <span className={clsx(
+                  "text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-0.5 rounded-full border transition-colors",
+                  isCompleted 
+                    ? "bg-white/5 border-white/10 text-on-surface-variant/40" 
+                    : "bg-amber-500/20 border-amber-500/40 text-amber-400"
+                )}>
+                  Recordatorio
+                </span>
+                
+                {task.due_date && (
+                  <div className={clsx(
+                    "flex items-center gap-1.5 text-[11px] font-bold transition-opacity uppercase",
+                    isCompleted ? "text-on-surface-variant/30" : "text-amber-500/80"
+                  )}>
+                    <Calendar size={12} strokeWidth={2.5} />
+                    <span>{format(parseISO(task.due_date), 'd MMM', { locale: es })}</span>
+                  </div>
+                )}
+
+                {task.due_time && (
+                  <div className={clsx(
+                    "flex items-center gap-1.5 text-[11px] font-bold transition-opacity",
+                    isCompleted ? "text-on-surface-variant/30" : "text-amber-500/80"
+                  )}>
+                    <Clock size={12} strokeWidth={2.5} />
+                    <span>{format(new Date(`2000-01-01T${task.due_time}`), 'h:mm a')}</span>
+                  </div>
+                )}
+              </div>
+
+              {!isExpanded && (
+                <p className={clsx(
+                  "text-base md:text-lg font-black transition-all",
+                  !isExpanded && "truncate",
+                  isCompleted 
+                    ? "text-on-surface/30 line-through tracking-wider" 
+                    : "text-on-surface/90 tracking-tight group-hover:text-on-surface"
+                )}>
+                  {task.title.replace(/^🔔\s*/, '')}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 relative z-50 mr-2 mt-2" ref={menuRef}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMenuOpen(!isMenuOpen);
+              }}
+              className={clsx(
+                "transition-all p-2 rounded-xl border border-transparent",
+                isMenuOpen 
+                  ? "bg-amber-500/20 text-amber-500 border-amber-500/30" 
+                  : "text-on-surface-variant/40 hover:bg-amber-500/10 hover:text-amber-400 opacity-0 group-hover:opacity-100"
+              )}
+            >
+              <MoreVertical size={20} />
+            </button>
+
+            {isMenuOpen && (
+              <div className="absolute right-0 top-12 w-52 bg-[#1c1d21] border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[300] overflow-hidden animate-in fade-in zoom-in-95 duration-200 backdrop-blur-md">
+                <div className="p-2 flex flex-col gap-1.5">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteReminder();
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-3 text-sm font-black text-red-500 hover:bg-red-500/10 rounded-xl transition-all active:scale-[0.98] group/btn"
+                  >
+                    <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center group-hover/btn:bg-red-500/20 transition-colors">
+                      <Trash2 size={16} />
+                    </div>
+                    Eliminar Recordatorio
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Acciones */}
-        <div className="flex items-center gap-2 relative z-50" ref={menuRef}>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsMenuOpen(!isMenuOpen);
-            }}
-            className={clsx(
-              "transition-all p-2 rounded-xl border border-transparent",
-              isMenuOpen 
-                ? "bg-amber-500/20 text-amber-500 border-amber-500/30" 
-                : "text-on-surface-variant/40 hover:bg-amber-500/10 hover:text-amber-400 opacity-0 group-hover:opacity-100"
-            )}
-          >
-            <MoreVertical size={20} />
-          </button>
-
-          {isMenuOpen && (
-            <div className="absolute right-0 top-12 w-52 bg-[#1c1d21] border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-[300] overflow-hidden animate-in fade-in zoom-in-95 duration-200 backdrop-blur-md">
-              <div className="p-2 flex flex-col gap-1.5">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteReminder();
-                  }}
-                  className="w-full flex items-center gap-3 px-3 py-3 text-sm font-black text-red-500 hover:bg-red-500/10 rounded-xl transition-all active:scale-[0.98] group/btn"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center group-hover/btn:bg-red-500/20 transition-colors">
-                    <Trash2 size={16} />
-                  </div>
-                  Eliminar Recordatorio
-                </button>
+        {/* CONTENIDO EXPANDIDO */}
+        {isExpanded && !isCompleted && (
+          <div className="mt-4 px-2 pb-2 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
+            
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3 text-sm font-medium text-on-surface-variant/80">
+                <div className="w-2 h-2 rounded-full bg-primary glow-primary" />
+                <span>Tarea original:</span>
               </div>
+              
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+                <p className="text-sm font-bold text-on-surface leading-snug">
+                  {mainTaskData?.title || 'Cargando tarea principal...'}
+                </p>
+                <div className="flex items-center gap-4">
+                  {mainTaskData?.due_date && (
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-primary">
+                      <Calendar size={14} />
+                      <span>{format(parseISO(mainTaskData.due_date), 'd MMMM', { locale: es })}</span>
+                    </div>
+                  )}
+                  {mainTaskData?.due_time && (
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-teal-400">
+                      <Clock size={14} />
+                      <span>{format(new Date(`2000-01-01T${mainTaskData.due_time}`), 'h:mm a')}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggle(task.id);
+                  setIsExpanded(false);
+                }}
+                className="w-full mt-2 py-4 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black text-xs uppercase tracking-[0.2em] rounded-2xl flex items-center justify-center gap-3 shadow-lg glow-amber-sm transition-all active:scale-95"
+              >
+                <CheckCircle2 size={18} strokeWidth={3} />
+                Marcar como Listo
+              </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     );
   }
