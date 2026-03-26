@@ -378,7 +378,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                               onClick={() => { setReminderAt(null); setSelectedReminderMinutes(null); setIsReminderMenuOpen(false); }}
                               className="w-full text-left px-4 py-3 text-[10px] font-black text-red-500 hover:bg-red-500/10 transition-colors uppercase tracking-widest"
                             >
-                              Eliminar recordatorio
+                              Terminar recordatorio
                             </button>
                           )}
                         </div>
@@ -497,7 +497,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
               className="w-full py-5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 font-black text-xs uppercase tracking-[0.3em] rounded-[2.5rem] flex items-center justify-center gap-4 shadow-xl shadow-amber-500/5 glow-amber-sm transition-all active:scale-[0.97] border border-amber-500/30"
             >
               <Bell size={20} className="fill-amber-500/10" />
-              Eliminar Recordatorio
+              Terminar Recordatorio
             </button>
           ) : (
             <div className="flex gap-4">

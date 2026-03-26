@@ -237,7 +237,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
                   <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center group-hover/btn:bg-red-500/20 transition-colors">
                     <Trash2 size={16} />
                   </div>
-                  Eliminar Recordatorio
+                  Terminar Recordatorio
                 </button>
               </div>
             </div>
