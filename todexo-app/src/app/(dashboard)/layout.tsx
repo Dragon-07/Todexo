@@ -15,9 +15,9 @@ export default function DashboardLayout({
       <Sidebar className="hidden md:flex flex-col w-[250px] shrink-0" />
       <main className="flex-1 overflow-visible relative pb-16 md:pb-0 h-screen overflow-y-auto">
         {/* Top Right Actions: Clock & Theme Toggle */}
-        <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
-          <DigitalClock className="hidden sm:flex" />
+        <div className="fixed top-6 right-6 z-50 flex flex-col items-end gap-2">
           <ThemeToggle />
+          <DigitalClock className="hidden sm:flex" />
         </div>
         
         {children}
