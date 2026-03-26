@@ -131,7 +131,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
         onClick={() => !isCompleted && onEdit && onEdit(task)}
         className={clsx(
           "group flex items-center justify-between rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
-          compact ? "p-2.5 rounded-2xl gap-2" : "py-2.5 px-5 rounded-3xl gap-4",
+          compact ? "p-1.5 rounded-2xl gap-2" : "py-1 px-5 rounded-[2rem] gap-4",
           isMenuOpen ? "z-[200] brightness-110" : "z-0",
           isCompleted
             ? "glass-panel opacity-85 border-white/20 dark:border-white/10 grayscale"
@@ -160,7 +160,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
 
           <div className="flex-1 min-w-0 py-1">
             {/* Header del Recordatorio */}
-            <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+            <div className="flex items-center gap-3 mb-0.5 flex-wrap">
               <span className={clsx(
                 "text-[10px] font-black uppercase tracking-[0.2em] px-2.5 py-0.5 rounded-full border transition-colors",
                 isCompleted 
@@ -285,7 +285,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
       onClick={handleCardClick}
       className={clsx(
         "group flex items-center justify-between rounded-3xl border transition-all cursor-pointer select-none relative overflow-visible",
-        compact ? "p-2 rounded-2xl gap-2" : "py-1.5 px-5 rounded-[2rem] gap-4",
+        compact ? "p-1 rounded-2xl gap-1" : "py-0.5 px-5 rounded-[2rem] gap-4",
         (isMenuOpen || isCompleteMenuOpen) ? "z-[100]" : "z-0",
         isCompleted 
           ? "glass-panel opacity-85 border-white/20 dark:border-white/10" 
