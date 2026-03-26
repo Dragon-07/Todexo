@@ -1,6 +1,7 @@
 import Sidebar from '@/components/navigation/Sidebar';
 import MobileNav from '@/components/navigation/MobileNav';
 import ThemeToggle from '@/components/ThemeToggle';
+import DigitalClock from '@/components/DigitalClock';
 import NotificationService from '@/components/NotificationService';
 
 export default function DashboardLayout({
@@ -13,8 +14,9 @@ export default function DashboardLayout({
       <NotificationService />
       <Sidebar className="hidden md:flex flex-col w-[250px] shrink-0" />
       <main className="flex-1 overflow-visible relative pb-16 md:pb-0 h-screen overflow-y-auto">
-        {/* Theme Toggle - Fixed in top right */}
-        <div className="fixed top-6 right-6 z-50">
+        {/* Top Right Actions: Clock & Theme Toggle */}
+        <div className="fixed top-6 right-6 z-50 flex items-center gap-3">
+          <DigitalClock className="hidden sm:flex" />
           <ThemeToggle />
         </div>
         
