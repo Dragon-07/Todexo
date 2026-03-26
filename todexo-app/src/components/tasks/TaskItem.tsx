@@ -134,17 +134,13 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
           compact ? "p-3 rounded-2xl gap-2" : "p-4 gap-4",
           isMenuOpen ? "z-[200] brightness-110" : "z-0",
           isCompleted
-            ? "glass-panel opacity-60 border-amber-500/10 bg-amber-500/5 grayscale"
-            : "glass-panel border-amber-500/30 bg-amber-500/5 hover:brightness-110 active:scale-[0.99] ambient-shadow"
+            ? "glass-panel opacity-85 border-white/20 dark:border-white/10 grayscale"
+            : "glass-panel border-white/30 dark:border-white/10 hover:brightness-105 hover:scale-[1.01] ambient-shadow"
         )}
       >
         {/* Capa de efectos de fondo (Glow y LED) con overflow-hidden para no salirse de los bordes redondeados */}
         <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
-          {!isCompleted && (
-            <div className="absolute -left-20 -top-20 w-40 h-40 bg-amber-500/20 blur-[100px]" />
-          )}
-          
-          {/* Indicador lateral LED ámbar */}
+          {/* Indicador lateral LED ámbar suave */}
           <div className={clsx(
             "absolute left-0 top-1/4 bottom-1/4 w-1 rounded-r-lg transition-all duration-500",
             isCompleted ? "bg-amber-500/20" : "bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.6)]"
