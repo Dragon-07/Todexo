@@ -93,11 +93,11 @@ export default function TodayTasksSummary() {
             {/* High Priority Segment */}
             {counts.high > 0 && (
               <div 
-                className="h-full bg-error flex items-center justify-center transition-all duration-500 border-r border-white/10"
+                className="h-full bg-error/20 flex items-center justify-center transition-all duration-500 border-r border-white/5"
                 style={{ width: `${getWidth(counts.high)}%` }}
               >
                 <div className="flex flex-col items-center">
-                  <span className="text-[11px] font-black text-white leading-none">{counts.high}</span>
+                  <span className="text-sm font-black text-error leading-none">{counts.high}</span>
                 </div>
               </div>
             )}
@@ -105,11 +105,11 @@ export default function TodayTasksSummary() {
             {/* Medium Priority Segment */}
             {counts.medium > 0 && (
               <div 
-                className="h-full bg-amber-500 flex items-center justify-center transition-all duration-500 border-r border-white/10"
+                className="h-full bg-amber-500/20 flex items-center justify-center transition-all duration-500 border-r border-white/5"
                 style={{ width: `${getWidth(counts.medium)}%` }}
               >
                  <div className="flex flex-col items-center">
-                  <span className="text-[11px] font-black text-white leading-none">{counts.medium}</span>
+                  <span className="text-sm font-black text-amber-500 leading-none">{counts.medium}</span>
                 </div>
               </div>
             )}
@@ -117,11 +117,11 @@ export default function TodayTasksSummary() {
             {/* Low Priority Segment */}
             {counts.low > 0 && (
               <div 
-                className="h-full bg-primary flex items-center justify-center transition-all duration-500 border-r border-white/10"
+                className="h-full bg-primary/20 flex items-center justify-center transition-all duration-500 border-r border-white/5"
                 style={{ width: `${getWidth(counts.low)}%` }}
               >
                  <div className="flex flex-col items-center">
-                  <span className="text-[11px] font-black text-white leading-none">{counts.low}</span>
+                  <span className="text-sm font-black text-primary leading-none">{counts.low}</span>
                 </div>
               </div>
             )}
@@ -129,11 +129,11 @@ export default function TodayTasksSummary() {
             {/* No Priority Segment */}
             {counts.none > 0 && (
               <div 
-                className="h-full bg-surface-variant/40 flex items-center justify-center transition-all duration-500"
+                className="h-full bg-surface-variant/20 flex items-center justify-center transition-all duration-500"
                 style={{ width: `${getWidth(counts.none)}%` }}
               >
                  <div className="flex flex-col items-center">
-                  <span className="text-[11px] font-black text-on-surface-variant leading-none">{counts.none}</span>
+                  <span className="text-sm font-black text-on-surface-variant leading-none">{counts.none}</span>
                 </div>
               </div>
             )}
