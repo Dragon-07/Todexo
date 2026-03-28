@@ -81,28 +81,43 @@ export default function NextTaskButton() {
 
   return (
     <div className="px-2 mt-2">
-      <div className="group relative w-full overflow-hidden rounded-2xl bg-surface-container/40 border border-white/10 p-4 transition-all hover:bg-surface-container/60 hover:border-primary/30 cursor-pointer ambient-shadow">
-        
-        {/* Barra de progreso de fondo (se acorta) */}
-        <div 
-          className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-primary to-primary-dim transition-all duration-1000 ease-out glow-primary"
-          style={{ width: `${percent}%` }}
-        />
-
-        <div className="flex flex-col gap-1 relative z-10">
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary/80 whitespace-nowrap">
+        <div className="flex flex-col gap-2 relative z-10">
+          <span className="text-[10px] font-black uppercase tracking-widest text-primary/80 whitespace-nowrap px-1">
             Próxima tarea
           </span>
-          <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-2xl font-black text-on-surface tracking-tighter">
-              {timeLeft.split(' ')[0]}
-            </span>
-            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
-              {timeLeft.split(' ')[1] || ''}
-            </span>
+          <div className="relative w-full h-12 bg-surface-container-high/40 rounded-2xl overflow-hidden border border-white/5 shadow-inner">
+            {/* Barra de progreso de fondo (se acorta) */}
+            <div 
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-primary-dim transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]"
+              style={{ width: `${percent}%` }}
+            />
+            
+            {/* Tiempo centrado dentro de la barra */}
+            <div className="absolute inset-0 flex items-center justify-center select-none z-20">
+              {timeLeft === 'Ahora' ? (
+                <span className="text-sm font-black text-on-surface uppercase tracking-widest animate-pulse">Ahora</span>
+              ) : timeLeft.includes('h') ? (
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-black text-on-surface leading-none tracking-tighter">
+                    {timeLeft.split('h')[0]}h
+                  </span>
+                  <span className="text-[12px] font-black text-on-surface/70 uppercase leading-none pb-0.5">
+                    {timeLeft.split('h')[1].trim().replace('m', '')}M
+                  </span>
+                </div>
+              ) : (
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-black text-on-surface leading-none tracking-tighter">
+                    {timeLeft.split(' ')[0]}
+                  </span>
+                  <span className="text-[12px] font-black text-on-surface/70 uppercase leading-none pb-0.5">
+                    MIN
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
     </div>
   );
 }
