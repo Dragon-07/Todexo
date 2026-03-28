@@ -113,70 +113,87 @@ export default function NextTaskButton() {
 
   return (
     <div className="px-2 mt-2">
-        <div className="flex flex-col gap-2 relative z-10">
-          <div className="flex items-center justify-between px-1">
-            <span className={clsx(
-              "text-[10px] font-black uppercase tracking-widest transition-colors duration-300",
-              isOverdue ? "text-error animate-pulse" : "text-primary/80"
-            )}>
-              {isOverdue ? '¡Alerta! Tareas vencidas' : 'Próxima tarea'}
-            </span>
-            {isOverdue && (
-              <span className="bg-error text-white text-[9px] font-black px-1.5 py-0.5 rounded-full ring-2 ring-error/20">
-                {overdueCount}
-              </span>
-            )}
-          </div>
-
+        <div className="flex flex-col relative z-10 group">
           <div className={clsx(
-            "relative w-full h-12 rounded-2xl overflow-hidden border shadow-inner transition-all duration-500",
+            "relative w-full h-14 rounded-2xl overflow-hidden border transition-all duration-500",
             isOverdue 
               ? "bg-error-container/20 border-error/30 shadow-[0_0_15px_rgba(var(--error-rgb),0.15)]" 
               : "bg-surface-container-high/40 border-white/5 shadow-inner"
           )}>
-            {/* Barra de progreso dinámica */}
+            {/* CAPA 1: Texto de fondo (Oscuro para fondo claro) - ESTÁTICA */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center select-none z-10 pointer-events-none">
+              <span className={clsx(
+                "text-[9px] font-black uppercase tracking-[0.2em] leading-none mb-1 transition-colors duration-300",
+                isOverdue ? "text-error/40" : "text-primary/40"
+              )}>
+                {isOverdue ? '¡Tareas vencidas!' : 'Próxima tarea'}
+              </span>
+              <div className="flex items-center">
+                {isOverdue ? (
+                  <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-xl font-black text-error/80 tracking-tighter">{overdueCount}</span>
+                    <span className="text-[11px] font-black text-error/60 uppercase tracking-widest">
+                      {overdueCount === 1 ? 'Retrasada' : 'Retrasadas'}
+                    </span>
+                  </div>
+                ) : timeLeft === 'Ahora' ? (
+                  <span className="text-sm font-black text-primary/60 uppercase tracking-widest">Iniciando ahora</span>
+                ) : timeLeft.includes('h') ? (
+                  <div className="flex items-baseline gap-1 leading-none">
+                    <span className="text-xl font-black text-primary/80 tracking-tighter">{timeLeft.split('h')[0]}h</span>
+                    <span className="text-[12px] font-black text-primary/60 uppercase tracking-widest">
+                      {timeLeft.split('h')[1].trim().replace('m', '')}M
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-baseline gap-1 leading-none">
+                    <span className="text-xl font-black text-primary/80 tracking-tighter">{timeLeft.split(' ')[0]}</span>
+                    <span className="text-[12px] font-black text-primary/60 uppercase tracking-widest">MIN</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* CAPA 2: Capa Frontal (Color + Texto Blanco) - RECORTE CON CLIP-PATH */}
             <div 
               className={clsx(
-                "absolute top-0 left-0 h-full transition-all duration-1000 ease-out",
+                "absolute inset-0 z-20 transition-all duration-1000 ease-out flex flex-col items-center justify-center",
                 isOverdue 
                   ? "bg-gradient-to-r from-error to-error/60 shadow-[0_0_20px_rgba(var(--error-rgb),0.4)]" 
                   : "bg-gradient-to-r from-primary to-primary-dim shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]"
               )}
-              style={{ width: isOverdue ? '100%' : `${percent}%` }}
-            />
-            
-            {/* Texto informativo */}
-            <div className="absolute inset-0 flex items-center justify-center select-none z-20">
-              {isOverdue ? (
-                <div className="flex flex-col items-center leading-tight">
-                  <span className="text-sm font-black text-on-error-container uppercase tracking-widest">
-                    {overdueCount} {overdueCount === 1 ? 'Tarea' : 'Tareas'}
-                  </span>
-                  <span className="text-[10px] font-bold text-on-error-container/80 uppercase">
-                    Retrasada{overdueCount === 1 ? '' : 's'}
-                  </span>
-                </div>
-              ) : timeLeft === 'Ahora' ? (
-                <span className="text-sm font-black text-on-surface uppercase tracking-widest animate-pulse">Ahora</span>
-              ) : timeLeft.includes('h') ? (
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-black text-on-surface leading-none tracking-tighter">
-                    {timeLeft.split('h')[0]}h
-                  </span>
-                  <span className="text-[12px] font-black text-on-surface/70 uppercase leading-none pb-0.5">
-                    {timeLeft.split('h')[1].trim().replace('m', '')}M
-                  </span>
-                </div>
-              ) : (
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-black text-on-surface leading-none tracking-tighter">
-                    {timeLeft.split(' ')[0]}
-                  </span>
-                  <span className="text-[12px] font-black text-on-surface/70 uppercase leading-none pb-0.5">
-                    MIN
-                  </span>
-                </div>
-              )}
+              style={{ 
+                clipPath: `inset(0 ${100 - (isOverdue ? 100 : percent)}% 0 0)`,
+                WebkitClipPath: `inset(0 ${100 - (isOverdue ? 100 : percent)}% 0 0)`
+              }}
+            >
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none mb-1 text-white/90">
+                {isOverdue ? '¡Tareas vencidas!' : 'Próxima tarea'}
+              </span>
+              <div className="flex items-center">
+                {isOverdue ? (
+                  <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-xl font-black text-white tracking-tighter">{overdueCount}</span>
+                    <span className="text-[11px] font-black text-white/90 uppercase tracking-widest">
+                      {overdueCount === 1 ? 'Retrasada' : 'Retrasadas'}
+                    </span>
+                  </div>
+                ) : timeLeft === 'Ahora' ? (
+                  <span className="text-sm font-black text-white uppercase tracking-widest animate-pulse">Iniciando ahora</span>
+                ) : timeLeft.includes('h') ? (
+                  <div className="flex items-baseline gap-1 leading-none">
+                    <span className="text-xl font-black text-white tracking-tighter">{timeLeft.split('h')[0]}h</span>
+                    <span className="text-[12px] font-black text-white/90 uppercase tracking-widest">
+                      {timeLeft.split('h')[1].trim().replace('m', '')}M
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-baseline gap-1 leading-none">
+                    <span className="text-xl font-black text-white tracking-tighter">{timeLeft.split(' ')[0]}</span>
+                    <span className="text-[12px] font-black text-white/90 uppercase tracking-widest">MIN</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
