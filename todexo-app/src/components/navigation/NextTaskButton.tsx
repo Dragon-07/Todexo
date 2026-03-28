@@ -38,9 +38,24 @@ export default function NextTaskButton() {
   useEffect(() => {
     fetchNextTask();
     
-    // Recargar la tarea cada 5 minutos por si hay cambios en la DB
-    const taskInterval = setInterval(fetchNextTask, 5 * 60 * 1000);
-    return () => clearInterval(taskInterval);
+    // Suscripción a cambios en tiempo real para reaccionar a creación, edición o completado de tareas
+    const channel = supabase
+      .channel('tasks-sidebar-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tasks' },
+        (payload) => {
+          console.log('Cambio detectado en la tabla tasks:', payload.eventType);
+          fetchNextTask();
+        }
+      )
+      .subscribe((status) => {
+        console.log('Estado de la suscripción Realtime (Sidebar):', status);
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
