@@ -76,14 +76,19 @@ export default function NextTaskButton() {
       if (diffMinutes <= 0) {
         setPercent(0);
         setTimeLeft('Ahora');
-      } else if (diffMinutes > 60) {
+      } else if (diffMinutes > 120) {
         setPercent(100);
         setTimeLeft(`${Math.floor(diffMinutes / 60)}h ${Math.floor(diffMinutes % 60)}m`);
       } else {
-        // La barra se acorta conforme nos acercamos (60 min = 100%, 0 min = 0%)
-        const p = (diffMinutes / 60) * 100;
+        // La barra se acorta conforme nos acercamos (120 min = 100%, 0 min = 0%)
+        const p = (diffMinutes / 120) * 100;
         setPercent(p);
-        setTimeLeft(`${Math.floor(diffMinutes)} min`);
+        
+        if (diffMinutes >= 60) {
+          setTimeLeft(`${Math.floor(diffMinutes / 60)}h ${Math.floor(diffMinutes % 60)}m`);
+        } else {
+          setTimeLeft(`${Math.floor(diffMinutes)} min`);
+        }
       }
     };
 
