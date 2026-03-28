@@ -21,6 +21,7 @@ import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import NextTaskButton from './NextTaskButton';
+import TodayTasksSummary from './TodayTasksSummary';
 
 export default function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
@@ -89,6 +90,7 @@ export default function Sidebar({ className }: { className?: string }) {
         <div>
           <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-4 px-2 tracking-widest">pendientes</h3>
           <NextTaskButton />
+          <TodayTasksSummary />
           <nav className="mt-4 space-y-1">
             {projects.map((project) => (
               <button key={project.label} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all group">
