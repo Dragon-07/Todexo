@@ -12,46 +12,57 @@ export default function NextTaskButton() {
   const [percent, setPercent] = useState(100);
   const [timeLeft, setTimeLeft] = useState<string>('');
 
+  const [overdueCount, setOverdueCount] = useState(0);
+
   const fetchNextTask = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     const todayStr = format(new Date(), 'yyyy-MM-dd');
+    const nowTime = format(new Date(), 'HH:mm:ss');
     
-    // Obtener la tarea más próxima hoy que tenga hora y aún no esté completada
+    // Obtener tareas pendientes de hoy con hora para separar próximas de vencidas
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
       .eq('due_date', todayStr)
       .eq('status', 'pending')
       .not('due_time', 'is', null)
-      .order('due_time', { ascending: true })
-      .limit(1);
+      .order('due_time', { ascending: true });
 
-    if (data && data.length > 0 && !error) {
-      setNextTask(data[0] as Task);
+    if (data && !error) {
+      const overdue = data.filter(t => t.due_time < nowTime);
+      const upcoming = data.filter(t => t.due_time >= nowTime);
+      
+      setOverdueCount(overdue.length);
+      
+      // Mostrar la próxima inminente, o si no hay futuras, la última vencida para referencia
+      if (upcoming.length > 0) {
+        setNextTask(upcoming[0] as Task);
+      } else if (overdue.length > 0) {
+        setNextTask(overdue[overdue.length - 1] as Task);
+      } else {
+        setNextTask(null);
+      }
     } else {
       setNextTask(null);
+      setOverdueCount(0);
     }
   };
 
   useEffect(() => {
     fetchNextTask();
     
-    // Suscripción a cambios en tiempo real para reaccionar a creación, edición o completado de tareas
     const channel = supabase
       .channel('tasks-sidebar-realtime')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'tasks' },
-        (payload) => {
-          console.log('Cambio detectado en la tabla tasks:', payload.eventType);
+        () => {
           fetchNextTask();
         }
       )
-      .subscribe((status) => {
-        console.log('Estado de la suscripción Realtime (Sidebar):', status);
-      });
+      .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
@@ -80,7 +91,6 @@ export default function NextTaskButton() {
         setPercent(100);
         setTimeLeft(`${Math.floor(diffMinutes / 60)}h ${Math.floor(diffMinutes % 60)}m`);
       } else {
-        // La barra se acorta conforme nos acercamos (120 min = 100%, 0 min = 0%)
         const p = (diffMinutes / 120) * 100;
         setPercent(p);
         
@@ -93,28 +103,60 @@ export default function NextTaskButton() {
     };
 
     calculateProgress();
-    const progressInterval = setInterval(calculateProgress, 30000); // Cada 30 seg
+    const progressInterval = setInterval(calculateProgress, 10000); // Más frecuente (10s) para alertas
     return () => clearInterval(progressInterval);
   }, [nextTask]);
 
-  if (!nextTask) return null;
+  if (!nextTask && overdueCount === 0) return null;
+
+  const isOverdue = overdueCount > 0;
 
   return (
     <div className="px-2 mt-2">
         <div className="flex flex-col gap-2 relative z-10">
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary/80 whitespace-nowrap px-1">
-            Próxima tarea
-          </span>
-          <div className="relative w-full h-12 bg-surface-container-high/40 rounded-2xl overflow-hidden border border-white/5 shadow-inner">
-            {/* Barra de progreso de fondo (se acorta) */}
+          <div className="flex items-center justify-between px-1">
+            <span className={clsx(
+              "text-[10px] font-black uppercase tracking-widest transition-colors duration-300",
+              isOverdue ? "text-error animate-pulse" : "text-primary/80"
+            )}>
+              {isOverdue ? '¡Alerta! Tareas vencidas' : 'Próxima tarea'}
+            </span>
+            {isOverdue && (
+              <span className="bg-error text-white text-[9px] font-black px-1.5 py-0.5 rounded-full ring-2 ring-error/20">
+                {overdueCount}
+              </span>
+            )}
+          </div>
+
+          <div className={clsx(
+            "relative w-full h-12 rounded-2xl overflow-hidden border shadow-inner transition-all duration-500",
+            isOverdue 
+              ? "bg-error-container/20 border-error/30 shadow-[0_0_15px_rgba(var(--error-rgb),0.15)]" 
+              : "bg-surface-container-high/40 border-white/5 shadow-inner"
+          )}>
+            {/* Barra de progreso dinámica */}
             <div 
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-primary-dim transition-all duration-1000 ease-out shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]"
-              style={{ width: `${percent}%` }}
+              className={clsx(
+                "absolute top-0 left-0 h-full transition-all duration-1000 ease-out",
+                isOverdue 
+                  ? "bg-gradient-to-r from-error to-error/60 shadow-[0_0_20px_rgba(var(--error-rgb),0.4)]" 
+                  : "bg-gradient-to-r from-primary to-primary-dim shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)]"
+              )}
+              style={{ width: isOverdue ? '100%' : `${percent}%` }}
             />
             
-            {/* Tiempo centrado dentro de la barra */}
+            {/* Texto informativo */}
             <div className="absolute inset-0 flex items-center justify-center select-none z-20">
-              {timeLeft === 'Ahora' ? (
+              {isOverdue ? (
+                <div className="flex flex-col items-center leading-tight">
+                  <span className="text-sm font-black text-on-error-container uppercase tracking-widest">
+                    {overdueCount} {overdueCount === 1 ? 'Tarea' : 'Tareas'}
+                  </span>
+                  <span className="text-[10px] font-bold text-on-error-container/80 uppercase">
+                    Retrasada{overdueCount === 1 ? '' : 's'}
+                  </span>
+                </div>
+              ) : timeLeft === 'Ahora' ? (
                 <span className="text-sm font-black text-on-surface uppercase tracking-widest animate-pulse">Ahora</span>
               ) : timeLeft.includes('h') ? (
                 <div className="flex items-baseline gap-1">
