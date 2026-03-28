@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Sparkles, X, Plus, Clock, Calendar, Flag, Sun, Sofa, FastForward, Slash, ChevronDown, CalendarDays, Repeat, Flame, MinusCircle, ChevronsDown, Bell } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { manageReminderTask } from '@/lib/reminder';
@@ -19,7 +20,12 @@ export default function FloatingQuickAdd({
   open?: boolean,
   onOpenChange?: (open: boolean) => void
 }) {
+  const [mounted, setMounted] = useState(false);
   const [internalOpen, setInternalOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const isOpen = externalOpen !== undefined ? externalOpen : internalOpen;
   
   const setIsOpen = (newOpen: boolean) => {
@@ -279,7 +285,7 @@ export default function FloatingQuickAdd({
         <Sparkles size={28} className="relative transition-transform group-hover:rotate-12" />
       </button>
 
-      {isOpen && (
+      {isOpen && mounted && createPortal(
         <div className="fixed inset-0 bg-background/95 backdrop-blur-3xl flex items-center justify-center p-6 z-50 animate-in fade-in duration-300">
           <div className="w-full max-w-xl glass-modal rounded-[2.5rem] p-8 relative overflow-visible shadow-[0_40px_100px_rgba(0,0,0,0.4)]">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32"></div>
@@ -627,7 +633,7 @@ export default function FloatingQuickAdd({
                               setIsPriorityMenuOpen(false);
                             }}
                             className={clsx(
-                              "w-full text-left px-4 py-2 text-[13px] font-black transition-colors border-b border-white/5 last:border-none uppercase flex items-center gap-3",
+                              "w-full text-left px-4 py-2 text-[13px] font-black tracking-tight transition-colors border-b border-white/5 last:border-none uppercase flex items-center gap-3",
                               selectedPriority === p.id ? "bg-surface-variant/20" : p.bg,
                               p.color
                             )}
@@ -706,7 +712,8 @@ export default function FloatingQuickAdd({
               </div>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );

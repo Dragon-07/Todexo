@@ -17,6 +17,7 @@ import {
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import clsx from 'clsx';
+import { createPortal } from 'react-dom';
 import { Task } from './TaskItem';
 
 import { manageReminderTask } from '@/lib/reminder';
@@ -30,6 +31,7 @@ interface TaskEditorProps {
 }
 
 export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditorProps) {
+  const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [date, setDate] = useState<string | null>(task.due_date || null);
   const [time, setTime] = useState<string | null>(task.due_time || null);
@@ -49,6 +51,10 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
     due_date?: string | null;
     due_time?: string | null;
   } | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -74,7 +80,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
     }
   }, [isOpen, task]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const handleMarkAsDone = async () => {
     try {
@@ -144,7 +150,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
     onClose();
   };
 
-  const generateTimeSlots = (query: string) => {
+  const internalGenerateTimeSlots = (query: string) => {
     const slots: { display: string; value: string; isCustom?: boolean }[] = [];
     const now = new Date();
     
@@ -185,7 +191,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
     return slots;
   };
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[110] flex items-center justify-center bg-black/20 backdrop-blur-sm p-4 animate-in fade-in duration-300">
       <div 
         ref={modalRef}
@@ -307,7 +313,7 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                           />
                         </div>
                         <div className="max-h-[240px] overflow-y-auto py-1 custom-scrollbar">
-                          {generateTimeSlots(timeSearch).map((slot, idx) => (
+                          {internalGenerateTimeSlots(timeSearch).map((slot, idx) => (
                             <button
                               key={idx}
                               type="button"
@@ -524,7 +530,8 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
