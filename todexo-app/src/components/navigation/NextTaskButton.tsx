@@ -89,13 +89,17 @@ export default function NextTaskButton() {
           style={{ width: `${percent}%` }}
         />
 
-        <div className="flex flex-col gap-2 relative z-10">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-widest text-primary/80">Próxima tarea</span>
-            <div className="flex items-center gap-1.5 text-[10px] font-bold text-on-surface-variant bg-surface-variant/30 px-2 py-0.5 rounded-full">
-              <Clock size={10} />
-              <span>{timeLeft}</span>
-            </div>
+        <div className="flex flex-col gap-1 relative z-10">
+          <span className="text-[10px] font-black uppercase tracking-widest text-primary/80 whitespace-nowrap">
+            Próxima tarea
+          </span>
+          <div className="flex items-baseline gap-1 mt-1">
+            <span className="text-2xl font-black text-on-surface tracking-tighter">
+              {timeLeft.split(' ')[0]}
+            </span>
+            <span className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+              {timeLeft.split(' ')[1] || ''}
+            </span>
           </div>
         </div>
       </div>
