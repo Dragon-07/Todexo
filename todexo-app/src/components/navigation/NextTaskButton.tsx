@@ -115,7 +115,7 @@ export default function NextTaskButton() {
     <div className="px-2 mt-2">
         <div className="flex flex-col relative z-10 group">
           <div className={clsx(
-            "relative w-full h-14 rounded-2xl overflow-hidden border transition-all duration-500",
+            "relative w-full h-10 rounded-2xl overflow-hidden border transition-all duration-500",
             isOverdue 
               ? "bg-error-container/20 border-error/30 shadow-[0_0_15px_rgba(var(--error-rgb),0.15)]" 
               : "bg-surface-container-high/40 border-white/5 shadow-inner"
@@ -123,7 +123,7 @@ export default function NextTaskButton() {
             {/* CAPA 1: Texto de fondo (Oscuro para fondo claro) - ESTÁTICA */}
             <div className="absolute inset-0 flex flex-col items-center justify-center select-none z-10 pointer-events-none">
               <span className={clsx(
-                "text-[9px] font-black uppercase tracking-[0.2em] leading-none mb-1 transition-colors duration-300",
+                "text-[9px] font-black uppercase tracking-[0.2em] leading-none mb-0 transition-colors duration-300",
                 isOverdue ? "text-error" : "text-primary"
               )}>
                 {isOverdue ? '¡Tareas vencidas!' : 'Próxima tarea'}
@@ -131,7 +131,7 @@ export default function NextTaskButton() {
               <div className="flex items-center">
                 {isOverdue ? (
                   <div className="flex items-center gap-1.5 leading-none">
-                    <span className="text-lg font-black text-error tracking-tighter">{overdueCount}</span>
+                    <span className="text-base font-black text-error tracking-tighter">{overdueCount}</span>
                     <span className="text-[11px] font-black text-error uppercase tracking-widest">
                       {overdueCount === 1 ? 'Retrasada' : 'Retrasadas'}
                     </span>
@@ -140,14 +140,14 @@ export default function NextTaskButton() {
                   <span className="text-sm font-black text-primary uppercase tracking-widest">Iniciando ahora</span>
                 ) : timeLeft.includes('h') ? (
                   <div className="flex items-baseline gap-1 leading-none">
-                    <span className="text-lg font-black text-primary tracking-tighter">{timeLeft.split('h')[0]}h</span>
+                    <span className="text-base font-black text-primary tracking-tighter">{timeLeft.split('h')[0]}h</span>
                     <span className="text-[12px] font-black text-primary uppercase tracking-widest">
                       {timeLeft.split('h')[1].trim().replace('m', '')}M
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-baseline gap-1 leading-none">
-                    <span className="text-lg font-black text-primary tracking-tighter">{timeLeft.split(' ')[0]}</span>
+                    <span className="text-base font-black text-primary tracking-tighter">{timeLeft.split(' ')[0]}</span>
                     <span className="text-[12px] font-black text-primary uppercase tracking-widest">MIN</span>
                   </div>
                 )}
@@ -167,13 +167,13 @@ export default function NextTaskButton() {
                 WebkitClipPath: `inset(0 ${100 - (isOverdue ? 100 : percent)}% 0 0)`
               }}
             >
-              <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none mb-1 text-white">
+              <span className="text-[9px] font-black uppercase tracking-[0.2em] leading-none mb-0 text-white">
                 {isOverdue ? '¡Tareas vencidas!' : 'Próxima tarea'}
               </span>
               <div className="flex items-center">
                 {isOverdue ? (
                   <div className="flex items-center gap-1.5 leading-none">
-                    <span className="text-lg font-black text-white tracking-tighter">{overdueCount}</span>
+                    <span className="text-base font-black text-white tracking-tighter">{overdueCount}</span>
                     <span className="text-[11px] font-black text-white uppercase tracking-widest">
                       {overdueCount === 1 ? 'Retrasada' : 'Retrasadas'}
                     </span>
@@ -182,14 +182,14 @@ export default function NextTaskButton() {
                   <span className="text-sm font-black text-white uppercase tracking-widest animate-pulse">Iniciando ahora</span>
                 ) : timeLeft.includes('h') ? (
                   <div className="flex items-baseline gap-1 leading-none">
-                    <span className="text-lg font-black text-white tracking-tighter">{timeLeft.split('h')[0]}h</span>
+                    <span className="text-base font-black text-white tracking-tighter">{timeLeft.split('h')[0]}h</span>
                     <span className="text-[12px] font-black text-white uppercase tracking-widest">
                       {timeLeft.split('h')[1].trim().replace('m', '')}M
                     </span>
                   </div>
                 ) : (
                   <div className="flex items-baseline gap-1 leading-none">
-                    <span className="text-lg font-black text-white tracking-tighter">{timeLeft.split(' ')[0]}</span>
+                    <span className="text-base font-black text-white tracking-tighter">{timeLeft.split(' ')[0]}</span>
                     <span className="text-[12px] font-black text-white uppercase tracking-widest">MIN</span>
                   </div>
                 )}
