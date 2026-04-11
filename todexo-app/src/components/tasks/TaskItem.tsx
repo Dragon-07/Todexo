@@ -23,6 +23,7 @@ export interface Task {
   is_reminder?: boolean;
   reminder_for_task_id?: string | null;
   assigned_by?: string | null;
+  completed_at?: string | null;
 }
 
 interface TaskItemProps {

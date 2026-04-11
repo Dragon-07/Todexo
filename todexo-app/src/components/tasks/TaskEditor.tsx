@@ -89,13 +89,14 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
 
   const handleMarkAsDone = async () => {
     try {
+      const completedAt = new Date().toISOString();
       const { error } = await supabase
         .from('tasks')
-        .update({ status: 'completed' })
+        .update({ status: 'completed', completed_at: completedAt })
         .eq('id', task.id);
       
       if (!error) {
-        onSave({ status: 'completed' });
+        onSave({ status: 'completed', completed_at: completedAt });
         onClose();
       }
     } catch (e) {

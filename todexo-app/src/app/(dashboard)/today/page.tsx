@@ -51,14 +51,15 @@ export default function TodayPage() {
     
     const task = tasks[taskIndex];
     const newStatus = task.status === 'pending' ? 'completed' : 'pending';
+    const completedAt = newStatus === 'completed' ? new Date().toISOString() : null;
     
     // Update local state optimistically
     const newTasks = [...tasks];
-    newTasks[taskIndex] = { ...task, status: newStatus };
+    newTasks[taskIndex] = { ...task, status: newStatus, completed_at: completedAt };
     setTasks(newTasks);
 
     // Persist to Supabase
-    await supabase.from('tasks').update({ status: newStatus }).eq('id', id);
+    await supabase.from('tasks').update({ status: newStatus, completed_at: completedAt }).eq('id', id);
 
     // Handle recurrence if task was just completed
     if (newStatus === 'completed' && task.repeat_type) {
