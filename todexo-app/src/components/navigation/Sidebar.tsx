@@ -5,7 +5,8 @@ import { usePathname } from 'next/navigation';
 import { 
   Home, 
   Calendar, 
-  LayoutGrid, 
+  Users, 
+  User as UserIcon,
   BarChart2, 
   Focus, 
   Settings,
@@ -22,6 +23,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import NextTaskButton from './NextTaskButton';
 import TodayTasksSummary from './TodayTasksSummary';
+import { useUserRole } from '@/hooks/useUserRole';
 
 export default function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
@@ -33,13 +35,19 @@ export default function Sidebar({ className }: { className?: string }) {
     router.refresh();
   };
 
-  const mainLinks = [
+  const { role, fullName } = useUserRole();
+
+  const allLinks = [
     { icon: Sparkles, href: '/', label: 'Hoy', color: 'text-primary' },
     { icon: ListTodo, href: '/tasks', label: 'Mis Tareas', color: 'text-primary' },
     { icon: Calendar, href: '/calendar', label: 'Calendario', color: 'text-secondary' },
-    { icon: LayoutGrid, href: '/projects', label: 'Usuarios', color: 'text-tertiary' },
+    { icon: Users, href: '/users', label: 'Usuarios', color: 'text-tertiary', adminOnly: true },
     { icon: BarChart2, href: '/stats', label: 'Estadísticas', color: 'text-secondary' },
   ];
+
+  const mainLinks = allLinks.filter(link =>
+    !link.adminOnly || role === 'owner' || role === 'admin'
+  );
 
   const projects = [
     { label: 'General', color: 'bg-primary' },
@@ -104,6 +112,17 @@ export default function Sidebar({ className }: { className?: string }) {
 
       {/* Footer Actions */}
       <div className="pt-6 border-t border-surface-variant/50 space-y-2">
+        {/* User Info Section */}
+        <div className="flex items-center gap-3 px-3 py-3 mb-2 rounded-2xl bg-surface-variant/20 border border-white/5">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/80 to-secondary/80 flex items-center justify-center text-white scale-90">
+             <UserIcon size={16} />
+          </div>
+          <div className="flex-1 min-w-0">
+             <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest leading-none mb-1">Usuario</p>
+             <p className="text-xs font-bold text-on-surface truncate">{fullName || 'Cargando...'}</p>
+          </div>
+        </div>
+
         <Link 
           href="/settings"
           className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all"
@@ -120,5 +139,6 @@ export default function Sidebar({ className }: { className?: string }) {
         </button>
       </div>
     </aside>
+
   );
 }

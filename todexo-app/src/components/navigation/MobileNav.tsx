@@ -2,19 +2,25 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ListTodo, Calendar, LayoutGrid, BarChart2, Sparkles } from 'lucide-react';
+import { ListTodo, Calendar, Users, BarChart2, Sparkles } from 'lucide-react';
 import clsx from 'clsx';
+import { useUserRole } from '@/hooks/useUserRole';
 
 export default function MobileNav() {
   const pathname = usePathname();
+  const { role } = useUserRole();
 
-  const navItems = [
+  const allItems = [
     { icon: Sparkles, href: '/', label: 'Hoy' },
     { icon: ListTodo, href: '/tasks', label: 'Tareas' },
     { icon: Calendar, href: '/calendar', label: 'Fechas' },
-    { icon: LayoutGrid, href: '/projects', label: 'usuarios' },
+    { icon: Users, href: '/users', label: 'Usuarios', adminOnly: true },
     { icon: BarChart2, href: '/stats', label: 'Avances' },
   ];
+
+  const navItems = allItems.filter(item =>
+    !item.adminOnly || role === 'owner' || role === 'admin'
+  );
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 md:hidden bg-surface-container/90 backdrop-blur-2xl border-t border-surface-variant p-2.5 pb-8 flex items-center justify-around z-30 ambient-shadow">
