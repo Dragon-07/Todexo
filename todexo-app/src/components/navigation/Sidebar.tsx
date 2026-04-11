@@ -51,12 +51,6 @@ export default function Sidebar({ className }: { className?: string }) {
     !link.adminOnly || role === 'owner' || role === 'admin'
   );
 
-  const projects = [
-    { label: 'General', color: 'bg-primary' },
-    { label: 'Trabajo', color: 'bg-tertiary' },
-    { label: 'Personal', color: 'bg-secondary' },
-  ];
-
   // Nombre a mostrar: si está supervisando, el del usuario supervisado
   const displayName = isImpersonating ? targetUser?.full_name : fullName;
   const displayLabel = isImpersonating ? 'Supervisando' : 'Usuario';
@@ -105,14 +99,7 @@ export default function Sidebar({ className }: { className?: string }) {
           <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-on-surface-variant mb-4 px-2 tracking-widest">pendientes</h3>
           <NextTaskButton />
           <TodayTasksSummary />
-          <nav className="mt-4 space-y-1">
-            {projects.map((project) => (
-              <button key={project.label} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all group">
-                <div className={clsx("w-2 h-2 rounded-full", project.color, "opacity-60 group-hover:opacity-100 transition-opacity")} />
-                <span className="text-sm">{project.label}</span>
-              </button>
-            ))}
-          </nav>
+
         </div>
       </div>
 
