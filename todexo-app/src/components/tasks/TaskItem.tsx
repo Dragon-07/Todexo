@@ -305,10 +305,8 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
         {!compact && (
           <div className="relative flex items-center justify-center flex-shrink-0" ref={completeMenuRef}>
             <button 
-              disabled={isReadonly}
               onClick={(e) => {
                 e.stopPropagation();
-                if (isReadonly) return;
                 
                 if (isCompleted) {
                   onToggle(task.id);
@@ -316,10 +314,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
                   setIsCompleteMenuOpen(!isCompleteMenuOpen);
                 }
               }}
-              className={clsx(
-                "focus:outline-none",
-                isReadonly && "cursor-not-allowed opacity-50"
-              )}
+              className="focus:outline-none"
             >
               {isCompleted ? (
                 <div className="text-secondary glow-secondary transition-all transform scale-100">
