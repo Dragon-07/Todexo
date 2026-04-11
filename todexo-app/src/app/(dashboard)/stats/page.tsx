@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, LineChart, Line, CartesianGrid } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, LineChart, Line, CartesianGrid, LabelList } from 'recharts';
 import { Flame, Target, Trophy, Zap, Crown, Award, CheckCircle2, TrendingUp, AlertCircle, Clock, AlertTriangle, Activity, Calendar } from 'lucide-react';
 import clsx from 'clsx';
 import FloatingQuickAdd from '@/components/FloatingQuickAdd';
@@ -112,10 +112,6 @@ export default function StatsPage() {
         if (t.status === 'pending') {
            if (dueTimestamp && dueTimestamp < todayObj) {
               procDelayed++;
-              const hrsDelayed = Math.abs(differenceInHours(todayObj, dueTimestamp));
-              if (hrsDelayed < 2) delayLight++;
-              else if (hrsDelayed < 6) delayMedium++;
-              else delayCritical++;
            } else {
               procOnTime++;
            }
@@ -123,8 +119,15 @@ export default function StatsPage() {
         
         if (t.status === 'completed' && t.completed_at && dueTimestamp) {
            const completedAt = new Date(t.completed_at);
-           if (completedAt > dueTimestamp) puncLate++;
-           else puncOnTime++;
+           if (completedAt > dueTimestamp) {
+              puncLate++;
+              const hrsDelayed = Math.abs(differenceInHours(completedAt, dueTimestamp));
+              if (hrsDelayed < 2) delayLight++;
+              else if (hrsDelayed < 6) delayMedium++;
+              else delayCritical++;
+           } else {
+              puncOnTime++;
+           }
         }
       });
 
@@ -303,8 +306,8 @@ export default function StatsPage() {
 
           {/* Edad del Retraso */}
           <div className="glass-panel p-6 rounded-3xl flex flex-col">
-            <h3 className="text-xs font-bold tracking-widest text-on-surface-variant uppercase mb-2 flex gap-2 items-center"><Clock size={14} className="text-red-400" /> Edad del Retraso</h3>
-            <p className="text-[11px] text-on-surface-variant/80 mb-6">Gravedad de tu deuda de tareas actual.</p>
+            <h3 className="text-xs font-bold tracking-widest text-on-surface-variant uppercase mb-2 flex gap-2 items-center"><Clock size={14} className="text-red-400" /> Tareas Cerradas con Retraso</h3>
+            <p className="text-[11px] text-on-surface-variant/80 mb-6">Historial de qué tan tarde cerraste tus tareas.</p>
             
             <div className="h-[180px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -313,6 +316,7 @@ export default function StatsPage() {
                   <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--on-surface-variant)', fontWeight: 'bold' }} width={90} />
                   <Tooltip cursor={{ fill: 'var(--surface-container)' }} contentStyle={{ backgroundColor: 'var(--surface-container-high)', borderRadius: '12px', border: 'none', color: 'white', fontWeight: 'bold' }} />
                   <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={24}>
+                    <LabelList dataKey="value" position="right" fill="var(--on-surface-variant)" fontSize={12} fontWeight="bold" />
                     {delayAgeData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
