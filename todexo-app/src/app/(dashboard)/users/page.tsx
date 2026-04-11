@@ -18,11 +18,13 @@ import {
   EyeOff,
   Pencil,
   Trash2,
-  MonitorCheck
+  MonitorCheck,
+  ListPlus
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useImpersonation } from '@/context/ImpersonationContext';
 import { useRouter } from 'next/navigation';
+import FloatingQuickAdd from '@/components/FloatingQuickAdd';
 
 interface Profile {
   id: string;
@@ -50,6 +52,10 @@ export default function UsersPage() {
   const [newRole, setNewRole] = useState<UserRole>('standard');
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  // Estado para creación de tareas directa
+  const [userForTaskCreation, setUserForTaskCreation] = useState<Profile | null>(null);
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
 
   const { startImpersonation } = useImpersonation();
   const router = useRouter();
@@ -365,6 +371,20 @@ export default function UsersPage() {
                       </button>
                     )}
 
+                    {/* Botón Crear Tarea Directa */}
+                    {(currentUserRole === 'owner' || (currentUserRole === 'admin' && user.role !== 'owner')) && (
+                      <button
+                        onClick={() => {
+                          setUserForTaskCreation(user);
+                          setIsTaskModalOpen(true);
+                        }}
+                        className="p-3 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all active:scale-95 group"
+                        title={`Asignar tarea a ${user.full_name}`}
+                      >
+                        <ListPlus size={18} className="group-hover:scale-110 transition-transform" />
+                      </button>
+                    )}
+
                     {/* Botón editar */}
                     {(currentUserRole === 'owner' || (currentUserRole === 'admin' && user.role !== 'owner')) && (
                       <button
@@ -552,6 +572,20 @@ export default function UsersPage() {
             </form>
           </div>
         </div>
+      )}
+      {/* ============= MODAL CREAR TAREA (DIRECTO) ============= */}
+      {userForTaskCreation && (
+        <FloatingQuickAdd
+          hideTrigger
+          open={isTaskModalOpen}
+          onOpenChange={setIsTaskModalOpen}
+          forcedUserId={userForTaskCreation.id}
+          forcedUserName={userForTaskCreation.full_name}
+          onTaskAdded={() => {
+            setSuccessMsg(`Tarea asignada a ${userForTaskCreation.full_name}`);
+            setTimeout(() => setSuccessMsg(null), 4000);
+          }}
+        />
       )}
     </div>
   );

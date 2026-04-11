@@ -14,12 +14,18 @@ export default function FloatingQuickAdd({
   onTaskAdded,
   initialDueDate,
   open: externalOpen,
-  onOpenChange: externalOnOpenChange
+  onOpenChange: externalOnOpenChange,
+  forcedUserId,
+  forcedUserName,
+  hideTrigger
 }: { 
   onTaskAdded?: () => void,
   initialDueDate?: Date | null,
   open?: boolean,
-  onOpenChange?: (open: boolean) => void
+  onOpenChange?: (open: boolean) => void,
+  forcedUserId?: string | null,
+  forcedUserName?: string | null,
+  hideTrigger?: boolean
 }) {
   const [mounted, setMounted] = useState(false);
   const [internalOpen, setInternalOpen] = useState(false);
@@ -207,12 +213,13 @@ export default function FloatingQuickAdd({
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !userId) return;
+    const effectiveTargetId = forcedUserId || userId;
+    if (!title.trim() || !effectiveTargetId) return;
 
     setLoading(true);
 
     const payload: any = {
-        user_id: userId,
+        user_id: effectiveTargetId,
 
         title,
         status: 'pending',
@@ -257,7 +264,7 @@ export default function FloatingQuickAdd({
           payload.reminder_at,
           selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null,
           selectedTime,
-          userId,
+          effectiveTargetId,
           selectedPriority,
           selectedRepeat
         );
@@ -278,13 +285,15 @@ export default function FloatingQuickAdd({
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-24 md:bottom-12 right-6 md:right-12 w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-dim text-white flex items-center justify-center shadow-2xl glow-primary hover:scale-110 active:scale-95 transition-all z-40 group"
-      >
-        <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-20 group-hover:opacity-40 transition-opacity"></div>
-        <Sparkles size={28} className="relative transition-transform group-hover:rotate-12" />
-      </button>
+      {!hideTrigger && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-24 md:bottom-12 right-6 md:right-12 w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary-dim text-white flex items-center justify-center shadow-2xl glow-primary hover:scale-110 active:scale-95 transition-all z-40 group"
+        >
+          <div className="absolute inset-0 rounded-full bg-primary animate-ping opacity-20 group-hover:opacity-40 transition-opacity"></div>
+          <Sparkles size={28} className="relative transition-transform group-hover:rotate-12" />
+        </button>
+      )}
 
       {isOpen && mounted && createPortal(
         <div className="fixed inset-0 bg-background/95 backdrop-blur-3xl flex items-center justify-center p-6 z-50 animate-in fade-in duration-300">
@@ -297,8 +306,12 @@ export default function FloatingQuickAdd({
                   <Plus size={24} />
                 </div>
                 <div>
-                  <h2 className="text-xl font-black text-on-surface px-1">Nueva Tarea</h2>
-                  <p className="text-xs text-on-surface-variant font-medium px-1">Captura rápida con IA asistida</p>
+                  <h2 className="text-xl font-black text-on-surface px-1">
+                    {forcedUserName ? `Tarea para ${forcedUserName.split(' ')[0]}` : 'Nueva Tarea'}
+                  </h2>
+                  <p className="text-xs text-on-surface-variant font-medium px-1">
+                    {forcedUserName ? `Asignando tarea a ${forcedUserName}` : 'Captura rápida con IA asistida'}
+                  </p>
                 </div>
               </div>
               <button
