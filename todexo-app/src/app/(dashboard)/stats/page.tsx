@@ -113,8 +113,8 @@ export default function StatsPage() {
            if (dueTimestamp && dueTimestamp < todayObj) {
               procDelayed++;
               const hrsDelayed = Math.abs(differenceInHours(todayObj, dueTimestamp));
-              if (hrsDelayed < 3) delayLight++;
-              else if (hrsDelayed < 24) delayMedium++;
+              if (hrsDelayed < 2) delayLight++;
+              else if (hrsDelayed < 6) delayMedium++;
               else delayCritical++;
            } else {
               procOnTime++;
@@ -191,9 +191,9 @@ export default function StatsPage() {
   const maxPriorityTasks = Math.max(...priorityChartData.map(d => d.value), 1);
 
   const delayAgeData = [
-    { name: 'Leve (<3h)', value: stats.delayAge.light, fill: '#FBBF24' },
-    { name: 'Medio (<24h)', value: stats.delayAge.medium, fill: '#F97316' },
-    { name: 'Crítico (>24h)', value: stats.delayAge.critical, fill: '#EF4444' },
+    { name: 'Leve (<2h)', value: stats.delayAge.light, fill: '#FBBF24' },
+    { name: 'Medio (<6h)', value: stats.delayAge.medium, fill: '#F97316' },
+    { name: 'Crítico (>12h)', value: stats.delayAge.critical, fill: '#EF4444' },
   ];
 
   const punctualityData = [
