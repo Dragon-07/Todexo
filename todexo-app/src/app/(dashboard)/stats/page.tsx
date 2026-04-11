@@ -23,7 +23,7 @@ export default function StatsPage() {
     procrastination: { onTime: 0, delayed: 0 },
     delayAge: { light: 0, medium: 0, critical: 0 },
     punctuality: { onTime: 0, late: 0 },
-    efficiencyTrend: [] as any[],
+    priorityResolutionTrend: [] as any[],
   });
   const [loading, setLoading] = useState(true);
 
@@ -136,25 +136,25 @@ export default function StatsPage() {
         }
       });
 
-      // Trend de eficiencia
-      const efficiencyTrend = last7Days.map(dateStr => {
+      // Resolución por prioridades
+      const priorityResolutionTrend = last7Days.map(dateStr => {
         const dateObj = parseISO(dateStr);
         const dayName = daysOfWeek[dateObj.getDay()];
         
         const dayTasks = allTasks.filter(t => t.status === 'completed' && t.completed_at && format(new Date(t.completed_at), 'yyyy-MM-dd') === dateStr);
         
-        let avgMinutes = 0;
-        if (dayTasks.length > 0) {
-           const totalMins = dayTasks.reduce((acc, t) => {
-              const diff = differenceInMinutes(new Date(t.completed_at!), new Date(t.created_at));
-              return acc + (diff > 0 ? diff : 0);
-           }, 0);
-           avgMinutes = totalMins / dayTasks.length;
-        }
+        let alta = 0, media = 0, baja = 0;
+        dayTasks.forEach(t => {
+           if (t.priority == 3 || t.priority === 'high' || t.priority === '3') alta++;
+           else if (t.priority == 2 || t.priority === 'medium' || t.priority === '2') media++;
+           else if (t.priority == 1 || t.priority === 'low' || t.priority === '1') baja++;
+        });
 
         return {
            name: dayName,
-           hours: Number((avgMinutes / 60).toFixed(1))
+           Alta: alta,
+           Media: media,
+           Baja: baja
         };
       });
 
@@ -169,7 +169,7 @@ export default function StatsPage() {
         procrastination: { onTime: procOnTime, delayed: procDelayed },
         delayAge: { light: delayLight, medium: delayMedium, critical: delayCritical },
         punctuality: { onTime: puncOnTime, late: puncLate },
-        efficiencyTrend
+        priorityResolutionTrend
       });
       setLoading(false);
     }
@@ -359,20 +359,28 @@ export default function StatsPage() {
             </div>
           </div>
 
-          {/* Efficiency Trend Line */}
+          {/* Priority Resolution Stacked Bar Chart */}
           <div className="glass-panel p-6 rounded-3xl flex flex-col">
-            <h3 className="text-xs font-bold tracking-widest text-on-surface-variant uppercase mb-2 flex items-center gap-2"><Activity size={14} className="text-indigo-400" /> Tendencia de Eficiencia</h3>
-            <p className="text-[11px] text-on-surface-variant/80 mb-6">Promedio de horas para completar tareas por día.</p>
+            <h3 className="text-xs font-bold tracking-widest text-on-surface-variant uppercase mb-2 flex items-center gap-2"><Target size={14} className="text-pink-400" /> Esfuerzo por Prioridad</h3>
+            <p className="text-[11px] text-on-surface-variant/80 mb-6">Muestra a qué diste importancia cada día que completaste tareas.</p>
             
-            <div className="h-[200px] w-full">
+            <div className="h-[200px] w-full mt-2">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={stats.efficiencyTrend} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
+                <BarChart data={stats.priorityResolutionTrend} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--on-surface-variant)' }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--on-surface-variant)' }} />
-                  <Tooltip wrapperStyle={{ outline: 'none' }} cursor={{ stroke: 'var(--surface-variant)' }} contentStyle={{ backgroundColor: 'var(--surface-container-high)', borderRadius: '12px', border: '1px solid var(--surface-variant)', color: 'var(--on-surface)' }} />
-                  <Line type="monotone" dataKey="hours" name="Tiempo Promedio (H)" stroke="#818CF8" strokeWidth={4} dot={{ r: 4, fill: '#818CF8', strokeWidth: 0 }} activeDot={{ r: 6, fill: '#E0E7FF' }} style={{ filter: 'drop-shadow(0px 4px 8px rgba(129, 140, 248, 0.5))' }} />
-                </LineChart>
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--on-surface-variant)' }} allowDecimals={false} />
+                  <Tooltip cursor={{ fill: 'var(--surface-container)' }} contentStyle={{ backgroundColor: 'var(--surface-container-high)', borderRadius: '12px', border: 'none', color: 'white' }} />
+                  <Bar dataKey="Baja" stackId="a" fill="#3B82F6" />
+                  <Bar dataKey="Media" stackId="a" fill="#F97316" />
+                  <Bar dataKey="Alta" stackId="a" fill="#EF4444" />
+                </BarChart>
               </ResponsiveContainer>
+            </div>
+            
+            <div className="flex gap-4 items-center justify-center mt-4">
+               <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-blue-500"></div><span className="text-[9px] text-on-surface-variant uppercase font-bold">Baja</span></div>
+               <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-orange-500"></div><span className="text-[9px] text-on-surface-variant uppercase font-bold">Media</span></div>
+               <div className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-red-500"></div><span className="text-[9px] text-on-surface-variant uppercase font-bold">Alta</span></div>
             </div>
           </div>
 
