@@ -41,24 +41,28 @@ export default function StatsPage() {
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
         .eq('due_date', todayStr)
-        .eq('status', 'completed');
+        .eq('status', 'completed')
+        .or('is_reminder.eq.false,is_reminder.is.null');
 
       const { count: totalToday } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .eq('due_date', todayStr);
+        .eq('due_date', todayStr)
+        .or('is_reminder.eq.false,is_reminder.is.null');
 
       const { count: completedGlobal } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .eq('status', 'completed');
+        .eq('status', 'completed')
+        .or('is_reminder.eq.false,is_reminder.is.null');
 
       const { count: totalGlobal } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .or('is_reminder.eq.false,is_reminder.is.null');
 
       const { data: metrics } = await supabase
         .from('user_metrics')
@@ -75,7 +79,8 @@ export default function StatsPage() {
       const { data: allTasks } = await supabase
         .from('tasks')
         .select('*')
-        .eq('user_id', userId);
+        .eq('user_id', userId)
+        .or('is_reminder.eq.false,is_reminder.is.null');
 
       if (!allTasks) return;
 
