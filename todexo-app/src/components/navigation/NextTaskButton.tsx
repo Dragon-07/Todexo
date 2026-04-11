@@ -21,19 +21,26 @@ export default function NextTaskButton() {
     const todayStr = format(new Date(), 'yyyy-MM-dd');
     const nowTime = format(new Date(), 'HH:mm:ss');
     
-    // Obtener tareas pendientes de hoy con hora para separar próximas de vencidas
+    // Obtener tareas pendientes hasta hoy para separar próximas de vencidas
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
       .eq('user_id', userId)
-      .eq('due_date', todayStr)
+      .lte('due_date', todayStr)
       .eq('status', 'pending')
-      .not('due_time', 'is', null)
+      .order('due_date', { ascending: true })
       .order('due_time', { ascending: true });
 
     if (data && !error) {
-      const overdue = data.filter(t => t.due_time < nowTime);
-      const upcoming = data.filter(t => t.due_time >= nowTime);
+      const overdue = data.filter(t => {
+        if (t.due_date < todayStr) return true;
+        if (t.due_date === todayStr && t.due_time && t.due_time < nowTime) return true;
+        return false;
+      });
+      
+      const upcoming = data.filter(t => {
+        return t.due_date === todayStr && t.due_time && t.due_time >= nowTime;
+      });
       
       setOverdueCount(overdue.length);
       

@@ -27,7 +27,9 @@ export default function TodayPage() {
       .from('tasks')
       .select('*')
       .eq('user_id', userId)
-      .eq('due_date', todayStr)
+      .lte('due_date', todayStr)
+      .or(`status.eq.pending,due_date.eq.${todayStr}`)
+      .order('due_date', { ascending: true })
       .order('due_time', { ascending: true, nullsFirst: false })
       .order('created_at', { ascending: false });
     

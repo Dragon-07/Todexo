@@ -33,7 +33,7 @@ export default function TodayTasksSummary() {
       .from('tasks')
       .select('priority')
       .eq('user_id', userId)
-      .eq('due_date', todayStr)
+      .lte('due_date', todayStr)
       .eq('status', 'pending');
 
     if (data && !error) {
@@ -85,7 +85,7 @@ export default function TodayTasksSummary() {
           {/* Label Header */}
           <div className="flex justify-between items-end mb-1.5 px-1">
             <span className="text-[9px] font-black uppercase tracking-[0.2em] text-on-surface-variant leading-none">
-              Resumen de hoy
+              Resumen pendientes
             </span>
             <span className="text-[10px] font-black text-primary leading-none bg-primary/10 px-1.5 py-0.5 rounded-md">
               {counts.total} {counts.total === 1 ? 'Tarea' : 'Tareas'}
