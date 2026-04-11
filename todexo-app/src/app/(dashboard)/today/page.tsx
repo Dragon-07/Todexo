@@ -10,38 +10,41 @@ import { calculateNextDueDate, RepeatType } from '@/lib/recurrence';
 import { manageReminderTask } from '@/lib/reminder';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 
 export default function TodayPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const { userId, isImpersonating, targetUserName, loading: userLoading } = useEffectiveUser();
 
   const fetchTasks = async () => {
+    if (!userId) return;
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const todayStr = format(new Date(), 'yyyy-MM-dd');
-      
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('due_date', todayStr)
-        .order('due_time', { ascending: true, nullsFirst: false })
-        .order('created_at', { ascending: false });
-      
-      if (data && !error) {
-         setTasks(data as Task[]);
-      } else if (error) {
-        console.error('Error fetching today tasks:', error);
-      }
+    const todayStr = format(new Date(), 'yyyy-MM-dd');
+    
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('due_date', todayStr)
+      .order('due_time', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: false });
+    
+    if (data && !error) {
+       setTasks(data as Task[]);
+    } else if (error) {
+      console.error('Error fetching today tasks:', error);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    if (!userLoading && userId) {
+      fetchTasks();
+    }
+  }, [userId, userLoading]);
 
   const toggleTask = async (id: string) => {
     const taskIndex = tasks.findIndex(t => t.id === id);
@@ -171,12 +174,19 @@ export default function TodayPage() {
         {/* Header */}
         <header className="mb-12">
           <div className="flex items-center gap-6 mb-3">
-             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dim flex items-center justify-center shadow-2xl glow-primary">
-                <CalendarIcon className="text-on-surface" size={28} />
+             <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${isImpersonating ? 'from-indigo-500 to-violet-600' : 'from-primary to-primary-dim'} flex items-center justify-center shadow-2xl ${isImpersonating ? '' : 'glow-primary'}`}>
+                <CalendarIcon className="text-white" size={28} />
              </div>
              <div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-on-surface">Hoy</h1>
-                <p className="text-on-surface-variant font-medium mt-1">Lo que tienes planeado para este día.</p>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-on-surface">
+                  {isImpersonating ? `Hoy — ${targetUserName}` : 'Hoy'}
+                </h1>
+                <p className="text-on-surface-variant font-medium mt-1">
+                  {isImpersonating 
+                    ? `Supervisando las tareas del día de ${targetUserName}.`
+                    : 'Lo que tienes planeado para este día.'
+                  }
+                </p>
              </div>
           </div>
         </header>

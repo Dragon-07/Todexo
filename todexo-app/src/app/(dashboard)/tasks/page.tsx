@@ -9,31 +9,35 @@ import { supabase } from '@/lib/supabase';
 import { calculateNextDueDate, RepeatType } from '@/lib/recurrence';
 import { manageReminderTask } from '@/lib/reminder';
 import { format, parseISO } from 'date-fns';
+import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 
 export default function AllTasksPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const { userId, isImpersonating, targetUserName, loading: userLoading } = useEffectiveUser();
 
   const fetchTasks = async () => {
+    if (!userId) return;
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
-      if (data && !error) {
-         setTasks(data as Task[]);
-      }
+    
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    
+    if (data && !error) {
+       setTasks(data as Task[]);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    if (!userLoading) {
+      fetchTasks();
+    }
+  }, [userId, userLoading]);
 
   const toggleTask = async (id: string) => {
     const taskIndex = tasks.findIndex(t => t.id === id);
@@ -165,12 +169,19 @@ export default function AllTasksPage() {
         {/* Header */}
         <header className="mb-12">
           <div className="flex items-center gap-6 mb-3">
-             <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-primary-dim flex items-center justify-center shadow-2xl glow-primary">
+             <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${isImpersonating ? 'from-indigo-500 to-violet-600' : 'from-primary to-primary-dim'} flex items-center justify-center shadow-2xl ${isImpersonating ? '' : 'glow-primary'}`}>
                 <Sparkles className="text-white" size={28} />
              </div>
              <div>
-                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-on-surface">Mis Tareas</h1>
-                <p className="text-on-surface-variant font-medium mt-1">Todas tus tareas pendientes en un solo lugar.</p>
+                <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-on-surface">
+                  {isImpersonating ? `Tareas de ${targetUserName}` : 'Mis Tareas'}
+                </h1>
+                <p className="text-on-surface-variant font-medium mt-1">
+                  {isImpersonating 
+                    ? `Todas las tareas pendientes de ${targetUserName}.`
+                    : 'Todas tus tareas pendientes en un solo lugar.'
+                  }
+                </p>
              </div>
           </div>
         </header>

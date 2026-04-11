@@ -24,10 +24,12 @@ import { useState, useEffect } from 'react';
 import NextTaskButton from './NextTaskButton';
 import TodayTasksSummary from './TodayTasksSummary';
 import { useUserRole } from '@/hooks/useUserRole';
+import { useImpersonation } from '@/context/ImpersonationContext';
 
 export default function Sidebar({ className }: { className?: string }) {
   const pathname = usePathname();
   const router = useRouter();
+  const { isImpersonating, targetUser } = useImpersonation();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -54,6 +56,10 @@ export default function Sidebar({ className }: { className?: string }) {
     { label: 'Trabajo', color: 'bg-tertiary' },
     { label: 'Personal', color: 'bg-secondary' },
   ];
+
+  // Nombre a mostrar: si está supervisando, el del usuario supervisado
+  const displayName = isImpersonating ? targetUser?.full_name : fullName;
+  const displayLabel = isImpersonating ? 'Supervisando' : 'Usuario';
 
   return (
     <aside className={clsx("flex flex-col glass-panel border-r border-white/20 dark:border-white/10 p-6 h-full", className)}>
@@ -113,13 +119,26 @@ export default function Sidebar({ className }: { className?: string }) {
       {/* Footer Actions */}
       <div className="pt-6 border-t border-surface-variant/50 space-y-2">
         {/* User Info Section */}
-        <div className="flex items-center gap-3 px-3 py-3 mb-2 rounded-2xl bg-surface-variant/20 border border-white/5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/80 to-secondary/80 flex items-center justify-center text-white scale-90">
+        <div className={clsx(
+          "flex items-center gap-3 px-3 py-3 mb-2 rounded-2xl border",
+          isImpersonating 
+            ? "bg-indigo-500/10 border-indigo-500/20" 
+            : "bg-surface-variant/20 border-white/5"
+        )}>
+          <div className={clsx(
+            "w-8 h-8 rounded-lg flex items-center justify-center text-white scale-90",
+            isImpersonating
+              ? "bg-gradient-to-br from-indigo-500 to-violet-600"
+              : "bg-gradient-to-br from-primary/80 to-secondary/80"
+          )}>
              <UserIcon size={16} />
           </div>
           <div className="flex-1 min-w-0">
-             <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest leading-none mb-1">Usuario</p>
-             <p className="text-xs font-bold text-on-surface truncate">{fullName || 'Cargando...'}</p>
+             <p className={clsx(
+               "text-[10px] font-bold uppercase tracking-widest leading-none mb-1",
+               isImpersonating ? "text-indigo-400" : "text-on-surface-variant"
+             )}>{displayLabel}</p>
+             <p className="text-xs font-bold text-on-surface truncate">{displayName || 'Cargando...'}</p>
           </div>
         </div>
 

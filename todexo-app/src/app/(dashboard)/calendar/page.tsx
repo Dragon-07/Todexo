@@ -23,6 +23,7 @@ import FloatingQuickAdd from '@/components/FloatingQuickAdd';
 import TaskEditor from '@/components/tasks/TaskEditor';
 import { format, isSameDay, parseISO, addDays, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 
 type ViewMode = 'list' | 'week' | 'month';
 
@@ -35,28 +36,30 @@ export default function CalendarPage() {
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
   const [quickAddInitialDate, setQuickAddInitialDate] = useState<Date | null>(null);
   const [selectedDayTasksDate, setSelectedDayTasksDate] = useState<Date | null>(null);
+  const { userId, loading: userLoading } = useEffectiveUser();
 
   const fetchTasks = async () => {
+    if (!userId) return;
     setLoading(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('due_date', { ascending: true, nullsFirst: false })
-        .order('due_time', { ascending: true, nullsFirst: false })
-        .order('created_at', { ascending: false });
-      
-      if (data && !error) {
-        setTasks(data as Task[]);
-      }
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', userId)
+      .order('due_date', { ascending: true, nullsFirst: false })
+      .order('due_time', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: false });
+    
+    if (data && !error) {
+      setTasks(data as Task[]);
     }
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchTasks();
-  }, []);
+    if (!userLoading && userId) {
+      fetchTasks();
+    }
+  }, [userId, userLoading]);
 
   const toggleTask = async (id: string) => {
     const taskIndex = tasks.findIndex(t => t.id === id);

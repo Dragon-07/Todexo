@@ -6,17 +6,17 @@ import { supabase } from '@/lib/supabase';
 import { Task } from '@/components/tasks/TaskItem';
 import { format, parseISO, isSameDay } from 'date-fns';
 import clsx from 'clsx';
+import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 
 export default function NextTaskButton() {
   const [nextTask, setNextTask] = useState<Task | null>(null);
   const [percent, setPercent] = useState(100);
   const [timeLeft, setTimeLeft] = useState<string>('');
-
   const [overdueCount, setOverdueCount] = useState(0);
+  const { userId, loading: userLoading } = useEffectiveUser();
 
   const fetchNextTask = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!userId) return;
 
     const todayStr = format(new Date(), 'yyyy-MM-dd');
     const nowTime = format(new Date(), 'HH:mm:ss');
@@ -25,6 +25,7 @@ export default function NextTaskButton() {
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
+      .eq('user_id', userId)
       .eq('due_date', todayStr)
       .eq('status', 'pending')
       .not('due_time', 'is', null)
@@ -51,10 +52,12 @@ export default function NextTaskButton() {
   };
 
   useEffect(() => {
-    fetchNextTask();
+    if (userId) {
+      fetchNextTask();
+    }
     
     const channel = supabase
-      .channel('tasks-sidebar-realtime')
+      .channel(`tasks-sidebar-${userId}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'tasks' },
@@ -67,7 +70,7 @@ export default function NextTaskButton() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     if (!nextTask || !nextTask.due_time || !nextTask.due_date) {

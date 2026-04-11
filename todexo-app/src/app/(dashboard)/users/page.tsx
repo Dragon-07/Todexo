@@ -17,9 +17,12 @@ import {
   Eye,
   EyeOff,
   Pencil,
-  Trash2
+  Trash2,
+  MonitorCheck
 } from 'lucide-react';
 import clsx from 'clsx';
+import { useImpersonation } from '@/context/ImpersonationContext';
+import { useRouter } from 'next/navigation';
 
 interface Profile {
   id: string;
@@ -47,6 +50,17 @@ export default function UsersPage() {
   const [newRole, setNewRole] = useState<UserRole>('standard');
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const { startImpersonation } = useImpersonation();
+  const router = useRouter();
+
+  const handleStartSupervision = (user: Profile) => {
+    startImpersonation({
+      id: user.id,
+      full_name: user.full_name || 'Usuario'
+    });
+    router.push('/');
+  };
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -305,16 +319,27 @@ export default function UsersPage() {
                       </p>
                    </div>
                    
-                   {/* Botón editar */}
-                   {(currentUserRole === 'owner' || (currentUserRole === 'admin' && user.role !== 'owner')) && (
-                     <button
-                       onClick={() => handleOpenEdit(user)}
-                       className="p-3 rounded-xl bg-surface-variant/30 text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-all active:scale-90"
-                       title="Editar usuario"
-                     >
-                       <Pencil size={18} />
-                     </button>
-                   )}
+                    {/* Botón Supervisar */}
+                    {(currentUserRole === 'owner' || (currentUserRole === 'admin' && user.role !== 'owner')) && (
+                      <button
+                        onClick={() => handleStartSupervision(user)}
+                        className="p-3 rounded-xl bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white transition-all active:scale-95 group"
+                        title={`Supervisar a ${user.full_name}`}
+                      >
+                        <MonitorCheck size={18} className="group-hover:scale-110 transition-transform" />
+                      </button>
+                    )}
+
+                    {/* Botón editar */}
+                    {(currentUserRole === 'owner' || (currentUserRole === 'admin' && user.role !== 'owner')) && (
+                      <button
+                        onClick={() => handleOpenEdit(user)}
+                        className="p-3 rounded-xl bg-surface-variant/30 text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-all active:scale-90"
+                        title="Editar usuario"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                    )}
                 </div>
               </div>
             );

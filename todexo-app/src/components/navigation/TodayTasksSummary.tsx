@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { format } from 'date-fns';
 import clsx from 'clsx';
+import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 
 interface PriorityCounts {
   high: number;
@@ -21,16 +22,17 @@ export default function TodayTasksSummary() {
     none: 0,
     total: 0
   });
+  const { userId } = useEffectiveUser();
 
   const fetchTodayCounts = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!userId) return;
 
     const todayStr = format(new Date(), 'yyyy-MM-dd');
     
     const { data, error } = await supabase
       .from('tasks')
       .select('priority')
+      .eq('user_id', userId)
       .eq('due_date', todayStr)
       .eq('status', 'pending');
 
@@ -50,13 +52,15 @@ export default function TodayTasksSummary() {
   };
 
   useEffect(() => {
-    fetchTodayCounts();
+    if (userId) {
+      fetchTodayCounts();
+    }
     
     const channel = supabase
-      .channel('today-counts-realtime')
+      .channel(`today-counts-${userId}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'tasks' },
+        { event: '*', schema: 'public', table: 'tasks', filter: `user_id=eq.${userId}` },
         () => {
           fetchTodayCounts();
         }
@@ -66,7 +70,7 @@ export default function TodayTasksSummary() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [userId]);
 
   if (counts.total === 0) return null;
 
