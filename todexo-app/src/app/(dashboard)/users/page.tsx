@@ -154,6 +154,41 @@ export default function UsersPage() {
     }
   };
 
+  const handleDeleteUser = async (user: Profile) => {
+    if (user.id === (await supabase.auth.getUser()).data.user?.id) {
+      alert("No puedes eliminarte a ti mismo.");
+      return;
+    }
+
+    if (!window.confirm(`¿Estás seguro de que deseas eliminar permanentemente al usuario "${user.full_name || user.email}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.rpc('admin_delete_user', {
+        target_user_id: user.id
+      });
+
+      if (error) throw error;
+      
+      if (data && typeof data === 'object' && !data.success) {
+        throw new Error(data.error || 'Error al eliminar usuario');
+      }
+
+      setSuccessMsg(`Usuario eliminado correctamente.`);
+      setTimeout(() => setSuccessMsg(null), 4000);
+      fetchUsers();
+    } catch (err: any) {
+      console.error('Error al eliminar:', err);
+      alert(err.message || 'Error al eliminar usuario');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
   // --- Pantalla de carga ---
   if (roleLoading) {
     return (
@@ -340,6 +375,17 @@ export default function UsersPage() {
                         <Pencil size={18} />
                       </button>
                     )}
+
+                    {/* Botón eliminar */}
+                    {(currentUserRole === 'owner' || (currentUserRole === 'admin' && user.role !== 'owner')) && (
+                      <button
+                        onClick={() => handleDeleteUser(user)}
+                        className="p-3 rounded-xl bg-error/10 text-error/60 hover:bg-error hover:text-white transition-all active:scale-90"
+                        title="Eliminar usuario"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    )}
                 </div>
               </div>
             );
@@ -352,19 +398,19 @@ export default function UsersPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           {/* Overlay */}
           <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/20 backdrop-blur-md"
             onClick={() => setIsModalOpen(false)}
           />
 
           {/* Card */}
-          <div className="relative bg-surface-container border border-surface-variant w-full max-w-md rounded-3xl p-8 ambient-shadow overflow-hidden">
+          <div className="relative bg-white text-slate-900 w-full max-w-md rounded-3xl p-8 ambient-shadow overflow-hidden shadow-2xl">
             {/* Decoración */}
-            <div className="absolute top-0 right-0 w-40 h-40 bg-primary/8 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-40 h-40 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none"></div>
 
             {/* Botón cerrar */}
             <button
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 p-2 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-variant transition-all"
+              className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-all"
             >
               <X size={18} />
             </button>
@@ -373,31 +419,31 @@ export default function UsersPage() {
               <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                 {isEditMode ? <Pencil size={18} className="text-primary" /> : <UserPlus size={18} className="text-primary" />}
               </div>
-              <h2 className="text-xl font-black text-on-surface">
+              <h2 className="text-xl font-black text-slate-900">
                 {isEditMode ? 'Editar Usuario' : 'Nuevo Usuario'}
               </h2>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-5">
               {formError && (
-                <div className="p-3 bg-error/10 border border-error/30 rounded-xl text-error text-xs text-center font-medium">
+                <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-500 text-xs text-center font-medium">
                   {formError}
                 </div>
               )}
 
               {/* Nombre */}
               <div>
-                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 ml-1">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
                   Nombre completo
                 </label>
                 <div className="relative">
-                  <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50" size={16} />
+                  <UserIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                   <input
                     required
                     type="text"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    className="w-full bg-surface-container-low border border-surface-variant rounded-xl pl-11 pr-4 py-3 text-sm text-on-surface focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all placeholder:text-slate-300"
                     placeholder="Ej. Juan Pérez"
                   />
                 </div>
@@ -405,17 +451,17 @@ export default function UsersPage() {
 
               {/* Email */}
               <div>
-                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 ml-1">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
                   Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50" size={16} />
+                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                   <input
                     required
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full bg-surface-container-low border border-surface-variant rounded-xl pl-11 pr-4 py-3 text-sm text-on-surface focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all placeholder:text-slate-300"
                     placeholder="usuario@email.com"
                   />
                 </div>
@@ -423,24 +469,24 @@ export default function UsersPage() {
 
               {/* Contraseña */}
               <div>
-                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 ml-1">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
                   {isEditMode ? 'Nueva Contraseña (dejar en blanco para no cambiar)' : 'Contraseña'}
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50" size={16} />
+                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                   <input
                     required={!isEditMode}
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     minLength={6}
-                    className="w-full bg-surface-container-low border border-surface-variant rounded-xl pl-11 pr-11 py-3 text-sm text-on-surface focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-11 pr-11 py-3 text-sm text-slate-900 focus:outline-none focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all placeholder:text-slate-300"
                     placeholder={isEditMode ? 'Sin cambios' : 'Mínimo 6 caracteres'}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-on-surface transition-colors"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
@@ -449,7 +495,7 @@ export default function UsersPage() {
 
               {/* Selector de Rol */}
               <div>
-                <label className="block text-[10px] font-bold text-on-surface-variant uppercase tracking-widest mb-2 ml-1">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 ml-1">
                   Rol
                 </label>
                 <div className="grid grid-cols-2 gap-3">
@@ -460,8 +506,8 @@ export default function UsersPage() {
                     className={clsx(
                       "flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all font-bold text-xs",
                       newRole === 'admin'
-                        ? "bg-primary/15 border-primary text-primary shadow-sm"
-                        : "bg-surface-container-low border-surface-variant text-on-surface-variant hover:border-on-surface-variant/40",
+                        ? "bg-primary/10 border-primary text-primary shadow-sm"
+                        : "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300",
                       isEditMode && newRole === 'owner' && "opacity-50 cursor-not-allowed"
                     )}
                   >
@@ -475,8 +521,8 @@ export default function UsersPage() {
                     className={clsx(
                       "flex items-center justify-center gap-2 py-3 rounded-xl border-2 transition-all font-bold text-xs",
                       newRole === 'standard'
-                        ? "bg-on-surface/10 border-on-surface/40 text-on-surface shadow-sm"
-                        : "bg-surface-container-low border-surface-variant text-on-surface-variant hover:border-on-surface-variant/40",
+                        ? "bg-slate-100 border-slate-400 text-slate-900 shadow-sm"
+                        : "bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300",
                       isEditMode && newRole === 'owner' && "opacity-50 cursor-not-allowed"
                     )}
                   >
@@ -491,14 +537,14 @@ export default function UsersPage() {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 bg-surface-variant/50 hover:bg-surface-variant text-on-surface font-bold py-3 rounded-xl transition-all text-sm"
+                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold py-3 rounded-xl transition-all text-sm"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex-1 bg-primary hover:bg-primary-dim text-white font-bold py-3 rounded-xl transition-all glow-primary disabled:opacity-50 text-sm active:scale-[0.97]"
+                  className="flex-1 bg-primary hover:bg-primary-dim text-white font-bold py-3 rounded-xl transition-all shadow-lg glow-primary disabled:opacity-50 text-sm active:scale-[0.97]"
                 >
                   {submitting ? 'Cargando...' : isEditMode ? 'Guardar Cambios' : 'Crear Usuario'}
                 </button>
