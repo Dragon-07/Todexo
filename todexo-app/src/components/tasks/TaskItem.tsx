@@ -4,6 +4,8 @@ import { Circle, CheckCircle2, MoreVertical, Tag, Clock, Calendar, Flame, MinusC
 import { format, parseISO, isSameDay, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { supabase } from '@/lib/supabase';
+import { useUserRole } from '@/hooks/useUserRole';
+import { Lock } from 'lucide-react';
 
 export interface Task {
   id: string;
@@ -20,6 +22,7 @@ export interface Task {
   reminder_at?: string | null;
   is_reminder?: boolean;
   reminder_for_task_id?: string | null;
+  assigned_by?: string | null;
 }
 
 interface TaskItemProps {
@@ -31,7 +34,11 @@ interface TaskItemProps {
 }
 
 export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = false }: TaskItemProps) {
+  const { role } = useUserRole();
   const isCompleted = task.status === 'completed';
+
+  // Bloqueo: si es estándar y la tarea fue asignada por alguien más (un admin)
+  const isReadonly = role === 'standard' && task.assigned_by && task.assigned_by !== task.user_id;
 
   const getLabelForDate = (dateStr: string | null | undefined) => {
     if (!dateStr) return null;
@@ -77,6 +84,7 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
   const isLow = task.priority == 1 || task.priority === 'low' || task.priority === '1';
 
   const handleCardClick = () => {
+    if (isReadonly) return; // No permitir abrir el editor si es solo lectura
     if (onEdit) onEdit(task);
   };
 
@@ -297,15 +305,21 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
         {!compact && (
           <div className="relative flex items-center justify-center flex-shrink-0" ref={completeMenuRef}>
             <button 
+              disabled={isReadonly}
               onClick={(e) => {
                 e.stopPropagation();
+                if (isReadonly) return;
+                
                 if (isCompleted) {
                   onToggle(task.id);
                 } else {
                   setIsCompleteMenuOpen(!isCompleteMenuOpen);
                 }
               }}
-              className="focus:outline-none"
+              className={clsx(
+                "focus:outline-none",
+                isReadonly && "cursor-not-allowed opacity-50"
+              )}
             >
               {isCompleted ? (
                 <div className="text-secondary glow-secondary transition-all transform scale-100">
@@ -360,11 +374,18 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
         )}>
           <span className={clsx(
             "transition-all truncate block",
-            compact ? "text-sm font-bold" : "text-base md:text-lg font-black",
+             compact ? "text-sm font-bold" : "text-base md:text-lg font-black",
             isCompleted ? "text-on-surface/60 line-through tracking-wide" : "text-on-surface tracking-tight"
           )}>
             {task.title}
           </span>
+
+          {isReadonly && (
+            <div className="flex items-center gap-1.5 text-[9px] font-black uppercase text-amber-500/60 tracking-[0.1em]">
+              <Lock size={10} />
+              Asignada por Admin
+            </div>
+          )}
           
           <div className={clsx(
             "flex items-center transition-opacity flex-shrink-0 flex-wrap",
@@ -456,17 +477,26 @@ export default function TaskItem({ task, onToggle, onDelete, onEdit, compact = f
                   Reanudar Tarea
                 </button>
               )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (onDelete) onDelete(task.id);
-                  setIsMenuOpen(false);
-                }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
-              >
-                <Trash2 size={16} />
-                Eliminar Tarea
-              </button>
+              
+              {!isReadonly && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (onDelete) onDelete(task.id);
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                >
+                  <Trash2 size={16} />
+                  Eliminar Tarea
+                </button>
+              )}
+
+              {isReadonly && (
+                <div className="px-3 py-2 text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-widest text-center">
+                  Solo lectura
+                </div>
+              )}
             </div>
           </div>
         )}

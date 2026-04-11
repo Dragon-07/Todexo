@@ -12,13 +12,15 @@ import {
   Check,
   Flag,
   Repeat,
-  Bell
+  Bell,
+  Lock
 } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import clsx from 'clsx';
 import { createPortal } from 'react-dom';
 import { Task } from './TaskItem';
+import { useUserRole } from '@/hooks/useUserRole';
 
 import { manageReminderTask } from '@/lib/reminder';
 import { supabase } from '@/lib/supabase';
@@ -31,6 +33,9 @@ interface TaskEditorProps {
 }
 
 export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditorProps) {
+  const { role } = useUserRole();
+  const isReadonly = role === 'standard' && task.assigned_by && task.assigned_by !== task.user_id;
+
   const [mounted, setMounted] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [date, setDate] = useState<string | null>(task.due_date || null);
@@ -204,11 +209,11 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
               "w-12 h-12 rounded-2xl flex items-center justify-center border shadow-inner transition-colors duration-500",
               task.is_reminder ? "bg-amber-500/15 border-amber-500/30 text-amber-500 shadow-amber-500/10" : "bg-primary/15 border-primary/30 text-primary shadow-primary/10"
             )}>
-              {task.is_reminder ? <Bell size={22} className="fill-amber-500/10 glow-amber" /> : <PencilLine size={22} />}
+              {task.is_reminder ? <Bell size={22} className="fill-amber-500/10 glow-amber" /> : isReadonly ? <Lock size={22} className="text-amber-500" /> : <PencilLine size={22} />}
             </div>
             <div>
               <h2 className="text-xl font-black text-on-surface tracking-tight uppercase">
-                {task.is_reminder ? 'Recordatorio' : 'Editar Tarea'}
+                {task.is_reminder ? 'Recordatorio' : isReadonly ? 'Tarea Protegida' : 'Editar Tarea'}
               </h2>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Todexo Premium Edition</p>
             </div>
@@ -263,8 +268,18 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="¿Qué tienes programado?"
-                className="w-full bg-surface-container border-2 border-surface-variant/20 rounded-[1.5rem] px-5 py-3 text-lg font-bold text-on-surface min-h-[80px] focus:outline-none focus:border-primary/50 transition-all resize-none shadow-inner placeholder:text-on-surface-variant/20 tracking-tight custom-scrollbar"
+                placeholder="¿Qué tienes programado?"
+                disabled={isReadonly}
+                className={clsx(
+                  "w-full bg-surface-container border-2 border-surface-variant/20 rounded-[1.5rem] px-5 py-3 text-lg font-bold text-on-surface min-h-[80px] focus:outline-none focus:border-primary/50 transition-all resize-none shadow-inner placeholder:text-on-surface-variant/20 tracking-tight custom-scrollbar",
+                  isReadonly && "opacity-80 cursor-not-allowed border-amber-500/20"
+                )}
               />
+              {isReadonly && (
+                <p className="text-[10px] font-bold text-amber-500/60 uppercase tracking-widest px-1 flex items-center gap-1.5 mt-1">
+                  <Lock size={10} /> Esta tarea solo puede ser modificada por un administrador
+                </p>
+              )}
             </div>
           )}
 
@@ -516,15 +531,15 @@ export default function TaskEditor({ task, isOpen, onClose, onSave }: TaskEditor
               </button>
               <button 
                 onClick={handleSave}
-                disabled={!hasChanges}
+                disabled={!hasChanges || isReadonly}
                 className={clsx(
                   "flex-[2] py-3 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl transition-all shadow-xl",
-                  hasChanges 
+                  (hasChanges && !isReadonly) 
                     ? "bg-primary text-on-primary glow-primary hover:brightness-110 active:scale-[0.98]" 
                     : "bg-surface-variant/10 text-on-surface-variant opacity-50 cursor-not-allowed"
                 )}
               >
-                Guardar Cambios
+                {isReadonly ? 'Solo Lectura' : 'Guardar Cambios'}
               </button>
             </div>
           )}

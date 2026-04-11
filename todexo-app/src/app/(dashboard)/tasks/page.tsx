@@ -82,6 +82,7 @@ export default function AllTasksPage() {
       const payload = {
         title: task.title,
         user_id: task.user_id,
+        assigned_by: task.assigned_by, // Mantener quién la asignó originalmente
         status: 'pending' as const,
         due_date: format(nextDueDate, 'yyyy-MM-dd'),
         due_time: task.due_time || null,

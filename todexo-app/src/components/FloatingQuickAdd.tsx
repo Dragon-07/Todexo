@@ -29,7 +29,7 @@ export default function FloatingQuickAdd({
 }) {
   const [mounted, setMounted] = useState(false);
   const [internalOpen, setInternalOpen] = useState(false);
-  const { userId } = useEffectiveUser();
+  const { userId, loggedInUserId } = useEffectiveUser();
 
   useEffect(() => {
     setMounted(true);
@@ -220,7 +220,7 @@ export default function FloatingQuickAdd({
 
     const payload: any = {
         user_id: effectiveTargetId,
-
+        assigned_by: loggedInUserId,
         title,
         status: 'pending',
         due_date: selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null,
