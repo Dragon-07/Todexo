@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { Flame, Target, Trophy, Zap, Crown, Award } from 'lucide-react';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
+import { Flame, Target, Trophy, Zap, Crown, Award, CheckCircle2, TrendingUp, AlertCircle } from 'lucide-react';
 import clsx from 'clsx';
 import FloatingQuickAdd from '@/components/FloatingQuickAdd';
 import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 import { supabase } from '@/lib/supabase';
-import { format } from 'date-fns';
+import { format, subDays, parseISO, isSameDay } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 export default function StatsPage() {
   const { userId, loading: userLoading } = useEffectiveUser();
@@ -16,7 +17,9 @@ export default function StatsPage() {
     totalToday: 0,
     successRate: 0,
     streak: 0,
+    totalCompleted: 0,
     weeklyData: [] as any[],
+    priorityData: { high: 0, medium: 0, low: 0, none: 0 },
   });
   const [loading, setLoading] = useState(true);
 
@@ -25,23 +28,24 @@ export default function StatsPage() {
       if (!userId) return;
       setLoading(true);
 
-      const today = format(new Date(), 'yyyy-MM-dd');
+      const todayObj = new Date();
+      const todayStr = format(todayObj, 'yyyy-MM-dd');
 
       // 1. Tareas Hoy
       const { count: completedToday } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .eq('due_date', today)
+        .eq('due_date', todayStr)
         .eq('status', 'completed');
 
       const { count: totalToday } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .eq('due_date', today);
+        .eq('due_date', todayStr);
 
-      // 2. Tasa de Éxito (Global)
+      // 2. Tasa de Éxito (Global) y Total Completadas
       const { count: completedGlobal } = await supabase
         .from('tasks')
         .select('*', { count: 'exact', head: true })
@@ -60,19 +64,53 @@ export default function StatsPage() {
         .eq('user_id', userId)
         .single();
 
-      // 4. Datos semanales (simulados por ahora pero con base real)
-      const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-      const weeklyData = days.map((name, i) => ({
-        name,
-        tasks: Math.floor(Math.random() * 5) + (i === new Date().getDay() ? (completedToday || 0) : 2)
-      }));
+      // 4. Datos semanales (REAL: Últimos 7 días)
+      const last7Days = Array.from({ length: 7 }).map((_, i) => {
+        const d = subDays(todayObj, 6 - i);
+        return format(d, 'yyyy-MM-dd');
+      });
+
+      const { data: weeklyTasks } = await supabase
+        .from('tasks')
+        .select('due_date, status')
+        .eq('user_id', userId)
+        .in('due_date', last7Days);
+
+      const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+      const weeklyData = last7Days.map(dateStr => {
+         const dateObj = parseISO(dateStr);
+         const dayName = daysOfWeek[dateObj.getDay()];
+         const dayTasks = weeklyTasks?.filter(t => t.due_date === dateStr && t.status === 'completed') || [];
+         return {
+            name: dayName,
+            tasks: dayTasks.length
+         }
+      });
+
+      // 5. Distribución por Prioridad (Tareas Pendientes)
+      const { data: pendingTasks } = await supabase
+        .from('tasks')
+        .select('priority')
+        .eq('user_id', userId)
+        .eq('status', 'pending');
+
+      let high = 0, medium = 0, low = 0, none = 0;
+      pendingTasks?.forEach(t => {
+         // Ajuste para prioridades que son IDs o textos (1, 2, 3 o 'high', 'medium', 'low')
+         if (t.priority == 3 || t.priority === 'high' || t.priority === '3') high++;
+         else if (t.priority == 2 || t.priority === 'medium' || t.priority === '2') medium++;
+         else if (t.priority == 1 || t.priority === 'low' || t.priority === '1') low++;
+         else none++;
+      });
 
       setStats({
         todayTasks: completedToday || 0,
         totalToday: totalToday || 0,
         successRate: totalGlobal ? Math.round(((completedGlobal || 0) / totalGlobal) * 100) : 0,
         streak: metrics?.streak_days || 0,
+        totalCompleted: completedGlobal || 0,
         weeklyData,
+        priorityData: { high, medium, low, none },
       });
       setLoading(false);
     }
@@ -91,6 +129,7 @@ export default function StatsPage() {
     { name: 'Sáb', tasks: 0 },
     { name: 'Dom', tasks: 0 },
   ];
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-background text-on-surface">
@@ -102,12 +141,23 @@ export default function StatsPage() {
     );
   }
 
+  // Datos para el gráfico de barras de prioridad
+  const priorityChartData = [
+    { name: 'Alta', value: stats.priorityData.high, color: '#EF4444' }, // red-500
+    { name: 'Media', value: stats.priorityData.medium, color: '#F97316' }, // orange-500
+    { name: 'Baja', value: stats.priorityData.low, color: '#3B82F6' }, // blue-500
+    { name: 'Sin Asignar', value: stats.priorityData.none, color: '#8b8b99' }, // gray
+  ];
+  // Find max value to correctly render the percentages, avoid 0 denominator
+  const maxPriorityTasks = Math.max(...priorityChartData.map(d => d.value), 1);
+
   return (
     <div className="flex w-full h-full bg-background overflow-y-auto px-6 py-8 md:p-12 pb-32 lg:pb-12 custom-scrollbar relative">
       <div className="max-w-4xl mx-auto w-full flex flex-col gap-8">
         
         <header>
           <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-onSurface mb-2">Estadísticas y Progreso</h1>
+          <p className="text-sm text-onSurfaceVariant/80">Basado en tu uso real de Todexo</p>
         </header>
 
         {/* Top Metrics Cards */}
@@ -126,7 +176,6 @@ export default function StatsPage() {
                 <polyline points="0,20 20,24 40,15 60,10 80,18 100,2" fill="none" stroke="var(--primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            {/* Color Blob */}
             <div className="color-blob -right-6 -bottom-6 bg-orange-500/40"></div>
           </div>
 
@@ -150,17 +199,16 @@ export default function StatsPage() {
             <div className="color-blob -right-6 -bottom-6 bg-amber-500/40"></div>
           </div>
 
-          <div className="glass-panel p-5 rounded-2xl md:p-6 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+          <div className="glass-panel p-5 rounded-2xl md:p-6 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
             <div className="flex justify-between items-start mb-4 relative z-10">
-              <h3 className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">Semana</h3>
+              <h3 className="text-[10px] uppercase font-bold tracking-widest text-on-surface-variant">Total Completadas</h3>
               <div className="glass-icon-container p-2">
-                <Target size={16} className="text-indigo-500" />
+                <CheckCircle2 size={16} className="text-indigo-500" />
               </div>
             </div>
-            <div className="flex items-end justify-between h-10 gap-1 mt-2 relative z-10">
-              {stats.weeklyData.map((d, i) => (
-                <div key={i} className="w-full bg-primary/60 rounded-sm hover:bg-primary transition-all duration-300" style={{ height: `${(d.tasks / 10) * 100}%` }}></div>
-              ))}
+            <div className="relative z-10 mt-auto">
+              <p className="text-3xl font-bold text-on-surface">{stats.totalCompleted}</p>
+              <p className="text-[10px] font-medium text-on-surface-variant mt-1">Tareas en total</p>
             </div>
             <div className="color-blob -right-6 -bottom-6 bg-indigo-500/40"></div>
           </div>
@@ -174,7 +222,7 @@ export default function StatsPage() {
             </div>
             <div className="relative z-10 mt-auto">
               <p className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">{stats.successRate}%</p>
-              <p className="text-[9px] font-bold text-secondary mt-1">↗ Basado en historial</p>
+              <p className="text-[9px] font-bold text-secondary mt-1">↗ De todas tus tareas</p>
             </div>
             <div className="color-blob -right-6 -bottom-6 bg-emerald-500/40"></div>
           </div>
@@ -187,11 +235,11 @@ export default function StatsPage() {
           {/* Productivity Area Chart */}
           <div className="glass-panel p-6 rounded-2xl md:p-8">
             <h3 className="text-xs font-bold tracking-widest text-onSurfaceVariant uppercase mb-6 flex justify-between">
-               Productividad Semanal <span className="text-[10px] bg-surfaceVariant px-2 py-1 rounded-md">Últimos 7 días</span>
+               Productividad <span className="text-[10px] bg-surfaceVariant px-2 py-1 rounded-md text-onSurface">Últimos 7 días</span>
             </h3>
-            <div className="h-[200px] w-full">
+            <div className="h-[200px] w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={productivityData}>
+                <AreaChart data={productivityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorTasks" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#6366F1" stopOpacity={0.4}/>
@@ -199,6 +247,7 @@ export default function StatsPage() {
                     </linearGradient>
                   </defs>
                   <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#aaaab3' }} dy={10} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#aaaab3' }} allowDecimals={false} />
                   <Tooltip 
                      contentStyle={{ 
                         backgroundColor: 'var(--surface-container-high)', 
@@ -209,49 +258,55 @@ export default function StatsPage() {
                      }}
                      itemStyle={{ color: 'var(--on-surface)' }}
                   />
-                  <Area type="monotone" dataKey="tasks" stroke="#6366F1" strokeWidth={3} fillOpacity={1} fill="url(#colorTasks)" style={{ filter: 'drop-shadow(0px 4px 12px rgba(99, 102, 241, 0.4))' }} />
+                  <Area type="monotone" dataKey="tasks" name="Completadas" stroke="#6366F1" strokeWidth={3} fillOpacity={1} fill="url(#colorTasks)" style={{ filter: 'drop-shadow(0px 4px 12px rgba(99, 102, 241, 0.4))' }} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
-          </div>
-
-          {/* Area Distribution */}
-          <div className="glass-panel p-6 rounded-2xl md:p-8 flex flex-col">
-            <h3 className="text-xs font-bold tracking-widest text-onSurfaceVariant uppercase mb-6">Distribución por Área</h3>
             
-            <div className="space-y-5 flex-1">
-               <ProgressBar label="Trabajo" percent={70} color="#6366F1" />
-               <ProgressBar label="Personal" percent={55} color="#8B5CF6" />
-               <ProgressBar label="Salud" percent={90} color="#14B8A6" glow />
-               <ProgressBar label="Aprendizaje" percent={30} color="#F59E0B" />
-               <ProgressBar label="Finanzas" percent={15} color="#EC4899" />
-            </div>
-
-            <div className="mt-6 bg-surfaceVariant/50 p-4 rounded-xl flex items-start gap-3">
-               <div className="bg-tertiary/20 text-tertiary p-1.5 rounded-lg"><Target size={16} /></div>
+            <div className="mt-6 bg-surfaceVariant/30 p-4 rounded-xl flex items-start gap-3 border border-white/5">
+               <div className="bg-primary/20 text-primary p-2 rounded-lg flex-shrink-0"><TrendingUp size={16} /></div>
                <div>
-                  <h4 className="text-xs font-bold text-onSurface mb-0.5">Insight Semanal</h4>
-                  <p className="text-[10px] text-onSurfaceVariant leading-relaxed">Tu enfoque en "Salud" ha mejorado un 15% respecto al mes pasado. ¡Sigue así!</p>
+                  <h4 className="text-xs font-bold text-onSurface mb-1">Ritmo de Trabajo</h4>
+                  <p className="text-[11px] text-onSurfaceVariant/80 leading-relaxed">
+                    Has completado un total de {stats.weeklyData.reduce((acc, curr) => acc + curr.tasks, 0)} tareas en los últimos 7 días.
+                  </p>
                </div>
             </div>
           </div>
 
-        </div>
+          {/* Priority Distribution Bar Chart */}
+          <div className="glass-panel p-6 rounded-2xl md:p-8 flex flex-col">
+            <h3 className="text-xs font-bold tracking-widest text-onSurfaceVariant uppercase mb-6 flex justify-between">
+              Carga Pendiente <span className="text-[10px] bg-surfaceVariant px-2 py-1 rounded-md text-onSurface">Por Prioridad</span>
+            </h3>
+            
+            <div className="space-y-5 flex-1 mt-2">
+              {priorityChartData.map((item, idx) => {
+                const percent = Math.round((item.value / maxPriorityTasks) * 100);
+                return (
+                  <ProgressBar 
+                    key={idx} 
+                    label={item.name} 
+                    value={item.value} 
+                    percent={percent} 
+                    color={item.color} 
+                    glow={item.name === 'Alta' && item.value > 0} 
+                  />
+                );
+              })}
+            </div>
 
-        {/* Achievements Section */}
-        <div className="glass-panel p-6 rounded-2xl md:p-8">
-           <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xs font-bold tracking-widest text-onSurfaceVariant uppercase">Historial de Logros</h3>
-              <button className="text-[10px] font-bold text-primary hover:text-onSurface transition-colors">Ver todos</button>
-           </div>
-           
-           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <AchievementCard title="Primera Semana" icon={<Trophy size={20} />} unlocked glowColor="glow-primary" />
-              <AchievementCard title="Velocista" icon={<Zap size={20} />} unlocked glowColor="glow-tertiary" />
-              <AchievementCard title="Tirador de élite" icon={<Target size={20} />} />
-              <AchievementCard title="Imparable" icon={<Flame size={20} />} />
-              <AchievementCard title="Maestro" icon={<Crown size={20} />} />
-           </div>
+            <div className="mt-6 bg-surfaceVariant/30 p-4 rounded-xl flex items-start gap-3 border border-white/5">
+               <div className="bg-orange-500/20 text-orange-400 p-2 rounded-lg flex-shrink-0"><AlertCircle size={16} /></div>
+               <div>
+                  <h4 className="text-xs font-bold text-onSurface mb-1">Atención Requerida</h4>
+                  <p className="text-[11px] text-onSurfaceVariant/80 leading-relaxed">
+                    Tienes {stats.priorityData.high} tareas de Alta prioridad esperando ser completadas.
+                  </p>
+               </div>
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -260,42 +315,21 @@ export default function StatsPage() {
   );
 }
 
-function ProgressBar({ label, percent, color, glow = false }: { label: string, percent: number, color: string, glow?: boolean }) {
+function ProgressBar({ label, value, percent, color, glow = false }: { label: string, value: number, percent: number, color: string, glow?: boolean }) {
    return (
       <div>
          <div className="flex justify-between items-center mb-1.5">
-            <span className="text-xs font-medium text-onSurface">{label}</span>
-            <span className="text-xs font-bold" style={{ color }}>{percent}%</span>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }}></span>
+              <span className="text-xs font-medium text-onSurface">{label}</span>
+            </div>
+            <span className="text-xs font-bold text-onSurfaceVariant">{value} tareas</span>
          </div>
-         <div className="h-1.5 w-full bg-surfaceContainerHighest rounded-full overflow-hidden">
+         <div className="h-2 w-full bg-surfaceContainerHighest rounded-full overflow-hidden">
             <div 
                className={clsx("h-full rounded-full transition-all duration-1000", glow ? "shadow-[0_0_8px_currentColor]" : "")} 
-               style={{ width: `${percent}%`, backgroundColor: color, color }}
+               style={{ width: `${percent}%`, backgroundColor: color }}
             ></div>
-         </div>
-      </div>
-   )
-}
-
-function AchievementCard({ title, icon, unlocked = false, glowColor = "" }: { title: string, icon: React.ReactNode, unlocked?: boolean, glowColor?: string }) {
-   return (
-      <div className={clsx(
-         "p-4 rounded-2xl flex flex-col items-center text-center gap-3 transition-all duration-300",
-         unlocked 
-            ? `glass-panel shadow-lg hover:-translate-y-1 ${glowColor}` 
-            : "glass shadow-inner opacity-40 grayscale border-white/5"
-      )}>
-         <div className={clsx(
-            "w-12 h-12 rounded-xl flex items-center justify-center",
-            unlocked ? "glass-icon-container text-on-surface" : "bg-white/5 text-on-surface-variant"
-         )}>
-            {icon}
-         </div>
-         <div>
-            <h4 className="text-xs font-bold text-on-surface mb-0.5">{title}</h4>
-            <span className={clsx("text-[9px] font-bold px-2 py-0.5 rounded-full uppercase", unlocked ? "bg-primary/20 text-primary" : "text-on-surface-variant")}>
-               {unlocked ? "Completado" : "Bloqueado"}
-            </span>
          </div>
       </div>
    )
