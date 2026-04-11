@@ -123,13 +123,6 @@ export default function Sidebar({ className }: { className?: string }) {
           </div>
         </div>
 
-        <Link 
-          href="/settings"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all"
-        >
-          <Settings size={18} />
-          <span className="text-sm">Configuración</span>
-        </Link>
         <button 
           onClick={handleLogout}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-on-surface-variant hover:text-error hover:bg-error/10 transition-all"
