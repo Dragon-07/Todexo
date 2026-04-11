@@ -6,10 +6,10 @@ import TaskItem, { Task } from '@/components/tasks/TaskItem';
 import FloatingQuickAdd from '@/components/FloatingQuickAdd';
 import TaskEditor from '@/components/tasks/TaskEditor';
 import { supabase } from '@/lib/supabase';
-import { calculateNextDueDate, RepeatType } from '@/lib/recurrence';
+import { useEffectiveUser } from '@/hooks/useEffectiveUser';
+import { handleTaskRecurrence } from '@/lib/task-recurrence-handler';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 
 export default function TodayPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -64,24 +64,8 @@ export default function TodayPage() {
 
     // Handle recurrence if task was just completed
     if (newStatus === 'completed' && task.repeat_type) {
-      const nextDueDate = calculateNextDueDate(task.due_date ? parseISO(task.due_date) : new Date(), task.repeat_type as RepeatType);
-      
-      const payload = {
-        title: task.title,
-        user_id: task.user_id,
-        assigned_by: task.assigned_by, // Mantener quién la asignó originalmente
-        status: 'pending',
-        due_date: format(nextDueDate, 'yyyy-MM-dd'),
-        due_time: task.due_time,
-        repeat_type: task.repeat_type,
-        priority: task.priority,
-        project_id: task.project_id
-      };
-      
-      const { error } = await supabase.from('tasks').insert(payload);
-      if (!error) {
-        fetchTasks();
-      }
+      await handleTaskRecurrence(task);
+      fetchTasks();
     }
   };
 

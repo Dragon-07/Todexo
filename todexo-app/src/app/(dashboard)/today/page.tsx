@@ -6,11 +6,10 @@ import TaskItem, { Task } from '@/components/tasks/TaskItem';
 import FloatingQuickAdd from '@/components/FloatingQuickAdd';
 import TaskEditor from '@/components/tasks/TaskEditor';
 import { supabase } from '@/lib/supabase';
-import { calculateNextDueDate, RepeatType } from '@/lib/recurrence';
-import { manageReminderTask } from '@/lib/reminder';
 import { format, isSameDay, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useEffectiveUser } from '@/hooks/useEffectiveUser';
+import { handleTaskRecurrence } from '@/lib/task-recurrence-handler';
 
 export default function TodayPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -63,57 +62,7 @@ export default function TodayPage() {
 
     // Handle recurrence if task was just completed
     if (newStatus === 'completed' && task.repeat_type) {
-      const nextDueDate = calculateNextDueDate(task.due_date ? parseISO(task.due_date) : new Date(), task.repeat_type as RepeatType);
-      
-      let nextReminderAt = null;
-      if (task.reminder_at && task.due_date) {
-        try {
-          const originalDueDate = parseISO(`${task.due_date}T${task.due_time || '09:00:00'}`);
-          const reminderAtDate = parseISO(task.reminder_at);
-          const diffMs = originalDueDate.getTime() - reminderAtDate.getTime();
-          
-          const newFullDueDate = new Date(nextDueDate);
-          if (task.due_time) {
-            const [h, m, s] = task.due_time.split(':').map(Number);
-            newFullDueDate.setHours(h, m, s);
-          } else {
-            newFullDueDate.setHours(9, 0, 0);
-          }
-          
-          nextReminderAt = new Date(newFullDueDate.getTime() - diffMs).toISOString();
-        } catch (e) {
-          console.error("Error calculating next reminder:", e);
-        }
-      }
-
-      const payload = {
-        title: task.title,
-        user_id: task.user_id,
-        status: 'pending',
-        due_date: format(nextDueDate, 'yyyy-MM-dd'),
-        due_time: task.due_time,
-        repeat_type: task.repeat_type,
-        priority: task.priority,
-        project_id: task.project_id,
-        reminder_at: nextReminderAt
-      };
-      
-      const { data: insertedTask, error } = await supabase.from('tasks').insert(payload).select('id').single();
-      
-      if (!error && insertedTask && nextReminderAt) {
-        await manageReminderTask(
-           insertedTask.id,
-           task.title,
-           null,
-           nextReminderAt,
-           payload.due_date,
-           payload.due_time || null,
-           task.user_id,
-           task.priority || 0,
-           task.repeat_type || null
-         );
-      }
-      
+      await handleTaskRecurrence(task);
       fetchTasks();
     }
   };
