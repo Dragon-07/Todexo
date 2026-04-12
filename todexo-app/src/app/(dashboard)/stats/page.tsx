@@ -7,7 +7,7 @@ import clsx from 'clsx';
 import FloatingQuickAdd from '@/components/FloatingQuickAdd';
 import { useEffectiveUser } from '@/hooks/useEffectiveUser';
 import { supabase } from '@/lib/supabase';
-import { format, subDays, parseISO, isSameDay, differenceInHours, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
+import { format, subDays, subMonths, subYears, parseISO, isSameDay, differenceInHours, differenceInMinutes, startOfDay, endOfDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 export default function StatsPage() {
@@ -26,6 +26,7 @@ export default function StatsPage() {
     priorityResolutionTrend: [] as any[],
   });
   const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState<'weekly' | 'monthly' | 'yearly'>('weekly');
 
   useEffect(() => {
     async function fetchRealStats() {
@@ -70,31 +71,101 @@ export default function StatsPage() {
         .eq('user_id', userId)
         .single();
 
-      // Semanal (ultimos 7 dias)
-      const last7Days = Array.from({ length: 7 }).map((_, i) => {
-        const d = subDays(todayObj, 6 - i);
-        return format(d, 'yyyy-MM-dd');
-      });
-
       const { data: allTasks } = await supabase
         .from('tasks')
         .select('*')
         .eq('user_id', userId)
         .or('is_reminder.eq.false,is_reminder.is.null');
 
-      if (!allTasks) return;
+      if (!allTasks) {
+        setLoading(false);
+        return;
+      }
 
       const daysOfWeek = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+      // Rango para Volumen de Productividad y Resolución por Prioridad
+      let productivityDataTrends = [];
+      let priorityResolutionTrendData = [];
       
-      const weeklyData = last7Days.map(dateStr => {
-         const dateObj = parseISO(dateStr);
-         const dayName = daysOfWeek[dateObj.getDay()];
-         const dayTasks = allTasks.filter(t => t.due_date === dateStr && t.status === 'completed');
-         return {
-            name: dayName,
-            tasks: dayTasks.length
-         }
-      });
+      if (timeRange === 'yearly') {
+        for (let i = 11; i >= 0; i--) {
+          const d = subMonths(todayObj, i);
+          const monthKey = format(d, 'yyyy-MM');
+          const monthName = format(d, 'MMM', { locale: es });
+          
+          const monthTasks = allTasks.filter(t => 
+            t.status === 'completed' && 
+            t.completed_at && 
+            format(new Date(t.completed_at), 'yyyy-MM') === monthKey
+          );
+          
+          productivityDataTrends.push({
+            name: monthName.charAt(0).toUpperCase() + monthName.slice(1),
+            tasks: monthTasks.length
+          });
+
+          let alta = 0, media = 0, baja = 0;
+          monthTasks.forEach(t => {
+             if (t.priority == 3 || t.priority === 'high' || t.priority === '3') alta++;
+             else if (t.priority == 2 || t.priority === 'medium' || t.priority === '2') media++;
+             else if (t.priority == 1 || t.priority === 'low' || t.priority === '1') baja++;
+          });
+
+          priorityResolutionTrendData.push({
+            name: monthName.charAt(0).toUpperCase() + monthName.slice(1),
+            Alta: alta,
+            Media: media,
+            Baja: baja
+          });
+        }
+      } else {
+        const daysCount = timeRange === 'monthly' ? 30 : 7;
+        const rangeDates = Array.from({ length: daysCount }).map((_, i) => {
+          const d = subDays(todayObj, (daysCount - 1) - i);
+          return format(d, 'yyyy-MM-dd');
+        });
+
+        productivityDataTrends = rangeDates.map(dateStr => {
+           const dateObj = parseISO(dateStr);
+           const dayLabel = timeRange === 'monthly' ? format(dateObj, 'dd MMM', { locale: es }) : daysOfWeek[dateObj.getDay()];
+           const tasksForDay = allTasks.filter(t => 
+             t.status === 'completed' && 
+             t.completed_at && 
+             format(new Date(t.completed_at), 'yyyy-MM-dd') === dateStr
+           );
+           
+           return {
+              name: dayLabel,
+              tasks: tasksForDay.length
+           }
+        });
+
+        priorityResolutionTrendData = rangeDates.map(dateStr => {
+          const dateObj = parseISO(dateStr);
+          const dayLabel = timeRange === 'monthly' ? format(dateObj, 'dd MMM', { locale: es }) : daysOfWeek[dateObj.getDay()];
+          
+          const dayTasks = allTasks.filter(t => 
+            t.status === 'completed' && 
+            t.completed_at && 
+            format(new Date(t.completed_at), 'yyyy-MM-dd') === dateStr
+          );
+          
+          let alta = 0, media = 0, baja = 0;
+          dayTasks.forEach(t => {
+             if (t.priority == 3 || t.priority === 'high' || t.priority === '3') alta++;
+             else if (t.priority == 2 || t.priority === 'medium' || t.priority === '2') media++;
+             else if (t.priority == 1 || t.priority === 'low' || t.priority === '1') baja++;
+          });
+
+          return {
+             name: dayLabel,
+             Alta: alta,
+             Media: media,
+             Baja: baja
+          };
+        });
+      }
 
       // Priority
       let high = 0, medium = 0, low = 0, none = 0;
@@ -136,27 +207,7 @@ export default function StatsPage() {
         }
       });
 
-      // Resolución por prioridades
-      const priorityResolutionTrend = last7Days.map(dateStr => {
-        const dateObj = parseISO(dateStr);
-        const dayName = daysOfWeek[dateObj.getDay()];
-        
-        const dayTasks = allTasks.filter(t => t.status === 'completed' && t.completed_at && format(new Date(t.completed_at), 'yyyy-MM-dd') === dateStr);
-        
-        let alta = 0, media = 0, baja = 0;
-        dayTasks.forEach(t => {
-           if (t.priority == 3 || t.priority === 'high' || t.priority === '3') alta++;
-           else if (t.priority == 2 || t.priority === 'medium' || t.priority === '2') media++;
-           else if (t.priority == 1 || t.priority === 'low' || t.priority === '1') baja++;
-        });
-
-        return {
-           name: dayName,
-           Alta: alta,
-           Media: media,
-           Baja: baja
-        };
-      });
+      // Resolución por prioridades (calculado arriba)
 
       setStats({
         todayTasks: completedToday || 0,
@@ -164,12 +215,12 @@ export default function StatsPage() {
         successRate: totalGlobal ? Math.round(((completedGlobal || 0) / totalGlobal) * 100) : 0,
         streak: metrics?.streak_days || 0,
         totalCompleted: completedGlobal || 0,
-        weeklyData,
+        weeklyData: productivityDataTrends,
         priorityData: { high, medium, low, none },
         procrastination: { onTime: procOnTime, delayed: procDelayed },
         delayAge: { light: delayLight, medium: delayMedium, critical: delayCritical },
         punctuality: { onTime: puncOnTime, late: puncLate },
-        priorityResolutionTrend
+        priorityResolutionTrend: priorityResolutionTrendData
       });
       setLoading(false);
     }
@@ -177,7 +228,7 @@ export default function StatsPage() {
     if (!userLoading) {
       fetchRealStats();
     }
-  }, [userId, userLoading]);
+  }, [userId, userLoading, timeRange]);
 
   if (loading) {
     return (
@@ -222,9 +273,33 @@ export default function StatsPage() {
     <div className="flex w-full h-full bg-background overflow-y-auto px-6 py-8 md:p-12 pb-32 lg:pb-12 custom-scrollbar relative">
       <div className="max-w-[1200px] mx-auto w-full flex flex-col gap-8">
         
-        <header>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-on-surface mb-2">Análisis de Rendimiento</h1>
-          <p className="text-sm text-on-surface-variant font-medium">Métricas avanzadas de tiemp y eficiencia</p>
+        <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mr-0 md:mr-32 lg:mr-48">
+          <div className="flex-1">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tighter text-on-surface mb-2 bg-clip-text text-transparent bg-gradient-to-r from-on-surface to-on-surface-variant/50">Análisis de Rendimiento</h1>
+            <p className="text-sm text-on-surface-variant font-medium flex items-center gap-2">
+              <Activity size={14} className="text-primary" /> Métricas avanzadas de tiempo y eficiencia
+            </p>
+          </div>
+          
+          <div className="flex bg-surface-container-high/60 p-1 rounded-2xl backdrop-blur-3xl border border-white/10 self-start md:self-center shadow-2xl shadow-black/30">
+            {(['weekly', 'monthly', 'yearly'] as const).map((r) => (
+              <button
+                key={r}
+                onClick={() => setTimeRange(r)}
+                className={clsx(
+                  "text-[11px] px-5 py-2 rounded-xl font-bold transition-all duration-500 relative overflow-hidden group whitespace-nowrap",
+                  timeRange === r 
+                    ? "text-on-primary shadow-xl scale-[1.02]" 
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-white/5"
+                )}
+              >
+                {timeRange === r && (
+                  <div className="absolute inset-0 bg-primary animate-in fade-in zoom-in duration-500 -z-10" />
+                )}
+                <span className="relative z-10">{r === 'weekly' ? '7 Días' : r === 'monthly' ? '30 Días' : 'Año'}</span>
+              </button>
+            ))}
+          </div>
         </header>
 
         {/* Top Metrics Cards */}
@@ -367,7 +442,14 @@ export default function StatsPage() {
             <div className="h-[200px] w-full mt-2">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={stats.priorityResolutionTrend} margin={{ top: 5, right: 20, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--on-surface-variant)' }} dy={10} />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10, fill: 'var(--on-surface-variant)' }} 
+                    dy={10}
+                    interval={timeRange === 'monthly' ? 5 : 0}
+                  />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--on-surface-variant)' }} allowDecimals={false} />
                   <Tooltip cursor={{ fill: 'var(--surface-container)' }} contentStyle={{ backgroundColor: 'var(--surface-container-high)', borderRadius: '12px', border: 'none', color: 'white' }} />
                   <Bar dataKey="Baja" stackId="a" fill="#3B82F6" />
@@ -387,7 +469,9 @@ export default function StatsPage() {
           {/* Productivity Area Chart */}
           <div className="glass-panel p-6 rounded-3xl lg:col-span-2">
             <h3 className="text-xs font-bold tracking-widest text-on-surface-variant uppercase mb-6 flex justify-between">
-               Volumen de Productividad <span className="text-[10px] bg-surface-variant/50 px-2 py-1 rounded-md text-on-surface">Últimos 7 días</span>
+               Volumen de Productividad <span className="text-[10px] bg-surface-variant/50 px-2 py-1 rounded-md text-on-surface">
+                 {timeRange === 'weekly' ? 'Últimos 7 días' : timeRange === 'monthly' ? 'Últimos 30 días' : 'Último Año'}
+               </span>
             </h3>
             <div className="h-[250px] w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
@@ -398,7 +482,14 @@ export default function StatsPage() {
                       <stop offset="95%" stopColor="#6366F1" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--on-surface-variant)' }} dy={10} />
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 10, fill: 'var(--on-surface-variant)' }} 
+                    dy={10}
+                    interval={timeRange === 'monthly' ? 5 : 0}
+                  />
                   <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'var(--on-surface-variant)' }} allowDecimals={false} />
                   <Tooltip contentStyle={{ backgroundColor: 'var(--surface-container-high)', border: '1px solid var(--surface-variant)', borderRadius: '12px', fontSize: '12px', color: 'var(--on-surface)' }} />
                   <Area type="monotone" dataKey="tasks" name="Tareas Completadas" stroke="#6366F1" strokeWidth={3} fillOpacity={1} fill="url(#colorTasks)" style={{ filter: 'drop-shadow(0px 4px 12px rgba(99, 102, 241, 0.4))' }} />
