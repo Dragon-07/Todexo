@@ -1,0 +1,13 @@
+# env files (proteger secrets)
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Gemini/AI tools
+.gemini/
